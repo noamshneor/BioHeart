@@ -17,6 +17,7 @@ import matplotlib
 # matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from multiprocessing import Process
+import openpyxl
 
 
 # from ui_functions import summary_table_window_layout, loading_window_layout, path_load_window_layout, \
@@ -556,81 +557,85 @@ def graphs_window_layout():
     rides_list = list(range(1, par_ride_num + 1))
     layout_graphs_window = \
         [
-            [sg.Text(text="", background_color="transparent", size_px=(0, 90), )],  # first row
-            [  # second row
-                sg.Text(text="", background_color="transparent", size_px=(550, 50), justification="center"),
-                sg.Text(text="choose graph", background_color="transparent", text_color='black',
-                        size_px=(600, 100), font=("Century Gothic", 42, 'bold')),
-            ],
-            [  # third row
-                sg.Text("", background_color="transparent", size=(0, 20))
-            ],
             [
-                sg.Radio(group_id="GRAPH", text="   AVG BPM for specific participant", background_color="transparent",
-                         key='avg bpm 1 par', size_px=(670, 35), font=("Century Gothic", 16, 'bold'),
-                         enable_events=True, text_color='red'),
-                # sg.Graph(canvas_size=(400, 400), graph_bottom_left=(-105, -105), graph_top_right=(105, 105),
-                # background_color='white', key='graph', tooltip='This is a cool graph!')
-                # sg.Canvas(size=(200,200), background_color='white',key='-CANVAS-')
-            ],
-            [
-                sg.Text('        participants number:', size=(32, 1), background_color="transparent", visible=False,
-                        key='participant graph1',
-                        font=("Century Gothic", 12), text_color='black'),
-                sg.Combo(values=participants_list, size=[50, 25], key='combo_par_graph1', visible=False,
-                         enable_events=True,
-                         font=("Century Gothic", 12), readonly=True, default_value=""),
+                sg.Column(layout=[
+                    [sg.Text(text="", background_color="transparent", size_px=(0, 90), )],  # first row
+                    [  # second row
+                        sg.Text(text="", background_color="transparent", size_px=(550, 50), justification="center"),
+                        sg.Text(text="choose graph", background_color="transparent", text_color='black',
+                                size_px=(600, 100), font=("Century Gothic", 42, 'bold')),
+                    ],
+                    [  # third row
+                        sg.Text("", background_color="transparent", size=(0, 20))
+                    ],
+                    [
+                        sg.Radio(group_id="GRAPH", text="   AVG BPM for specific participant",
+                                 background_color="transparent",
+                                 key='avg bpm 1 par', size_px=(670, 35), font=("Century Gothic", 16, 'bold'),
+                                 enable_events=True, text_color='red'),
+                        # sg.Graph(canvas_size=(400, 400), graph_bottom_left=(-105, -105), graph_top_right=(105, 105),
+                        # background_color='white', key='graph', tooltip='This is a cool graph!')
+                        # sg.Canvas(size=(200,200), background_color='white',key='-CANVAS-')
+                    ],
+                    [
+                        sg.Text('        participants number:', size=(32, 1), background_color="transparent",
+                                visible=False,
+                                key='participant graph1',
+                                font=("Century Gothic", 12), text_color='black'),
+                        sg.Combo(values=participants_list, size=[50, 25], key='combo_par_graph1', visible=False,
+                                 enable_events=True,
+                                 font=("Century Gothic", 12), readonly=True, default_value=""),
 
-            ],
-            [
-                sg.Text('        ride number:', size=(32, 1), background_color="transparent", visible=False,
-                        key='ride graph1',
-                        font=("Century Gothic", 12), text_color='black'),
-                sg.Combo(values=rides_list, size=[50, 25], key='combo_ride_graph1', visible=False, enable_events=True,
-                         font=("Century Gothic", 12), readonly=True, default_value=""),
+                    ],
+                    [
+                        sg.Text('        ride number:', size=(32, 1), background_color="transparent", visible=False,
+                                key='ride graph1',
+                                font=("Century Gothic", 12), text_color='black'),
+                        sg.Combo(values=rides_list, size=[50, 25], key='combo_ride_graph1', visible=False,
+                                 enable_events=True,
+                                 font=("Century Gothic", 12), readonly=True, default_value=""),
 
-            ],
-            [
-                sg.Text("", background_color="transparent", size=(0, 40)),
-            ],
-            [
-                sg.Radio(group_id="GRAPH", text="  RMSSD of participants", background_color="transparent",
-                         key="rmssd for several par", size=(670, 35), font=("Century Gothic", 16, 'bold'),
-                         enable_events=True,
-                         text_color='red'),
-            ],
-            [
-                sg.Text('        participants number:', size=(32, 1), background_color="transparent", visible=False,
-                        key='participant graph2',
-                        font=("Century Gothic", 12), text_color='black'),
-                # sg.Input(size=[120, 25], key='combo_par_graph2', visible=False, enable_events=True,
-                # font=("Century Gothic", 12))
-                sg.Listbox(participants_list, size=(10, 2), key='combo_par_graph2', select_mode='multiple',
-                           visible=False, enable_events=True, font=("Century Gothic", 12))
+                    ],
+                    [
+                        sg.Text("", background_color="transparent", size=(0, 40)),
+                    ],
+                    [
+                        sg.Radio(group_id="GRAPH", text="  RMSSD of participants", background_color="transparent",
+                                 key="rmssd for several par", size=(670, 35), font=("Century Gothic", 16, 'bold'),
+                                 enable_events=True,
+                                 text_color='red'),
+                    ],
+                    [
+                        sg.Text('        participants number:', size=(32, 1), background_color="transparent",
+                                visible=False,
+                                key='participant graph2',
+                                font=("Century Gothic", 12), text_color='black'),
+                        # sg.Input(size=[120, 25], key='combo_par_graph2', visible=False, enable_events=True,
+                        # font=("Century Gothic", 12))
+                        sg.Listbox(participants_list, size=(10, 2), key='combo_par_graph2', select_mode='multiple',
+                                   visible=False, enable_events=True, font=("Century Gothic", 12))
 
-            ],
-            [
-                sg.Text('        ride number:', size=(32, 1), background_color="transparent", visible=False,
-                        key='ride graph2', font=("Century Gothic", 12), text_color='black'),
-                sg.Combo(values=rides_list, size=[50, 25], key='combo_ride_graph2', visible=False, enable_events=True,
-                         font=("Century Gothic", 12), readonly=True),
+                    ],
+                    [
+                        sg.Text('        ride number:', size=(32, 1), background_color="transparent", visible=False,
+                                key='ride graph2', font=("Century Gothic", 12), text_color='black'),
+                        sg.Combo(values=rides_list, size=[50, 25], key='combo_ride_graph2', visible=False,
+                                 enable_events=True,
+                                 font=("Century Gothic", 12), readonly=True),
 
-            ],
-            [
-                sg.Text("", background_color="transparent", size=(0, 200)),
-            ],
-            [
-                sg.Text("", background_color="transparent", size=(320, 200)),
-            ],
-            [
-                sg.Text("", background_color="transparent", size=(630, 35),
-                        font=("Century Gothic", 16)),
-                sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="graphs back",
-                          enable_events=True),
-                sg.Text("", background_color="transparent", size=(80, 35),
-                        font=("Century Gothic", 16)),
-                sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_GRAPH",
-                          enable_events=True)
+                    ],
+                    [
+                        sg.Text("", background_color="transparent", size=(0, 200)),
+                    ],
+                    [
+                        sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="graphs back",
+                                  enable_events=True),
+                        sg.Text("", background_color="transparent", size=(80, 35),
+                                font=("Century Gothic", 16)),
+                        sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_GRAPH",
+                                  enable_events=True)
+                    ]
+                ], background_color="transparent")
             ]
 
         ]
@@ -918,7 +923,6 @@ def ui():
     layout_open_window = open_window_layout()
     layout_path_load_window = path_load_window_layout()
     layout_loading_window = loading_window_layout()
-    layout_graphs_window = graphs_window_layout()
 
     correct_open_window = False  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
     correct_path_window = False  # האם כל הפרטים במסך הנתיב מולאו בצורה נכונה
@@ -1003,6 +1007,7 @@ def ui():
                                 if checkFiles(new_load_list,
                                               values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
+                                    main_path = values2["-MAIN FOLDER-"]
                                     break  # אפשר לעצור את הלולאה והחלון ייסגר
                         else:  # מדובר בטעינה קיימת
                             newload = False
@@ -1011,13 +1016,14 @@ def ui():
                             if checkFolders(exist_load_list, values2):
                                 if checkFiles(exist_load_list, values2):
                                     correct_path_window = True
+                                    main_path = values2["-MAIN FOLDER-"]
                                     break
         path_load_window.close()
 
     if correct_path_window:  # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
         # ------------------------------------------- LOADING Window -------------------------------------------
         loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
-                                   disable_minimize=False, no_titlebar=True, keep_on_top=True,
+                                   disable_minimize=True,
                                    location=(700, 250), background_image="load.png", element_padding=(0, 0),
                                    finalize=True)
         start_time = time.time()  # קביעת זמן התחלת ריצת החלון
@@ -1039,13 +1045,13 @@ def ui():
 
             loading_window.element("p bar").update_bar(percent * 100)
 
-            if percent * 100 == 99.99999999999999:  ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
+            if percent * 100 >= 99.9:  ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
                 break
-            if event3 == "p bar cancel":
+            if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
                 sys.exit()  # יציאה כפויה של התכנית, הטרד מת
         loading_window.close()
 
-    if percent * 100 == 99.99999999999999:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
+    if percent * 100 >= 99.9:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
         ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
         # ----------------------- Early Summary Table -----------------------
         summary_table_dataframe, summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
@@ -1059,6 +1065,7 @@ def ui():
                                          location=(90, 0), background_image="backsum.png",
                                          element_padding=(0, 0))
         # -------------------------- Graphs Window -----------------------------
+        layout_graphs_window = graphs_window_layout()
         graph_window = sg.Window(title="graphs", no_titlebar=False, layout=layout_graphs_window,
                                  size=(1730, 970), resizable=True, finalize=True,
                                  disable_minimize=True,
@@ -1131,7 +1138,7 @@ def ui():
                             # שמירת האינפוטים במשתנים
                             participant_num_input = int(values5['combo_par_graph1'])
                             ride_input = int(values5['combo_ride_graph1'])
-                            p1 = Process(target=draw_plot1, args=(participant_num_input, ride_input, table))
+                            p1 = Process(target=draw_plot1, args=(participant_num_input, ride_input, summary_table))
                             p1.start()
                             choose_graph_flag = False
 
@@ -1139,7 +1146,7 @@ def ui():
                             # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
                             participants_input = values5['combo_par_graph2']
                             ride_input = int(values5['combo_ride_graph2'])
-                            p2 = Process(target=draw_plot2, args=(participants_input, ride_input, table))
+                            p2 = Process(target=draw_plot2, args=(participants_input, ride_input, summary_table))
                             p2.start()
                             choose_graph_flag = False
 
@@ -1158,8 +1165,8 @@ if __name__ == '__main__':
     par_num = 3
     par_ride_num = 2
     current_par = 0
-    # path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
-    main_path = r"C:\Users\sapir\Desktop\project_gmar_path"
+    # path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
+    main_path = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
     treedata = sg.TreeData()
     header = ["Participant", "Ride Number", "Scenario", "Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50", "Baseline BPM",
               "Substraction BPM", "Baseline RMSSD", "Substraction RMSSD", "Baseline SDNN", "Substraction SDNN",
@@ -1183,11 +1190,12 @@ if __name__ == '__main__':
     # participants_input = [1, 2, 3]# for graph2
     # -------------------graph 1-נבדק מסויים בנסיעה מסויימת בכל התרחישים שלו וקצב הלב הממוצע-------------------
     # table = pandas.read_pickle("summary_table")
-    table = pandas.read_csv("summary_table_3par.csv")
-    print(table)
+    # table = pandas.read_csv("summary_table_3par.csv")
+    # print(table)
     ui()
-    """
-    #--------------------graph quickly------------------------------
+'''
+    # --------------------graph quickly------------------------------
+    table = pandas.read_pickle("summary_table")
     choose_graph_flag = False
     layout_graphs_window = graphs_window_layout()
     graph_window = sg.Window(title="graphs", layout=layout_graphs_window,
@@ -1199,7 +1207,7 @@ if __name__ == '__main__':
         event5, values5 = graph_window.read()
         graph_window.bring_to_front()
         print(event5)
-        if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:#אם שניהם לא לחוצים
+        if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
             choose_graph_flag = False
         else:
             choose_graph_flag = True
@@ -1212,7 +1220,6 @@ if __name__ == '__main__':
             graph_window['combo_par_graph2'].update(visible=False)
             graph_window['ride graph2'].update(visible=False)
             graph_window['combo_ride_graph2'].update(visible=False)
-
 
         if event5 == "rmssd for several par":
             graph_window['participant graph2'].update(visible=True)
@@ -1257,9 +1264,13 @@ if __name__ == '__main__':
                 choose_graph_flag = False
 
             else:
-                sg.popup_quick_message('Please choose graph before continue', font=("Century Gothic", 14), background_color='red', location=(970, 880))
+                sg.popup_quick_message('Please choose graph before continue', font=("Century Gothic", 14),
+                                       background_color='red', location=(970, 880))
     graph_window.close()
 
+'''
+
+"""
     print(table['Average BPM'])
     print(table['Scenario'])
     print(type(table))
@@ -1321,4 +1332,3 @@ if __name__ == '__main__':
     baseECG_pickle = pandas.read_pickle(main_path + "\\" + str(1) + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(1))
     print(baseECG_pickle)
 """
-
