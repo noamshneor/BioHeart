@@ -9,15 +9,14 @@ import pandas
 import numpy as np
 import os
 import PySimpleGUIQt as sg
-#import PySimpleGUI as psg
+# import PySimpleGUI as psg
 import matplotlib.pyplot as plt
 import sys
-#from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib
-#matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from multiprocessing import Process
-
 
 
 # from ui_functions import summary_table_window_layout, loading_window_layout, path_load_window_layout, \
@@ -505,25 +504,25 @@ def draw_plot1(participant_num_input, ride_input, table):
         (table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Average BPM']]
     print(y)
     plt.plot(x, y, marker='.')
-    plt.title('AVG BPM of participant ' + str(participant_num_input)+' in ride ' + str(ride_input)+', by scenario')
+    plt.title('AVG BPM of participant ' + str(participant_num_input) + ' in ride ' + str(ride_input) + ', by scenario')
     plt.xlabel('Scenario')
     plt.ylabel('AVG BPM')
     plt.show()
 
 
-
-def draw_plot2(participants_input, ride_input,table):
+def draw_plot2(participants_input, ride_input, table):
     for line_par in participants_input:
         x2 = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par), ['Scenario']]
         y2 = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par), ['RMSSD']]
-        #plt.plot(x2, y2, color='k', marker='.', label='participant'+str(line_par))
-        plt.plot(x2, y2, label='participant'+str(line_par))
-    plt.title('RMSSD of participants ' + str(participants_input)+' in ride ' + str(ride_input)+', by scenario')
+        # plt.plot(x2, y2, color='k', marker='.', label='participant'+str(line_par))
+        plt.plot(x2, y2, label='participant' + str(line_par))
+    plt.title('RMSSD of participants ' + str(participants_input) + ' in ride ' + str(ride_input) + ', by scenario')
     plt.xlabel('Scenario')
     plt.ylabel('RMSSD')
     plt.legend()  # מקרא
     plt.style.use('fivethirtyeight')
     plt.show()
+
 
 """
 def draw_figure(canvas, figure):
@@ -547,6 +546,8 @@ def PyplotSimple():
     fig = plt.gcf()  # get the figure to show
     return fig
 """
+
+
 ##########################################
 def graphs_window_layout():
     global par_num
@@ -566,10 +567,11 @@ def graphs_window_layout():
             ],
             [
                 sg.Radio(group_id="GRAPH", text="   AVG BPM for specific participant", background_color="transparent",
-                         key='avg bpm 1 par', size_px=(670, 35), font=("Century Gothic", 16, 'bold'), enable_events=True, text_color='red'),
-                #sg.Graph(canvas_size=(400, 400), graph_bottom_left=(-105, -105), graph_top_right=(105, 105),
-                        # background_color='white', key='graph', tooltip='This is a cool graph!')
-                #sg.Canvas(size=(200,200), background_color='white',key='-CANVAS-')
+                         key='avg bpm 1 par', size_px=(670, 35), font=("Century Gothic", 16, 'bold'),
+                         enable_events=True, text_color='red'),
+                # sg.Graph(canvas_size=(400, 400), graph_bottom_left=(-105, -105), graph_top_right=(105, 105),
+                # background_color='white', key='graph', tooltip='This is a cool graph!')
+                # sg.Canvas(size=(200,200), background_color='white',key='-CANVAS-')
             ],
             [
                 sg.Text('        participants number:', size=(32, 1), background_color="transparent", visible=False,
@@ -593,16 +595,18 @@ def graphs_window_layout():
             ],
             [
                 sg.Radio(group_id="GRAPH", text="  RMSSD of participants", background_color="transparent",
-                         key="rmssd for several par", size=(670, 35), font=("Century Gothic", 16, 'bold'), enable_events=True,
+                         key="rmssd for several par", size=(670, 35), font=("Century Gothic", 16, 'bold'),
+                         enable_events=True,
                          text_color='red'),
             ],
             [
                 sg.Text('        participants number:', size=(32, 1), background_color="transparent", visible=False,
                         key='participant graph2',
                         font=("Century Gothic", 12), text_color='black'),
-                #sg.Input(size=[120, 25], key='combo_par_graph2', visible=False, enable_events=True,
-                        # font=("Century Gothic", 12))
-                sg.Listbox(participants_list, size=(10, 2), key='combo_par_graph2', select_mode='multiple', visible=False,enable_events=True, font=("Century Gothic", 12))
+                # sg.Input(size=[120, 25], key='combo_par_graph2', visible=False, enable_events=True,
+                # font=("Century Gothic", 12))
+                sg.Listbox(participants_list, size=(10, 2), key='combo_par_graph2', select_mode='multiple',
+                           visible=False, enable_events=True, font=("Century Gothic", 12))
 
             ],
             [
@@ -839,7 +843,7 @@ def early_summary_table():
         summary_table_list[i][2] = summary_table_int[i][2]
     summary_table_list = [list(map(str, x)) for x in summary_table_list]  # make str list
     summary_table_dataframe = pandas.DataFrame(data=summary_table_list, columns=header)
-    #summary_table_dataframe.to_pickle("summary_table")
+    # summary_table_dataframe.to_pickle("summary_table")
     return summary_table_dataframe, summary_table_list
 
 
@@ -1035,13 +1039,13 @@ def ui():
 
             loading_window.element("p bar").update_bar(percent * 100)
 
-            if percent * 100 == 100:###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
+            if percent * 100 == 99.99999999999999:  ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
                 break
             if event3 == "p bar cancel":
                 sys.exit()  # יציאה כפויה של התכנית, הטרד מת
         loading_window.close()
 
-    if percent * 100 == 100:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
+    if percent * 100 == 99.99999999999999:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
         ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
         # ----------------------- Early Summary Table -----------------------
         summary_table_dataframe, summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
@@ -1055,15 +1059,15 @@ def ui():
                                          location=(90, 0), background_image="backsum.png",
                                          element_padding=(0, 0))
         # -------------------------- Graphs Window -----------------------------
-        graph_window = sg.Window(title="graphs",no_titlebar=False, layout=layout_graphs_window,
+        graph_window = sg.Window(title="graphs", no_titlebar=False, layout=layout_graphs_window,
                                  size=(1730, 970), resizable=True, finalize=True,
                                  disable_minimize=True,
                                  location=(90, 0), background_image="backsum.png",
                                  element_padding=(0, 0))
-        #figure_agg = None
-        #fig = PyplotSimple()
-        #figure_agg = draw_figure(graph_window['-CANVAS-'].TKCanvas, fig)
-        #canvas = FigureCanvasTkAgg(fig)
+        # figure_agg = None
+        # fig = PyplotSimple()
+        # figure_agg = draw_figure(graph_window['-CANVAS-'].TKCanvas, fig)
+        # canvas = FigureCanvasTkAgg(fig)
         graph_window.hide()
         while True:
             summary_table_window.element("SumTable").update(
@@ -1151,8 +1155,8 @@ if __name__ == '__main__':
     # ---------------------------------------------- INPUT ----------------------------------------------
     scenario_num = 7
     scenario_col_name = "Flag"
-    par_num = 1
-    par_ride_num = 1
+    par_num = 3
+    par_ride_num = 2
     current_par = 0
     # path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
     main_path = r"C:\Users\sapir\Desktop\project_gmar_path"
@@ -1255,7 +1259,7 @@ if __name__ == '__main__':
             else:
                 sg.popup_quick_message('Please choose graph before continue', font=("Century Gothic", 14), background_color='red', location=(970, 880))
     graph_window.close()
-    
+
     print(table['Average BPM'])
     print(table['Scenario'])
     print(type(table))
