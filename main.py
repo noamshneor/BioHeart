@@ -1118,7 +1118,7 @@ def ui():
                         graph_window['participant graph2'].update(visible=False)
                         graph_window['combo_par_graph2'].update(visible=False)
                         graph_window['ride graph2'].update(visible=False)
-                        graph_window['combo_ride_graph2'].update(visible=False)
+                        graph_window['combo_ride_graph3'].update(visible=False)
                         choose_graph_flag = False
                         break
 
