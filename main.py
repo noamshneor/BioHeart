@@ -1180,6 +1180,9 @@ if __name__ == '__main__':
               "Baseline SDSD", "Substraction SDSD", "Baseline PNN50",
               "Substraction PNN50"]
     summary_table = pandas.DataFrame(columns=header)  # create empty table,only with columns names
+    data_quality_table = pandas.DataFrame(columns=["Participant", "Ride Number", "Scenario", "Start time", "End time",
+                                                   "Total number of rows", "Number of empty rows", "% Completeness",
+                                                   "Minimum value", "Maximum value", "Median"])
     # summary_table = pandas.read_pickle("summary_table")
     # print(summary_table.values.tolist())
     # summary_table.to_csv()
