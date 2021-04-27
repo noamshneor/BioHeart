@@ -392,7 +392,7 @@ def early_process():
         current_par = par
         print(percent * 100)
     # print(summary_table)
-    summary_table.to_pickle("summary_table")
+    # summary_table.to_pickle("summary_table") # שמרתי בפיקל בפונקציה שמכינה את הטבלה המסכמת
 
 
 def pickle_early_process():
@@ -491,7 +491,7 @@ def pickle_early_process():
         current_par = par
         print(percent * 100)
     # print(summary_table)
-    # summary_table.to_pickle("summary_table")
+    # summary_table.to_pickle("summary_table") # שמרתי בפיקל בפונקציה שמכינה את הטבלה המסכמת
 
     # print(summary_table_par)#checked
     # summary_table_par.to_csv('summary_table_par.csv', index=False, header=True)#checked
@@ -840,6 +840,10 @@ def open_window_layout():
 
 
 def early_summary_table():
+    for i in range(len(summary_table.index)):
+        for j in header[3:len(header)]:
+            summary_table.at[i, j] = round(summary_table.at[i, j], 4)  # 4 ספרות אחרי הנקודה
+    summary_table.to_pickle("summary_table")  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     summary_table_list = summary_table.values.tolist()
     summary_table_int = [list(map(int, x)) for x in summary_table_list]
     for i in range(len(summary_table_list)):
@@ -847,9 +851,9 @@ def early_summary_table():
         summary_table_list[i][1] = summary_table_int[i][1]
         summary_table_list[i][2] = summary_table_int[i][2]
     summary_table_list = [list(map(str, x)) for x in summary_table_list]  # make str list
-    summary_table_dataframe = pandas.DataFrame(data=summary_table_list, columns=header)
+    # summary_table_dataframe = pandas.DataFrame(data=summary_table_list, columns=header)
     # summary_table_dataframe.to_pickle("summary_table")
-    return summary_table_dataframe, summary_table_list
+    return summary_table_list
 
 
 def checkFolders(load_list, values):
@@ -1045,16 +1049,16 @@ def ui():
 
             loading_window.element("p bar").update_bar(percent * 100)
 
-            if percent * 100 >= 99.9:  ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
+            if percent * 100 >= 99.99:  ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
                 break
             if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
                 sys.exit()  # יציאה כפויה של התכנית, הטרד מת
         loading_window.close()
 
-    if percent * 100 >= 99.9:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
+    if percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
         ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
         # ----------------------- Early Summary Table -----------------------
-        summary_table_dataframe, summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
+        summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
         layout_summary_table_window = summary_table_window_layout(
             summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
 
@@ -1083,7 +1087,7 @@ def ui():
             if event4 == "summary exit" or event4 == sg.WIN_CLOSED:
                 break
             if event4 == 'Export to CSV':
-                exportCSV(summary_table_dataframe, values4)
+                exportCSV(summary_table, values4)
             if event4 == "Graphs button":
                 summary_table_window.hide()
                 graph_window.un_hide()
