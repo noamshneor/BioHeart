@@ -43,9 +43,9 @@ def flag_match(par, parSIM, lst, col_name):
         if j < len(parSIM):
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG between time range in SIM
-                if int(parSIM.at[j - 1, scenario_col_name]) != 0:
-                    par.at[i, scenario_col_name] = parSIM.at[j, scenario_col_name]  # match the flag
-                    lst[par.at[i, scenario_col_name]].append(par.at[i, col_name])
+                if int(parSIM.at[j - 1, 'Scenario']) != 0:
+                    par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
+                    lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
                 i += 1  # move to the next ECG row to match
             else:
                 j += 1  # move to the next SIM start range
@@ -80,13 +80,12 @@ def RMSSD(file_RR):
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     # print(len(listRMSSD))
     # print(listRMSSD)
-    # print(listRMSSD[int(file_RR.at[line, scenario_col_name])])
+    # print(listRMSSD[int(file_RR.at[line, 'Scenario'])])
     while line < len(file_RR) - 1:  # Go over all the lines in the file_RR
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[
-            line + 1, scenario_col_name] != 0:  # if the scenario is not 0
-            listRMSSD[int(file_RR.at[line, scenario_col_name])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:  # if the scenario is not 0
+            listRMSSD[int(file_RR.at[line, 'Scenario'])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
                 line, 'RRIntervals']) ** 2  # The numerator in the rmssd formula, is listed according to the scenarios
-            list_count_rmssd[int(file_RR.at[line, scenario_col_name])] += 1  # counting intervals (N) for all scenarios
+            list_count_rmssd[int(file_RR.at[line, 'Scenario'])] += 1  # counting intervals (N) for all scenarios
         line = line + 1
     # print(listRMSSD)
     # print(list_count_rmssd)
@@ -109,8 +108,8 @@ def SDNN(file_RR):
     listSDNN = [0] * (scenario_num + 1)  # list of 8 places,with 0
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     while line < len(file_RR):
-        if file_RR.at[line, scenario_col_name] != 0:
-            listSumSDNN[int(file_RR.at[line, scenario_col_name])] += file_RR.at[line, 'RRIntervals']
+        if file_RR.at[line, 'Scenario'] != 0:
+            listSumSDNN[int(file_RR.at[line, 'Scenario'])] += file_RR.at[line, 'RRIntervals']
         line = line + 1
     # print("listSumSDNN")
     # print(listSumSDNN)  # checked
@@ -119,9 +118,9 @@ def SDNN(file_RR):
     # print(list_AVG_SDNN)  # checked
     line2 = 0
     while line2 < len(file_RR):
-        if file_RR.at[line2, scenario_col_name] != 0:
-            listSDNN[int(file_RR.at[line2, scenario_col_name])] += (file_RR.at[line2, 'RRIntervals'] - list_AVG_SDNN[
-                int(file_RR.at[line2, scenario_col_name])]) ** 2
+        if file_RR.at[line2, 'Scenario'] != 0:
+            listSDNN[int(file_RR.at[line2, 'Scenario'])] += (file_RR.at[line2, 'RRIntervals'] - list_AVG_SDNN[
+                int(file_RR.at[line2, 'Scenario'])]) ** 2
         line2 = line2 + 1
     for i in range(1, len(listSDNN)):
         listSDNN[i] = math.sqrt(listSDNN[i] / list_count_rmssd[i])
@@ -142,8 +141,8 @@ def SDSD(file_RR):
     list_AVG_SDSD = [0] * (scenario_num + 1)  # list of 8 places,with 0
     global list_count_rmssd
     while line < len(file_RR) - 1:
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[line + 1, scenario_col_name] != 0:
-            listSumSDSD[int(file_RR.at[line, scenario_col_name])] += (
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
+            listSumSDSD[int(file_RR.at[line, 'Scenario'])] += (
                     file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'])
         line = line + 1
     # print("listSumSDSD")
@@ -153,9 +152,9 @@ def SDSD(file_RR):
     # print(list_AVG_SDSD)
     line = 0
     while line < len(file_RR) - 1:
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[line + 1, scenario_col_name] != 0:
-            listSDSD[int(file_RR.at[line, scenario_col_name])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
-                line, 'RRIntervals'] - list_AVG_SDSD[int(file_RR.at[line, scenario_col_name])]) ** 2
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
+            listSDSD[int(file_RR.at[line, 'Scenario'])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
+                line, 'RRIntervals'] - list_AVG_SDSD[int(file_RR.at[line, 'Scenario'])]) ** 2
         line = line + 1
     # print("list_count_rmssd")
     # print(list_count_rmssd)
@@ -179,9 +178,9 @@ def PNN50(file_RR):
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
 
     while line < len(file_RR) - 1:
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[line + 1, scenario_col_name] != 0:
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
             if file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'] > 0.05:
-                list_count_above50[int(file_RR.at[line, scenario_col_name])] += 1
+                list_count_above50[int(file_RR.at[line, 'Scenario'])] += 1
         line = line + 1
     for i in range(1, len(listPNN50)):
         listPNN50[i] = (list_count_above50[i] / list_count_rmssd[i]) * 100
@@ -288,7 +287,7 @@ def early_process():
      and the heart rate variance
     """
     global scenario_num
-    global scenario_col_name
+    global scenario_col_num
     global par_num
     global par_ride_num
     global current_par
@@ -303,19 +302,19 @@ def early_process():
 
     for par in range(1, par_num + 1):  # loop for participants
         for ride in range(1, par_ride_num + 1):  # loop for rides
-            print("Start early process for ride: " + str(ride) + " for par: " + str(par))
+            print("Start early process for ride: " + str(ride) + "for par: " + str(par))
             list_count_rmssd = [0] * (scenario_num + 1)  # Initialize the list to zero for each scenario
             list_of_bpm_flag = [[] for i in
                                 range(scenario_num + 1)]  # Creates a list of lists as the number of scenarios
-            parECG = pandas.read_csv(os.path.join(main_path + "\\" + "ride " + str(ride) + "\\" + "ecg",
-                                                  os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "ecg")[par - 1]),
+            parECG = pandas.read_csv(os.path.join(main_path + "\\" + str(ride) + "\\" + "ecg",
+                                                  os.listdir(main_path + "\\" + str(ride) + "\\" + "ecg")[par - 1]),
                                      sep="\t", names=['mV', 'Volts', 'BPM', 'Time'], usecols=['BPM', 'Time'],
                                      skiprows=11, header=None)
             parECG['Time'] = [x / 1000 for x in range(0, (len(parECG)))]  # filling a time column
-            parSIM = pandas.read_csv(os.path.join(main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
-                                                  os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "sim")[par - 1]),
-                                     sep="\t", usecols=['Time', scenario_col_name])
-            parECG.insert(2, scenario_col_name, [0 for x in range(0, (len(parECG)))],
+            parSIM = pandas.read_csv(os.path.join(main_path + "\\" + str(ride) + "\\" + "sim",
+                                                  os.listdir(main_path + "\\" + str(ride) + "\\" + "sim")[par - 1]),
+                                     sep=",", skiprows=1, usecols=[0, scenario_col_num - 1], names=['Time', 'Scenario'])
+            parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                           True)  # adding scenario column and filling with 0
             flag_match(parECG, parSIM, list_of_bpm_flag,
                        'BPM')  # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
@@ -325,38 +324,38 @@ def early_process():
                 listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
 
             # convert to pickle the "clean files"
-            parECG.to_pickle(main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
-            parSIM.to_pickle(main_path + "\\" + "ride " + str(ride) + "\\" + "sim pkl" + "\pickle_parSIM" + str(par))
+            parECG.to_pickle(main_path + "\\" + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
+            parSIM.to_pickle(main_path + "\\" + str(ride) + "\\" + "sim pkl" + "\pickle_parSIM" + str(par))
 
-            parRR = pandas.read_excel(os.path.join(main_path + "\\" + "ride " + str(ride) + "\\" + "rr",
-                                                   os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "rr")[par - 1]),
+            parRR = pandas.read_excel(os.path.join(main_path + "\\" + str(ride) + "\\" + "rr",
+                                                   os.listdir(main_path + "\\" + str(ride) + "\\" + "rr")[par - 1]),
                                       names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                                       engine='openpyxl')
             parRR.insert(1, 'Time', [0.00 for x in range(0, (len(parRR)))], True)  # insert Time column with zero
-            parRR.insert(2, scenario_col_name, [0 for x in range(0, (len(parRR)))],
+            parRR.insert(2, 'Scenario', [0 for x in range(0, (len(parRR)))],
                          True)  # insert Scenario column with zero
             rr_time_match(parRR)  # function that fill the time column in parRR
             list_of_rr_flag = [[] for i in
                                range(scenario_num + 1)]  # Creates a list of lists as the number of scenarios
             flag_match(parRR, parSIM, list_of_rr_flag,
                        'RRIntervals')  # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
-            parRR.to_pickle(main_path + "\\" + "ride " + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
+            parRR.to_pickle(main_path + "\\" + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
             # print(parRR)
             # ------------------------------------------ BASE ---------------------------------------
-            baseECG = pandas.read_csv(os.path.join(main_path + "\\" + "base" + "\\" + "base ecg",
-                                                   os.listdir(main_path + "\\" + "base" + "\\" + "base ecg")[
+            baseECG = pandas.read_csv(os.path.join(main_path + "\\" + str(ride) + "\\" + "base ecg",
+                                                   os.listdir(main_path + "\\" + str(ride) + "\\" + "base ecg")[
                                                        par - 1]),
                                       sep="\t",
                                       names=['mV', 'Volts', 'BPM'], usecols=['BPM'],
                                       skiprows=11, header=None)
             avg_base = np.average(baseECG)  # avg for column BPM at baseECG
-            baseECG.to_pickle(main_path + "\\" + "base" + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
-            baseRR = pandas.read_excel(os.path.join(main_path + "\\" + "base" + "\\" + "base rr",
-                                                    os.listdir(main_path + "\\" + "base" + "\\" + "base rr")[
+            baseECG.to_pickle(main_path + "\\" + str(ride) + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
+            baseRR = pandas.read_excel(os.path.join(main_path + "\\" + str(ride) + "\\" + "base rr",
+                                                    os.listdir(main_path + "\\" + str(ride) + "\\" + "base rr")[
                                                         par - 1]),
                                        names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                                        engine='openpyxl')
-            baseRR.to_pickle(main_path + "\\" + "base" + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
+            baseRR.to_pickle(main_path + "\\" + str(ride) + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
             # ----------------------------------------------------------------------------------------------------------
             # filling summary table
             summary_table = summary_table.append(pandas.DataFrame({'Participant': [par] * scenario_num,
@@ -401,7 +400,7 @@ def pickle_early_process():
     The output is a summary table with the avg heart rate and the heart rate variance
     """
     global scenario_num
-    global scenario_col_name
+    global scenario_col_num
     global par_num
     global par_ride_num
     global current_par
@@ -416,17 +415,17 @@ def pickle_early_process():
 
     for par in range(1, par_num + 1):  # loop for participants
         for ride in range(1, par_ride_num + 1):  # loop for rides
-            print("Start early process for ride: " + str(ride) + " for par: " + str(par))
+            print("Start early process for ride: " + str(ride) + "for par: " + str(par))
             list_count_rmssd = [0] * (scenario_num + 1)  # Initialize the list to zero for each scenario
             list_of_bpm_flag = [[] for i in range(scenario_num + 1)]
             parECG_pickle = pandas.read_pickle(
-                main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
+                main_path + "\\" + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
             parRR_pickle = pandas.read_pickle(
-                main_path + "\\" + "ride " + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
+                main_path + "\\" + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
 
             line = 0
             while line < len(parECG_pickle):  # while there are still rows in ECG
-                list_of_bpm_flag[parECG_pickle.at[line, scenario_col_name]].append(
+                list_of_bpm_flag[parECG_pickle.at[line, 'Scenario']].append(
                     parECG_pickle.at[line, 'BPM'])  # create list of list-> BPM by scenario
                 line += 1  # move to the next ECG row
 
@@ -440,16 +439,16 @@ def pickle_early_process():
             list_of_rr_flag = [[] for i in range(scenario_num + 1)]
             line = 0
             while line < len(parRR_pickle):  # while there are still rows in RR file
-                list_of_rr_flag[parRR_pickle.at[line, scenario_col_name]].append(
+                list_of_rr_flag[parRR_pickle.at[line, 'Scenario']].append(
                     parRR_pickle.at[line, 'RRIntervals'])  # create list of list-> RR by scenario
                 line += 1  # move to the next ECG row
 
             # ------------------------------------------ BASE ---------------------------------------
             baseECG_pickle = pandas.read_pickle(
-                main_path + "\\" + "base" + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
+                main_path + "\\" + str(ride) + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
             avg_base = np.average(baseECG_pickle)
             baseRR_pickle = pandas.read_pickle(
-                main_path + "\\" + "base" + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
+                main_path + "\\" + str(ride) + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
             # ----------------------------------------------------------------------------------------------------------
             summary_table = summary_table.append(pandas.DataFrame({'Participant': [par] * scenario_num,
                                                                    'Ride Number': [ride] * scenario_num,
@@ -804,7 +803,7 @@ def open_window_layout():
                 sg.Input(size=[80, 40], justification="center", key="par_num", enable_events=True,
                          font=("Century Gothic", 14)),
                 sg.Text("          Number of participant’s rides", background_color="transparent",
-                        size=(650, 35), font=("Century Gothic", 18), text_color='black'),
+                        size=(630, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Combo(values=[1, 2, 3, 4, 5], size=[50, 40], key='par_ride_num', enable_events=True,
                          font=("Century Gothic", 16), readonly=True)
 
@@ -817,9 +816,9 @@ def open_window_layout():
                         size=(670, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_num', enable_events=True,
                          font=("Century Gothic", 14)),
-                sg.Text("          Scenario’s column name", background_color="transparent",
-                        size=(580, 35), font=("Century Gothic", 18), text_color='black'),
-                sg.InputText(size=[180, 40], justification="center", key='scenario_col_name', enable_events=True,
+                sg.Text("          Scenario’s column number", background_color="transparent",
+                        size=(630, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.InputText(size=[80, 40], justification="center", key='scenario_col_num', enable_events=True,
                              font=("Century Gothic", 14))
             ],
             [
@@ -856,52 +855,33 @@ def early_summary_table():
     return summary_table_list
 
 
-def checkFolders_of_rides(load_list, values):
+def checkFolders(load_list, values):
     flag = True
     message = "Missing folders:"
-    for ride in range(1, par_ride_num + 1):#מעבר על התיקיות של הנסיעות
-        for folder in range(0, len(load_list)):# rr,ecg, sim
-            if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + "ride " + str(ride) + "\\" + load_list[folder]):
+    for ride in range(1, par_ride_num + 1):
+        for folder in range(0, len(load_list)):
+            if not os.path.isdir(
+                    values["-MAIN FOLDER-"] + "\\" + str(ride) + "\\" + load_list[folder]):
                 flag = False
-                message += " " + "ride " + str(ride) + "\\" + load_list[folder] + " "
+                message += " " + str(ride) + "\\" + load_list[folder] + " "
     if not flag:
         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                background_color='red', location=(970, 880), auto_close_duration=5)
     return flag
 
-def checkFolders_of_base(load_list, values):
-    flag = True
-    message = "Missing folders:"
-    for folder in range(0, len(load_list)):# base rr, base ecg
-        if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder]):
-            flag = False
-            message += " " + "base" + "\\" + load_list[folder] + " "
-    if not flag:
-        sg.popup_quick_message(message, font=("Century Gothic", 14),
-                               background_color='red', location=(970, 880), auto_close_duration=5)
-    return flag
 
-def checkFiles_of_rides(load_list, values):
+def checkFiles(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
         par_num) + " FILES according to the number of participants"
     for ride in range(1, par_ride_num + 1):
         for folder in range(0, len(load_list)):
             if len(os.listdir(
-                    values["-MAIN FOLDER-"] + "\\" + "ride " + str(ride) + "\\" + load_list[folder])) != par_num:
+                    values["-MAIN FOLDER-"] + "\\" + str(ride) + "\\" + load_list[folder])) != par_num:
                 sg.popup_quick_message(message, font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880), auto_close_duration=5)
                 return False
     return True
 
-def checkFiles_of_base(load_list, values):
-    message = "Missing files! Each folder should have EXACTLY " + str(
-        par_num) + " FILES according to the number of participants"
-    for folder in range(0, len(load_list)):# base rr, bese ecg
-        if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != par_num:
-            sg.popup_quick_message(message, font=("Century Gothic", 14),
-                                   background_color='red', location=(970, 880), auto_close_duration=5)
-            return False
-    return True
 
 def exportCSV(summary_table_dataframe, values):
     headerlist = [True, True, True, values['Average BPM'], values['RMSSD'],
@@ -933,7 +913,7 @@ def add_files_in_folder(parent, dirname):
 def ui():
     global par_num
     global scenario_num
-    global scenario_col_name
+    global scenario_col_num
     global par_ride_num
     global current_par
     global summary_table
@@ -965,11 +945,14 @@ def ui():
             open_window['par_num'].update(values['par_num'][:-1])
         if event == 'scenario_num' and values['scenario_num'] and values['scenario_num'][-1] not in '0123456789':
             open_window['scenario_num'].update(values['scenario_num'][:-1])
+        if event == 'scenario_col_num' and values['scenario_col_num'] and values['scenario_col_num'][
+            -1] not in '0123456789':
+            open_window['scenario_col_num'].update(values['scenario_col_num'][:-1])
 
         if event == "CONTINUE_OPEN":
             # ----------------------------------------- SAVE INPUT -----------------------------------------
             if (not values['par_num']) or (not values['scenario_num']) or (
-                    not values['scenario_col_name']):
+                    not values['scenario_col_num']):
                 # בדיקה האם אחד מ3 השדות לפחות לא מלא
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
@@ -978,7 +961,7 @@ def ui():
                 par_num = int(values['par_num'])
                 par_ride_num = int(values['par_ride_num'])
                 scenario_num = int(values['scenario_num'])
-                scenario_col_name = values['scenario_col_name']
+                scenario_col_num = int(values['scenario_col_num'])
                 correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
                 break  # אפשר לעצור את הלולאה והחלון ייסגר
     open_window.close()  # פקודת סגירת חלון ביציאה מהלולאה
@@ -995,13 +978,13 @@ def ui():
             if event2 == "EXIT" or event2 == sg.WIN_CLOSED:
                 break
             if event2 == "-MAIN FOLDER-":
-                """
+                '''
                 treedata.tree_dict.clear()
                 treedata.root_node.children.clear()
                 treedata.root_node = treedata.Node("", "", 'root', [], None)
                 treedata.tree_dict[""] = treedata.root_node
                 print(treedata)
-                """
+                '''
                 if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
                     treedata = sg.TreeData()
                     add_files_in_folder('', values2["-MAIN FOLDER-"])
@@ -1016,32 +999,29 @@ def ui():
                     flag = True  # מסמן האם הכל תקין או שיש תיקיה חסרה
                     message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
                     for ride in range(1, par_ride_num + 1):
-                        if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
+                        if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + str(ride)):
                             flag = False  # יש תיקיה חסרה
-                            if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
-                                message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
-                            if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
-                                message += " \"" + "base" + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+                            message += " \"" + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
                     if not flag:  # אם יש תיקיה חסרה
                         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                                background_color='red', location=(970, 880), auto_close_duration=5)
-                    else:  # הכל תקין, אין תיקיה חסרה
+                    else:  # הכל תקין
                         if values2["NEW LOAD"]:  # אם מדובר בטעינה חדשה
                             newload = True
-                            new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
-                            new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
-                            if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(new_load_list_in_base,values2):  # בדיקת תיקיות קיימות
-                                if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(new_load_list_in_base,values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
+                            new_load_list = ["ecg", "sim", "rr", "base ecg", "base rr"]  # רשימת התיקיות לבדיקה
+                            if checkFolders(new_load_list, values2):  # בדיקת תיקיות קיימות
+                                if checkFiles(new_load_list,
+                                              values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     main_path = values2["-MAIN FOLDER-"]
                                     break  # אפשר לעצור את הלולאה והחלון ייסגר
                         else:  # מדובר בטעינה קיימת
                             newload = False
-                            exist_load_list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
-                            exist_load_list_in_base = ["base ecg pkl", "base rr pkl"] # רשימת התיקיות לבדיקה
-                            if checkFolders_of_rides(exist_load_list_in_ride, values2) and checkFolders_of_base(exist_load_list_in_base,values2):
-                                if checkFiles_of_rides(exist_load_list_in_ride, values2) and checkFiles_of_base(exist_load_list_in_base,values2):
-                                    correct_path_window = True # הכל תקין אפשר להמשיך
+                            exist_load_list = ["ecg pkl", "sim pkl", "rr pkl", "base ecg pkl",
+                                               "base rr pkl"]  # רשימת התיקיות לבדיקה
+                            if checkFolders(exist_load_list, values2):
+                                if checkFiles(exist_load_list, values2):
+                                    correct_path_window = True
                                     main_path = values2["-MAIN FOLDER-"]
                                     break
         path_load_window.close()
@@ -1187,10 +1167,11 @@ def ui():
 if __name__ == '__main__':
     # ---------------------------------------------- INPUT ----------------------------------------------
     scenario_num = 7
-    scenario_col_name = "Flag"
+    scenario_col_num = 11
     par_num = 3
     par_ride_num = 2
     current_par = 0
+    # path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
     # path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
     main_path = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
     treedata = sg.TreeData()
@@ -1219,6 +1200,10 @@ if __name__ == '__main__':
     # table = pandas.read_csv("summary_table_3par.csv")
     # print(table)
     ui()
+
+    # parSIM = pandas.read_csv(r'C:\Users\user\PycharmProjects\ProjectGmar\1par\main folder\1\sim\par1_drive1_manual.csv',
+    # sep=",", skiprows=1, usecols=[0, scenario_col_num - 1], names=['Time', 'Scenario'])
+    # print(parSIM)
 '''
     # --------------------graph quickly------------------------------
     table = pandas.read_pickle("summary_table")
