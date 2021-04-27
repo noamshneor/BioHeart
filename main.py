@@ -43,9 +43,9 @@ def flag_match(par, parSIM, lst, col_name):
         if j < len(parSIM):
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG between time range in SIM
-                if int(parSIM.at[j - 1, scenario_col_name]) != 0:
-                    par.at[i, scenario_col_name] = parSIM.at[j, scenario_col_name]  # match the flag
-                    lst[par.at[i, scenario_col_name]].append(par.at[i, col_name])
+                if int(parSIM.at[j - 1, 'Scenario']) != 0:
+                    par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
+                    lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
                 i += 1  # move to the next ECG row to match
             else:
                 j += 1  # move to the next SIM start range
@@ -80,13 +80,12 @@ def RMSSD(file_RR):
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     # print(len(listRMSSD))
     # print(listRMSSD)
-    # print(listRMSSD[int(file_RR.at[line, scenario_col_name])])
+    # print(listRMSSD[int(file_RR.at[line, 'Scenario'])])
     while line < len(file_RR) - 1:  # Go over all the lines in the file_RR
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[
-            line + 1, scenario_col_name] != 0:  # if the scenario is not 0
-            listRMSSD[int(file_RR.at[line, scenario_col_name])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:  # if the scenario is not 0
+            listRMSSD[int(file_RR.at[line, 'Scenario'])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
                 line, 'RRIntervals']) ** 2  # The numerator in the rmssd formula, is listed according to the scenarios
-            list_count_rmssd[int(file_RR.at[line, scenario_col_name])] += 1  # counting intervals (N) for all scenarios
+            list_count_rmssd[int(file_RR.at[line, 'Scenario'])] += 1  # counting intervals (N) for all scenarios
         line = line + 1
     # print(listRMSSD)
     # print(list_count_rmssd)
@@ -109,8 +108,8 @@ def SDNN(file_RR):
     listSDNN = [0] * (scenario_num + 1)  # list of 8 places,with 0
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     while line < len(file_RR):
-        if file_RR.at[line, scenario_col_name] != 0:
-            listSumSDNN[int(file_RR.at[line, scenario_col_name])] += file_RR.at[line, 'RRIntervals']
+        if file_RR.at[line, 'Scenario'] != 0:
+            listSumSDNN[int(file_RR.at[line, 'Scenario'])] += file_RR.at[line, 'RRIntervals']
         line = line + 1
     # print("listSumSDNN")
     # print(listSumSDNN)  # checked
@@ -119,9 +118,9 @@ def SDNN(file_RR):
     # print(list_AVG_SDNN)  # checked
     line2 = 0
     while line2 < len(file_RR):
-        if file_RR.at[line2, scenario_col_name] != 0:
-            listSDNN[int(file_RR.at[line2, scenario_col_name])] += (file_RR.at[line2, 'RRIntervals'] - list_AVG_SDNN[
-                int(file_RR.at[line2, scenario_col_name])]) ** 2
+        if file_RR.at[line2, 'Scenario'] != 0:
+            listSDNN[int(file_RR.at[line2, 'Scenario'])] += (file_RR.at[line2, 'RRIntervals'] - list_AVG_SDNN[
+                int(file_RR.at[line2, 'Scenario'])]) ** 2
         line2 = line2 + 1
     for i in range(1, len(listSDNN)):
         listSDNN[i] = math.sqrt(listSDNN[i] / list_count_rmssd[i])
@@ -142,8 +141,8 @@ def SDSD(file_RR):
     list_AVG_SDSD = [0] * (scenario_num + 1)  # list of 8 places,with 0
     global list_count_rmssd
     while line < len(file_RR) - 1:
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[line + 1, scenario_col_name] != 0:
-            listSumSDSD[int(file_RR.at[line, scenario_col_name])] += (
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
+            listSumSDSD[int(file_RR.at[line, 'Scenario'])] += (
                     file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'])
         line = line + 1
     # print("listSumSDSD")
@@ -153,9 +152,9 @@ def SDSD(file_RR):
     # print(list_AVG_SDSD)
     line = 0
     while line < len(file_RR) - 1:
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[line + 1, scenario_col_name] != 0:
-            listSDSD[int(file_RR.at[line, scenario_col_name])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
-                line, 'RRIntervals'] - list_AVG_SDSD[int(file_RR.at[line, scenario_col_name])]) ** 2
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
+            listSDSD[int(file_RR.at[line, 'Scenario'])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
+                line, 'RRIntervals'] - list_AVG_SDSD[int(file_RR.at[line, 'Scenario'])]) ** 2
         line = line + 1
     # print("list_count_rmssd")
     # print(list_count_rmssd)
@@ -179,9 +178,9 @@ def PNN50(file_RR):
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
 
     while line < len(file_RR) - 1:
-        if file_RR.at[line, scenario_col_name] != 0 and file_RR.at[line + 1, scenario_col_name] != 0:
+        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
             if file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'] > 0.05:
-                list_count_above50[int(file_RR.at[line, scenario_col_name])] += 1
+                list_count_above50[int(file_RR.at[line, 'Scenario'])] += 1
         line = line + 1
     for i in range(1, len(listPNN50)):
         listPNN50[i] = (list_count_above50[i] / list_count_rmssd[i]) * 100
@@ -288,7 +287,7 @@ def early_process():
      and the heart rate variance
     """
     global scenario_num
-    global scenario_col_name
+    global scenario_col_num
     global par_num
     global par_ride_num
     global current_par
@@ -314,8 +313,8 @@ def early_process():
             parECG['Time'] = [x / 1000 for x in range(0, (len(parECG)))]  # filling a time column
             parSIM = pandas.read_csv(os.path.join(main_path + "\\" + str(ride) + "\\" + "sim",
                                                   os.listdir(main_path + "\\" + str(ride) + "\\" + "sim")[par - 1]),
-                                     sep="\t", usecols=['Time', scenario_col_name])
-            parECG.insert(2, scenario_col_name, [0 for x in range(0, (len(parECG)))],
+                                     sep=",", skiprows=1, usecols=[0, scenario_col_num - 1], names=['Time', 'Scenario'])
+            parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                           True)  # adding scenario column and filling with 0
             flag_match(parECG, parSIM, list_of_bpm_flag,
                        'BPM')  # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
@@ -333,7 +332,7 @@ def early_process():
                                       names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                                       engine='openpyxl')
             parRR.insert(1, 'Time', [0.00 for x in range(0, (len(parRR)))], True)  # insert Time column with zero
-            parRR.insert(2, scenario_col_name, [0 for x in range(0, (len(parRR)))],
+            parRR.insert(2, 'Scenario', [0 for x in range(0, (len(parRR)))],
                          True)  # insert Scenario column with zero
             rr_time_match(parRR)  # function that fill the time column in parRR
             list_of_rr_flag = [[] for i in
@@ -401,7 +400,7 @@ def pickle_early_process():
     The output is a summary table with the avg heart rate and the heart rate variance
     """
     global scenario_num
-    global scenario_col_name
+    global scenario_col_num
     global par_num
     global par_ride_num
     global current_par
@@ -426,7 +425,7 @@ def pickle_early_process():
 
             line = 0
             while line < len(parECG_pickle):  # while there are still rows in ECG
-                list_of_bpm_flag[parECG_pickle.at[line, scenario_col_name]].append(
+                list_of_bpm_flag[parECG_pickle.at[line, 'Scenario']].append(
                     parECG_pickle.at[line, 'BPM'])  # create list of list-> BPM by scenario
                 line += 1  # move to the next ECG row
 
@@ -440,7 +439,7 @@ def pickle_early_process():
             list_of_rr_flag = [[] for i in range(scenario_num + 1)]
             line = 0
             while line < len(parRR_pickle):  # while there are still rows in RR file
-                list_of_rr_flag[parRR_pickle.at[line, scenario_col_name]].append(
+                list_of_rr_flag[parRR_pickle.at[line, 'Scenario']].append(
                     parRR_pickle.at[line, 'RRIntervals'])  # create list of list-> RR by scenario
                 line += 1  # move to the next ECG row
 
@@ -804,7 +803,7 @@ def open_window_layout():
                 sg.Input(size=[80, 40], justification="center", key="par_num", enable_events=True,
                          font=("Century Gothic", 14)),
                 sg.Text("          Number of participant’s rides", background_color="transparent",
-                        size=(650, 35), font=("Century Gothic", 18), text_color='black'),
+                        size=(630, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Combo(values=[1, 2, 3, 4, 5], size=[50, 40], key='par_ride_num', enable_events=True,
                          font=("Century Gothic", 16), readonly=True)
 
@@ -817,9 +816,9 @@ def open_window_layout():
                         size=(670, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_num', enable_events=True,
                          font=("Century Gothic", 14)),
-                sg.Text("          Scenario’s column name", background_color="transparent",
-                        size=(580, 35), font=("Century Gothic", 18), text_color='black'),
-                sg.InputText(size=[180, 40], justification="center", key='scenario_col_name', enable_events=True,
+                sg.Text("          Scenario’s column number", background_color="transparent",
+                        size=(630, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.InputText(size=[80, 40], justification="center", key='scenario_col_num', enable_events=True,
                              font=("Century Gothic", 14))
             ],
             [
@@ -914,7 +913,7 @@ def add_files_in_folder(parent, dirname):
 def ui():
     global par_num
     global scenario_num
-    global scenario_col_name
+    global scenario_col_num
     global par_ride_num
     global current_par
     global summary_table
@@ -946,11 +945,14 @@ def ui():
             open_window['par_num'].update(values['par_num'][:-1])
         if event == 'scenario_num' and values['scenario_num'] and values['scenario_num'][-1] not in '0123456789':
             open_window['scenario_num'].update(values['scenario_num'][:-1])
+        if event == 'scenario_col_num' and values['scenario_col_num'] and values['scenario_col_num'][
+            -1] not in '0123456789':
+            open_window['scenario_col_num'].update(values['scenario_col_num'][:-1])
 
         if event == "CONTINUE_OPEN":
             # ----------------------------------------- SAVE INPUT -----------------------------------------
             if (not values['par_num']) or (not values['scenario_num']) or (
-                    not values['scenario_col_name']):
+                    not values['scenario_col_num']):
                 # בדיקה האם אחד מ3 השדות לפחות לא מלא
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
@@ -959,7 +961,7 @@ def ui():
                 par_num = int(values['par_num'])
                 par_ride_num = int(values['par_ride_num'])
                 scenario_num = int(values['scenario_num'])
-                scenario_col_name = values['scenario_col_name']
+                scenario_col_num = int(values['scenario_col_num'])
                 correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
                 break  # אפשר לעצור את הלולאה והחלון ייסגר
     open_window.close()  # פקודת סגירת חלון ביציאה מהלולאה
@@ -1165,10 +1167,11 @@ def ui():
 if __name__ == '__main__':
     # ---------------------------------------------- INPUT ----------------------------------------------
     scenario_num = 7
-    scenario_col_name = "Flag"
+    scenario_col_num = 11
     par_num = 3
     par_ride_num = 2
     current_par = 0
+    # path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
     # path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
     main_path = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
     treedata = sg.TreeData()
@@ -1197,6 +1200,10 @@ if __name__ == '__main__':
     # table = pandas.read_csv("summary_table_3par.csv")
     # print(table)
     ui()
+
+    # parSIM = pandas.read_csv(r'C:\Users\user\PycharmProjects\ProjectGmar\1par\main folder\1\sim\par1_drive1_manual.csv',
+    # sep=",", skiprows=1, usecols=[0, scenario_col_num - 1], names=['Time', 'Scenario'])
+    # print(parSIM)
 '''
     # --------------------graph quickly------------------------------
     table = pandas.read_pickle("summary_table")
