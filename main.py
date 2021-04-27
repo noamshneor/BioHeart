@@ -343,20 +343,20 @@ def early_process():
             parRR.to_pickle(main_path + "\\" + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
             # print(parRR)
             # ------------------------------------------ BASE ---------------------------------------
-            baseECG = pandas.read_csv(os.path.join(main_path + "\\" + str(ride) + "\\" + "base ecg",
-                                                   os.listdir(main_path + "\\" + str(ride) + "\\" + "base ecg")[
+            baseECG = pandas.read_csv(os.path.join(main_path + "\\" + "base" + "\\" + "base ecg",
+                                                   os.listdir(main_path + "\\" + "base" + "\\" + "base ecg")[
                                                        par - 1]),
                                       sep="\t",
                                       names=['mV', 'Volts', 'BPM'], usecols=['BPM'],
                                       skiprows=11, header=None)
             avg_base = np.average(baseECG)  # avg for column BPM at baseECG
-            baseECG.to_pickle(main_path + "\\" + str(ride) + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
-            baseRR = pandas.read_excel(os.path.join(main_path + "\\" + str(ride) + "\\" + "base rr",
-                                                    os.listdir(main_path + "\\" + str(ride) + "\\" + "base rr")[
+            baseECG.to_pickle(main_path + "\\" + "base" + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
+            baseRR = pandas.read_excel(os.path.join(main_path + "\\" + "base" + "\\" + "base rr",
+                                                    os.listdir(main_path + "\\" + "base" + "\\" + "base rr")[
                                                         par - 1]),
                                        names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                                        engine='openpyxl')
-            baseRR.to_pickle(main_path + "\\" + str(ride) + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
+            baseRR.to_pickle(main_path + "\\" + "base" + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
             # ----------------------------------------------------------------------------------------------------------
             # filling summary table
             summary_table = summary_table.append(pandas.DataFrame({'Participant': [par] * scenario_num,
@@ -852,13 +852,12 @@ def early_summary_table():
     return summary_table_dataframe, summary_table_list
 
 
-def checkFolders(load_list, values):
+def checkFolders_of_rides(load_list, values):
     flag = True
     message = "Missing folders:"
-    for ride in range(1, par_ride_num + 1):
-        for folder in range(0, len(load_list)):
-            if not os.path.isdir(
-                    values["-MAIN FOLDER-"] + "\\" + str(ride) + "\\" + load_list[folder]):
+    for ride in range(1, par_ride_num + 1):#מעבר על התיקיות של הנסיעות
+        for folder in range(0, len(load_list)):# rr,ecg, sim
+            if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + str(ride) + "\\" + load_list[folder]):
                 flag = False
                 message += " " + str(ride) + "\\" + load_list[folder] + " "
     if not flag:
@@ -866,8 +865,19 @@ def checkFolders(load_list, values):
                                background_color='red', location=(970, 880), auto_close_duration=5)
     return flag
 
+def checkFolders_of_base(load_list, values):
+    flag = True
+    message = "Missing folders:"
+    for folder in range(0, len(load_list)):# base rr, base ecg
+        if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder]):
+            flag = False
+            message += " " + "base" + "\\" + load_list[folder] + " "
+    if not flag:
+        sg.popup_quick_message(message, font=("Century Gothic", 14),
+                               background_color='red', location=(970, 880), auto_close_duration=5)
+    return flag
 
-def checkFiles(load_list, values):
+def checkFiles_of_rides(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
         par_num) + " FILES according to the number of participants"
     for ride in range(1, par_ride_num + 1):
@@ -879,6 +889,15 @@ def checkFiles(load_list, values):
                 return False
     return True
 
+def checkFiles_of_base(load_list, values):
+    message = "Missing files! Each folder should have EXACTLY " + str(
+        par_num) + " FILES according to the number of participants"
+    for folder in range(0, len(load_list)):# base rr, bese ecg
+        if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != par_num:
+            sg.popup_quick_message(message, font=("Century Gothic", 14),
+                                   background_color='red', location=(970, 880), auto_close_duration=5)
+            return False
+    return True
 
 def exportCSV(summary_table_dataframe, values):
     headerlist = [True, True, True, values['Average BPM'], values['RMSSD'],
@@ -972,13 +991,13 @@ def ui():
             if event2 == "EXIT" or event2 == sg.WIN_CLOSED:
                 break
             if event2 == "-MAIN FOLDER-":
-                '''
+                """
                 treedata.tree_dict.clear()
                 treedata.root_node.children.clear()
                 treedata.root_node = treedata.Node("", "", 'root', [], None)
                 treedata.tree_dict[""] = treedata.root_node
                 print(treedata)
-                '''
+                """
                 if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
                     treedata = sg.TreeData()
                     add_files_in_folder('', values2["-MAIN FOLDER-"])
@@ -993,19 +1012,22 @@ def ui():
                     flag = True  # מסמן האם הכל תקין או שיש תיקיה חסרה
                     message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
                     for ride in range(1, par_ride_num + 1):
-                        if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + str(ride)):
+                        if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + str(ride)) or not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
                             flag = False  # יש תיקיה חסרה
-                            message += " \"" + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+                            if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + str(ride)):
+                                message += " \"" + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+                            if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
+                                message += " \"" + "base" + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
                     if not flag:  # אם יש תיקיה חסרה
                         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                                background_color='red', location=(970, 880), auto_close_duration=5)
-                    else:  # הכל תקין
+                    else:  # הכל תקין, אין תיקיה חסרה
                         if values2["NEW LOAD"]:  # אם מדובר בטעינה חדשה
                             newload = True
-                            new_load_list = ["ecg", "sim", "rr", "base ecg", "base rr"]  # רשימת התיקיות לבדיקה
-                            if checkFolders(new_load_list, values2):  # בדיקת תיקיות קיימות
-                                if checkFiles(new_load_list,
-                                              values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
+                            new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
+                            new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
+                            if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(new_load_list_in_base,values2):  # בדיקת תיקיות קיימות
+                                if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(new_load_list_in_base,values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     main_path = values2["-MAIN FOLDER-"]
                                     break  # אפשר לעצור את הלולאה והחלון ייסגר
@@ -1013,8 +1035,8 @@ def ui():
                             newload = False
                             exist_load_list = ["ecg pkl", "sim pkl", "rr pkl", "base ecg pkl",
                                                "base rr pkl"]  # רשימת התיקיות לבדיקה
-                            if checkFolders(exist_load_list, values2):
-                                if checkFiles(exist_load_list, values2):
+                            if checkFolders_of_rides(exist_load_list, values2):
+                                if checkFiles_of_rides(exist_load_list, values2):
                                     correct_path_window = True
                                     main_path = values2["-MAIN FOLDER-"]
                                     break
