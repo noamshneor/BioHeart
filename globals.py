@@ -14,9 +14,10 @@ def initialize():
     #global participant_num_input
     scenario_num = 7
     scenario_col_num = 11
-    par_num = 2
-    par_ride_num = 2
+    par_num = 1
+    par_ride_num = 1
     current_par = 0
     percent = 0
     list_count_rmssd = [0] * (scenario_num + 1)
-    main_path = r"C:\Users\sapir\Desktop\project_gmar_path_newFolders"# לבדוקק למה חייב את זה, ולא כקלט מהמשתמש
+    #main_path = r"C:\Users\sapir\Desktop\project_gmar_path_newFolders"# לבדוקק למה חייב את זה, ולא כקלט מהמשתמש
+    main_path = ""# לבדוקק למה חייב את זה, ולא כקלט מהמשתמש
