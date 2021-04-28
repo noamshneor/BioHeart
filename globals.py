@@ -1,3 +1,36 @@
+import pandas
+import PySimpleGUIQt as sg
+
+scenario_num = 0
+scenario_col_num = 0
+par_num = 0
+par_ride_num = 0
+current_par = 0
+percent = 0
+list_count_rmssd = [0] * (scenario_num + 1)
+# path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
+# path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
+main_path = ""
+treedata = sg.TreeData()
+header_summary_table = ["Participant", "Ride Number", "Scenario", "Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50",
+                        "Baseline BPM",
+                        "Substraction BPM", "Baseline RMSSD", "Substraction RMSSD", "Baseline SDNN",
+                        "Substraction SDNN",
+                        "Baseline SDSD", "Substraction SDSD", "Baseline PNN50",
+                        "Substraction PNN50"]
+summary_table = pandas.DataFrame(columns=header_summary_table)  # create empty table,only with columns names
+header_data_quality = ["Participant", "Ride Number", "Scenario", "Start time", "End time",
+                       "BPM(ecg) : Total number of rows", "BPM(ecg) : Number of empty rows",
+                       "BPM(ecg) : % Completeness", "BPM(ecg) : Minimum value",
+                       "BPM(ecg) : Maximum value", "BPM(ecg) : Median",
+                       "HRV methods(rr) : Total number of rows",
+                       "HRV methods(rr) : Number of empty rows",
+                       "HRV methods(rr) : % Completeness",
+                       "HRV methods(rr) : Minimum value",
+                       "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
+data_quality_table = pandas.DataFrame(columns=header_data_quality)
+
+"""
 def initialize():
     global scenario_num
     global scenario_col_num
@@ -8,16 +41,10 @@ def initialize():
     global percent
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     global summary_table
-    global header
+    global data_quality_table
+    global header_summary_table
+    global header_data_quality
     global treedata
-    global fig#???????????????
-    #global participant_num_input
-    scenario_num = 7
-    scenario_col_num = 11
-    par_num = 1
-    par_ride_num = 1
-    current_par = 0
-    percent = 0
-    list_count_rmssd = [0] * (scenario_num + 1)
-    #main_path = r"C:\Users\sapir\Desktop\project_gmar_path_newFolders"# לבדוקק למה חייב את זה, ולא כקלט מהמשתמש
-    main_path = ""# לבדוקק למה חייב את זה, ולא כקלט מהמשתמש
+    global fig  # ???????????????
+    # global participant_num_input
+"""
