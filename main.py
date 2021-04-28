@@ -1,4 +1,3 @@
-import collections
 import math
 import time
 import threading
@@ -9,19 +8,12 @@ import pandas
 import numpy as np
 import os
 import PySimpleGUIQt as sg
-# import PySimpleGUI as psg
 import matplotlib.pyplot as plt
 import sys
-# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib
-# matplotlib.use("TkAgg")
-from matplotlib.figure import Figure
 from multiprocessing import Process
 import openpyxl
 
 
-# from ui_functions import summary_table_window_layout, loading_window_layout, path_load_window_layout, \
-# open_window_layout, early_summary_table, checkFolders, checkFiles, exportCSV, add_files_in_folder
 # --------------------------------------------- EARLY PROCESS FUNCTIONS ---------------------------------------------
 def flag_match(par, parSIM, lst, col_name):
     """ Match the scenario flag
@@ -295,6 +287,7 @@ def early_process():
     global percent
     global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     global summary_table
+    global data_quality_table
 
     current_par = 0
     percent = 0  # Displays in percentages for how many participants the final table data has been processed
@@ -313,7 +306,8 @@ def early_process():
                                      skiprows=11, header=None)
             parECG['Time'] = [x / 1000 for x in range(0, (len(parECG)))]  # filling a time column
             parSIM = pandas.read_csv(os.path.join(main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
-                                                  os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "sim")[par - 1]),
+                                                  os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "sim")[
+                                                      par - 1]),
                                      sep=",", skiprows=1, usecols=[0, scenario_col_num - 1], names=['Time', 'Scenario'])
             parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                           True)  # adding scenario column and filling with 0
@@ -321,15 +315,18 @@ def early_process():
                        'BPM')  # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
 
             listBPM = []  # list of Average BPM by scenario
+            listBPM_per_scenario = []
             for i in range(1, scenario_num + 1):
                 listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
+                listBPM_per_scenario.append(len(list_of_bpm_flag[i]))
 
             # convert to pickle the "clean files"
             parECG.to_pickle(main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
             parSIM.to_pickle(main_path + "\\" + "ride " + str(ride) + "\\" + "sim pkl" + "\pickle_parSIM" + str(par))
 
             parRR = pandas.read_excel(os.path.join(main_path + "\\" + "ride " + str(ride) + "\\" + "rr",
-                                                   os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "rr")[par - 1]),
+                                                   os.listdir(main_path + "\\" + "ride " + str(ride) + "\\" + "rr")[
+                                                       par - 1]),
                                       names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                                       engine='openpyxl')
             parRR.insert(1, 'Time', [0.00 for x in range(0, (len(parRR)))], True)  # insert Time column with zero
@@ -388,6 +385,29 @@ def early_process():
             # print("last k:"+str(last_k))
             # print(summary_table_par[['Participant', 'Ride Number', 'Substraction BPM','Substraction RMSSD','Substraction SDNN','Substraction SDSD','Substraction PNN50']])
             # summary_table_par.to_pickle("summary_table_par" + str(par))#אם היינו רוצות לשמור טבלה לכל ניבדק בנפרד
+
+            '''
+            # filling data quality table
+            data_quality_table = \
+                data_quality_table.append(pandas.DataFrame({'Participant': [par] * scenario_num,
+                                                            'Ride Number': [ride] * scenario_num,
+                                                            'Scenario': list(range(1, scenario_num + 1)),
+                                                            "Start time": par,
+                                                            "End time": par,
+                                                            "BPM(ecg) : Total number of rows": listBPM_per_scenario,
+                                                            "BPM(ecg) : Number of empty rows": par,
+                                                            "BPM(ecg) : % Completeness": par,
+                                                            "BPM(ecg) : Minimum value": par,
+                                                            "BPM(ecg) : Maximum value": par,
+                                                            "BPM(ecg) : Median": par,
+                                                            "HRV methods(rr) : Total number of rows": par,
+                                                            "HRV methods(rr) : Number of empty rows": par,
+                                                            "HRV methods(rr) : % Completeness": par,
+                                                            "HRV methods(rr) : Minimum value": par,
+                                                            "HRV methods(rr) : Maximum value": par,
+                                                            "HRV methods(rr) : Median": par}))
+            summary_table.reset_index(drop=True, inplace=True)
+            '''
             percent += (1 / par_num) / par_ride_num
         current_par = par
         print(percent * 100)
@@ -418,7 +438,7 @@ def pickle_early_process():
         for ride in range(1, par_ride_num + 1):  # loop for rides
             print("Start early process for ride: " + str(ride) + " for par: " + str(par))
             list_count_rmssd = [0] * (scenario_num + 1)  # Initialize the list to zero for each scenario
-            list_of_bpm_flag = [[] for i in range(scenario_num + 1)]
+            list_of_bpm_flag = [[] for i in range(scenario_num + 1)]  # רשימה של רשימות של כל ערכי הBPM לתרחיש מסוים
             parECG_pickle = pandas.read_pickle(
                 main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
             parRR_pickle = pandas.read_pickle(
@@ -642,6 +662,35 @@ def graphs_window_layout():
     return layout_graphs_window
 
 
+def data_quality_table_window_layout():
+    global data_quality_table
+    global header_data_quality
+
+    layout_data_quality_table_window = \
+        [
+            [
+                sg.Column(layout=[
+                    [sg.Text(text="", background_color="transparent", size_px=(0, 80))],
+                    [sg.Table(values=[[""] * len(header_data_quality)], headings=header_data_quality,
+                              auto_size_columns=True, bind_return_key=True,
+                              num_rows=18, background_color="white", alternating_row_color="lightblue",
+                              enable_events=True, key="DataQTable", font=("Century Gothic", 10),
+                              text_color="black", justification='center')],
+                    [
+                        sg.Text(text="", background_color="transparent", size_px=(700, 50)),
+                        sg.Button(button_text="EXPORT", size_px=(150, 60), key="dq export", enable_events=True,
+                                  font=("Century Gothic", 16)),
+                        sg.Text(text="", background_color="transparent", size_px=(100, 0)),
+                        sg.Button(button_text="BACK", size_px=(150, 60), key="dq back", enable_events=True,
+                                  font=("Century Gothic", 16))
+                    ],
+                ], background_color="transparent"
+                )
+            ]
+        ]
+    return layout_data_quality_table_window
+
+
 def summary_table_window_layout(summary_table_list):
     global summary_table
     global header
@@ -670,19 +719,22 @@ def summary_table_window_layout(summary_table_list):
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
                     [sg.Table(values=summary_table_list, headings=header,
-                              auto_size_columns=True,
-                              num_rows=18, background_color="white",
+                              auto_size_columns=True, bind_return_key=True,
+                              num_rows=18, background_color="white", alternating_row_color="lightblue",
                               enable_events=True, key="SumTable", font=("Century Gothic", 10),
                               text_color="black", justification='center')],
                     [sg.Text(text="", background_color="transparent", size_px=(100, 100))],
                 ], background_color="transparent"
                 ),
                 sg.Column(layout=[
-                    [sg.Text(text="", background_color="transparent", size_px=(200, 450))],
-                    [sg.Button(button_text="Graphs", size_px=(150, 60), key="Graphs button", enable_events=True,
+                    [sg.Text(text="", background_color="transparent", size_px=(200, 250))],
+                    [sg.Button(button_text="Data Quality", size_px=(220, 60), key="dq button", enable_events=True,
                                font=("Century Gothic", 16))],
                     [sg.Text(text="", background_color="transparent", size_px=(200, 50))],
-                    [sg.Button(button_text="EXIT", size_px=(100, 60), key="summary exit", enable_events=True,
+                    [sg.Button(button_text="Graphs", size_px=(220, 60), key="Graphs button", enable_events=True,
+                               font=("Century Gothic", 16))],
+                    [sg.Text(text="", background_color="transparent", size_px=(200, 50))],
+                    [sg.Button(button_text="EXIT", size_px=(220, 60), key="summary exit", enable_events=True,
                                font=("Century Gothic", 16))],
                 ], background_color="transparent", element_justification="center"
                 )
@@ -859,8 +911,8 @@ def early_summary_table():
 def checkFolders_of_rides(load_list, values):
     flag = True
     message = "Missing folders:"
-    for ride in range(1, par_ride_num + 1):#מעבר על התיקיות של הנסיעות
-        for folder in range(0, len(load_list)):# rr,ecg, sim
+    for ride in range(1, par_ride_num + 1):  # מעבר על התיקיות של הנסיעות
+        for folder in range(0, len(load_list)):  # rr,ecg, sim
             if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + "ride " + str(ride) + "\\" + load_list[folder]):
                 flag = False
                 message += " " + "ride " + str(ride) + "\\" + load_list[folder] + " "
@@ -869,10 +921,11 @@ def checkFolders_of_rides(load_list, values):
                                background_color='red', location=(970, 880), auto_close_duration=5)
     return flag
 
+
 def checkFolders_of_base(load_list, values):
     flag = True
     message = "Missing folders:"
-    for folder in range(0, len(load_list)):# base rr, base ecg
+    for folder in range(0, len(load_list)):  # base rr, base ecg
         if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder]):
             flag = False
             message += " " + "base" + "\\" + load_list[folder] + " "
@@ -880,6 +933,7 @@ def checkFolders_of_base(load_list, values):
         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                background_color='red', location=(970, 880), auto_close_duration=5)
     return flag
+
 
 def checkFiles_of_rides(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
@@ -893,10 +947,11 @@ def checkFiles_of_rides(load_list, values):
                 return False
     return True
 
+
 def checkFiles_of_base(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
         par_num) + " FILES according to the number of participants"
-    for folder in range(0, len(load_list)):# base rr, bese ecg
+    for folder in range(0, len(load_list)):  # base rr, bese ecg
         if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != par_num:
             sg.popup_quick_message(message, font=("Century Gothic", 14),
                                    background_color='red', location=(970, 880), auto_close_duration=5)
@@ -1022,7 +1077,7 @@ def ui():
                     for ride in range(1, par_ride_num + 1):
                         if not os.path.isdir(
                                 values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(
-                                values2["-MAIN FOLDER-"] + "\\" + "base"):
+                            values2["-MAIN FOLDER-"] + "\\" + "base"):
                             flag = False  # יש תיקיה חסרה
                             if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
                                 message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
@@ -1094,13 +1149,20 @@ def ui():
         summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
         layout_summary_table_window = summary_table_window_layout(
             summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
-
         # ----------------------- Summary Table Window -----------------------
         summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
                                          size=(1730, 970), resizable=True, finalize=True,
                                          disable_minimize=True,
                                          location=(90, 0), background_image="backsum.png",
                                          element_padding=(0, 0))
+        # ----------------------- Data Quality Table Window -----------------------
+        layout_data_quality_table_window = data_quality_table_window_layout()
+        data_quality_table_window = sg.Window(title="Data Quality Table",
+                                              layout=layout_data_quality_table_window,
+                                              size=(1730, 970), resizable=True, finalize=True,
+                                              disable_minimize=True,
+                                              location=(90, 0), background_image="backsum.png",
+                                              element_padding=(0, 0))
         # -------------------------- Graphs Window -----------------------------
         layout_graphs_window = graphs_window_layout()
         graph_window = sg.Window(title="graphs", no_titlebar=False, layout=layout_graphs_window,
@@ -1113,10 +1175,13 @@ def ui():
         # figure_agg = draw_figure(graph_window['-CANVAS-'].TKCanvas, fig)
         # canvas = FigureCanvasTkAgg(fig)
         graph_window.hide()
+        data_quality_table_window.hide()
         while True:
-            summary_table_window.element("SumTable").update(
-                values=summary_table_list)  # לבדוק אם מיותר כי הטבלה מעודכנת גם בלי זה?
+            summary_table_window.element("SumTable").update(values=summary_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
             event4, values4 = summary_table_window.read()
+            if event4 == "SumTable":
+                if values4["SumTable"] == [0]:
+                    print("row1")
             if event4 == "summary exit" or event4 == sg.WIN_CLOSED:
                 break
             if event4 == 'Export to CSV':
@@ -1191,6 +1256,16 @@ def ui():
                             sg.popup_quick_message('Please choose graph before continue',
                                                    font=("Century Gothic", 14), background_color='red',
                                                    location=(970, 880))
+            if event4 == "dq button":
+                summary_table_window.hide()
+                data_quality_table_window.un_hide()
+                while True:
+                    event6, values6 = data_quality_table_window.read()
+                    if event6 == "dq back":
+                        data_quality_table_window.hide()
+                        summary_table_window.un_hide()
+
+        data_quality_table_window.close()
         graph_window.close()
         summary_table_window.close()
 
@@ -1211,9 +1286,17 @@ if __name__ == '__main__':
               "Baseline SDSD", "Substraction SDSD", "Baseline PNN50",
               "Substraction PNN50"]
     summary_table = pandas.DataFrame(columns=header)  # create empty table,only with columns names
-    data_quality_table = pandas.DataFrame(columns=["Participant", "Ride Number", "Scenario", "Start time", "End time",
-                                                   "Total number of rows", "Number of empty rows", "% Completeness",
-                                                   "Minimum value", "Maximum value", "Median"])
+    header_data_quality = ["Participant", "Ride Number", "Scenario", "Start time", "End time",
+                           "BPM(ecg) : Total number of rows", "BPM(ecg) : Number of empty rows",
+                           "BPM(ecg) : % Completeness", "BPM(ecg) : Minimum value",
+                           "BPM(ecg) : Maximum value", "BPM(ecg) : Median",
+                           "HRV methods(rr) : Total number of rows",
+                           "HRV methods(rr) : Number of empty rows",
+                           "HRV methods(rr) : % Completeness",
+                           "HRV methods(rr) : Minimum value",
+                           "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
+    data_quality_table = pandas.DataFrame(columns=header_data_quality)
+
     # summary_table = pandas.read_pickle("summary_table")
     # print(summary_table.values.tolist())
     # summary_table.to_csv()
