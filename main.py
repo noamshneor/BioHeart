@@ -829,7 +829,7 @@ def ui():
                                         new_load_list_in_base,
                                         values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
-                                    main_path = values2["-MAIN FOLDER-"]
+                                    globals.main_path = values2["-MAIN FOLDER-"]
                                     break  # אפשר לעצור את הלולאה והחלון ייסגר
                         else:  # מדובר בטעינה קיימת
                             newload = False
@@ -840,7 +840,7 @@ def ui():
                                 if checkFiles_of_rides(exist_load_list_in_ride, values2) and checkFiles_of_base(
                                         exist_load_list_in_base, values2):
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
-                                    main_path = values2["-MAIN FOLDER-"]
+                                    globals.main_path = values2["-MAIN FOLDER-"]
                                     break
         path_load_window.close()
 
