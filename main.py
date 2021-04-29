@@ -34,14 +34,18 @@ def flag_match(par, parSIM, lst, col_name):
     """
     i = 0
     j = 1
-    while i < len(par):  # while there are still rows to match in ECG
+    while i < len(par):  # while there are still rows to match in ECG/RR
         if j < len(parSIM):
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
-                # if time in ECG between time range in SIM
+                # if time in ECG/RR between time range in SIM
                 if int(parSIM.at[j - 1, 'Scenario']) != 0:
+                    if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario'])] == 0 and col_name == "BPM":
+                        globals.list_start_time[int(parSIM.at[j - 1, 'Scenario'])] = parSIM.at[j - 1, 'Time']  # insert start time for the specific scenario
                     par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
                     lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
-                i += 1  # move to the next ECG row to match
+                    if col_name == "BPM":
+                        globals.list_end_time[int(parSIM.at[j - 1, 'Scenario'])] = parSIM.at[j - 1, 'Time']  # insert end time - all the time till the end
+                i += 1  # move to the next ECG/RR row to match
             else:
                 j += 1  # move to the next SIM start range
 
@@ -100,6 +104,8 @@ def early_process():
                                      names=['Time', 'Scenario'])
             parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                           True)  # adding scenario column and filling with 0
+            globals.list_start_time = [0] * (globals.scenario_num + 1)
+            globals.list_end_time = [0] * (globals.scenario_num + 1)
             flag_match(parECG, parSIM, list_of_bpm_flag,
                        'BPM')  # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
 
@@ -186,8 +192,8 @@ def early_process():
                 data_quality_table.append(pandas.DataFrame({'Participant': [par] * scenario_num,
                                                             'Ride Number': [ride] * scenario_num,
                                                             'Scenario': list(range(1, scenario_num + 1)),
-                                                            "Start time": par,
-                                                            "End time": par,
+                                                            "Start time": list_start_time[1:len(list_start_time)],
+                                                            "End time": list_end_time[1:len(list_end_time)],
                                                             "BPM(ecg) : Total number of rows": listBPM_per_scenario,
                                                             "BPM(ecg) : Number of empty rows": par,
                                                             "BPM(ecg) : % Completeness": par,
@@ -205,6 +211,9 @@ def early_process():
             globals.percent += (1 / globals.par_num) / globals.par_ride_num
         globals.current_par = par
         print(globals.percent * 100)
+        print(globals.list_start_time)
+        print(globals.list_end_time)
+        print(listBPM_per_scenario)
     # print(summary_table)
     # summary_table.to_pickle("summary_table") # שמרתי בפיקל בפונקציה שמכינה את הטבלה המסכמת
 
