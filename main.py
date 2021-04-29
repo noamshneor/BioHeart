@@ -43,14 +43,17 @@ def flag_match(par, parSIM, lst, col_name):
                     lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
 
                     if col_name == "BPM":
-                        globals.list_end_time[int(parSIM.at[j - 1, 'Scenario'])-1] = parSIM.at[j - 1, 'Time']  # insert end time - all the time till the end
+                        globals.list_end_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(parSIM.at[j - 1, 'Time'],
+                                                                                             4)  # insert end time - all the time till the end
+                        if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
+                            globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(
+                                parSIM.at[j - 1, 'Time'], 4)  # insert start time for the specific scenario
                         if par.at[i, 'BPM'] < globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
                             globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
                         if par.at[i, 'BPM'] > globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
                             globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
-                        if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
-                            globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = parSIM.at[
-                                j - 1, 'Time']  # insert start time for the specific scenario
+                        if par.at[i, 'BPM'] is None:
+                            globals.list_null_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] += 1
                 i += 1  # move to the next ECG/RR row to match
             else:
                 j += 1  # move to the next SIM start range
@@ -112,8 +115,11 @@ def early_process():
                           True)  # adding scenario column and filling with 0
             globals.list_start_time = [0] * globals.scenario_num
             globals.list_end_time = [0] * globals.scenario_num
-            globals.list_min_bpm = [1000000] * globals.scenario_num
+            globals.list_min_bpm = [1000] * globals.scenario_num
             globals.list_max_bpm = [0] * globals.scenario_num
+            globals.list_null_bpm = [0] * globals.scenario_num
+            globals.list_completeness_bpm = [0] * globals.scenario_num
+            globals.list_median_bpm = [0] * globals.scenario_num
             flag_match(parECG, parSIM, list_of_bpm_flag,
                        'BPM')  # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
 
@@ -122,6 +128,12 @@ def early_process():
             for i in range(1, globals.scenario_num + 1):
                 listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
                 listBPM_per_scenario.append(len(list_of_bpm_flag[i]))
+                globals.list_median_bpm[i - 1] = np.median(list_of_bpm_flag[i])
+
+            for i in range(globals.scenario_num):
+                globals.list_completeness_bpm[i] = str(
+                    round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100,
+                          2)) + " %"
 
             # convert to pickle the "clean files"
             parECG.to_pickle(
@@ -194,28 +206,30 @@ def early_process():
             # print(summary_table_par[['Participant', 'Ride Number', 'Substraction BPM','Substraction RMSSD','Substraction SDNN','Substraction SDSD','Substraction PNN50']])
             # summary_table_par.to_pickle("summary_table_par" + str(par))#אם היינו רוצות לשמור טבלה לכל ניבדק בנפרד
 
-            '''
             # filling data quality table
-            data_quality_table = \
-                data_quality_table.append(pandas.DataFrame({'Participant': [par] * scenario_num,
-                                                            'Ride Number': [ride] * scenario_num,
-                                                            'Scenario': list(range(1, scenario_num + 1)),
-                                                            "Start time": globals.list_start_time,
-                                                            "End time": globals.list_end_time,
-                                                            "BPM(ecg) : Total number of rows": listBPM_per_scenario,
-                                                            "BPM(ecg) : Number of empty rows": par,
-                                                            "BPM(ecg) : % Completeness": par,
-                                                            "BPM(ecg) : Minimum value": globals.list_min_bpm,
-                                                            "BPM(ecg) : Maximum value": globals.list_max_bpm,
-                                                            "BPM(ecg) : Median": par,
+            globals.data_quality_table = \
+                globals.data_quality_table.append(pandas.DataFrame({'Participant': [par] * globals.scenario_num,
+                                                                    'Ride Number': [ride] * globals.scenario_num,
+                                                                    'Scenario': list(
+                                                                        range(1, globals.scenario_num + 1)),
+                                                                    "Start time": globals.list_start_time,
+                                                                    "End time": globals.list_end_time,
+                                                                    "BPM(ecg) : Total number of rows": listBPM_per_scenario,
+                                                                    "BPM(ecg) : Number of empty rows": globals.list_null_bpm,
+                                                                    "BPM(ecg) : % Completeness": globals.list_completeness_bpm,
+                                                                    "BPM(ecg) : Minimum value": globals.list_min_bpm,
+                                                                    "BPM(ecg) : Maximum value": globals.list_max_bpm,
+                                                                    "BPM(ecg) : Median": globals.list_median_bpm,
+                                                                    }))
+            globals.data_quality_table.reset_index(drop=True, inplace=True)
+            """
                                                             "HRV methods(rr) : Total number of rows": par,
                                                             "HRV methods(rr) : Number of empty rows": par,
                                                             "HRV methods(rr) : % Completeness": par,
                                                             "HRV methods(rr) : Minimum value": par,
                                                             "HRV methods(rr) : Maximum value": par,
-                                                            "HRV methods(rr) : Median": par}))
-            summary_table.reset_index(drop=True, inplace=True)
-            '''
+                                                            "HRV methods(rr) : Median": par
+            """
             globals.percent += (1 / globals.par_num) / globals.par_ride_num
         globals.current_par = par
         print(globals.percent * 100)
@@ -223,7 +237,11 @@ def early_process():
         print(globals.list_end_time)
         print(globals.list_min_bpm)
         print(globals.list_max_bpm)
-    # print(summary_table)
+        print(globals.list_null_bpm)
+        print(globals.list_completeness_bpm)
+        print(globals.list_median_bpm)
+    print(globals.data_quality_table)
+    # globals.data_quality_table.to_csv('data_quality_table.csv', index=False, header=True)
     # summary_table.to_pickle("summary_table") # שמרתי בפיקל בפונקציה שמכינה את הטבלה המסכמת
 
 
