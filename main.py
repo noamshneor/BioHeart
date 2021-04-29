@@ -303,31 +303,6 @@ def pickle_early_process():
     # summary_table_par.to_csv('summary_table_par.csv', index=False, header=True)#checked
 
 
-# --------------------------------------------- UI FUNCTIONS ---------------------------------------------
-"""
-def draw_figure(canvas, figure):
-    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
-    figure_canvas_agg.draw()
-    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
-    return figure_canvas_agg
-
-
-def delete_figure_agg(figure_agg):
-    figure_agg.get_tk_widget().forget()
-    plt.close('all')
-
-def PyplotSimple():
-    import numpy as np
-    import matplotlib.pyplot as plt
-    t = np.arange(0., 5., 0.2)
-
-    plt.plot(t, t, 'r--', t, t ** 2, 'bs', t, t ** 3, 'g^')
-
-    fig = plt.gcf()  # get the figure to show
-    return fig
-"""
-
-
 # --------------------------------------------- UI ---------------------------------------------
 def ui():
     # -------------------------------------------- Windows Layout --------------------------------------------
@@ -598,6 +573,7 @@ def ui():
                     if event6 == "dq back":
                         data_quality_table_window.hide()
                         summary_table_window.un_hide()
+                        break
 
         data_quality_table_window.close()
         graph_window.close()
