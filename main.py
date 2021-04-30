@@ -11,63 +11,13 @@ import sys
 from multiprocessing import Process
 import HRV_METHODS
 import globals
+from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existing_par, filling_summary_table, \
+    early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
+    initial_data_quality
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_summary_table, checkFolders_of_rides, checkFolders_of_base, \
-    checkFiles_of_rides, checkFiles_of_base, exportCSV, add_files_in_folder
-
-
-# --------------------------------------------- EARLY PROCESS FUNCTIONS ---------------------------------------------
-def flag_match(par, parSIM, lst, col_name):
-    """ Match the scenario flag
-    from:simulation data
-    to:ecg data
-    --> by time
-
-    :param par: DataFrame of par data
-    :param parSIM: DataFrame of SIMULATION data
-    :param lst: List of value for specific flag
-    :param col_name: column name
-    :type par: DataFrame
-    :type parSIM: DataFrame
-    :type col_name: str
-    """
-    i = 0
-    j = 1
-    while i < len(par):  # while there are still rows to match in ECG/RR
-        if j < len(parSIM):
-            if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
-                # if time in ECG/RR between time range in SIM
-                if int(parSIM.at[j - 1, 'Scenario']) != 0:
-                    par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
-                    lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
-
-                    if col_name == "BPM":
-                        globals.list_end_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(parSIM.at[j - 1, 'Time'],
-                                                                                             4)  # insert end time - all the time till the end
-                        if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
-                            globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(
-                                parSIM.at[j - 1, 'Time'], 4)  # insert start time for the specific scenario
-                        if par.at[i, 'BPM'] < globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
-                            globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
-                        if par.at[i, 'BPM'] > globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
-                            globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
-                        if par.at[i, 'BPM'] is None:
-                            globals.list_null_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] += 1
-                i += 1  # move to the next ECG/RR row to match
-            else:
-                j += 1  # move to the next SIM start range
-
-
-def rr_time_match(parRR):
-    """
-    filling Time coloumn in RR file
-    :param parRR: DataFrame of RR data
-    """
-    i = 1
-    while i < len(parRR):
-        parRR.at[i, 'Time'] = parRR.at[i - 1, 'Time'] + parRR.at[i - 1, 'RRIntervals']
-        i += 1
+    exportCSV, add_files_in_folder
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -77,25 +27,11 @@ def early_process():
     (adds columns, matches the scenario column by times for all the files)
     and performs the processing of the files. The output is a summary table with the avg heart rate
      and the heart rate variance
-
-    global scenario_num
-    global scenario_col_num
-    global par_num
-    global par_ride_num
-    global current_par
-    global main_path
-    global percent
-    global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
-    global summary_table
- """
+    """
     globals.current_par = 0
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
     last_k = 0  # variable that helps to know how many rows in the summary table has been filled
-    globals.list_of_existing_par = [*range(1, globals.par_num + 1)]
-    for num in globals.list_of_existing_par:
-        if num in globals.par_not_existing:
-            globals.list_of_existing_par.remove(num)
-    # print(globals.list_of_existing_par)
+    initial_list_of_existing_par()
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
@@ -106,131 +42,28 @@ def early_process():
                 # print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
-                    globals.list_count_rmssd = [0] * (
-                                globals.scenario_num + 1)  # Initialize the list to zero for each scenario
-                    list_of_bpm_flag = [[] for i in
-                                        range(
-                                            globals.scenario_num + 1)]  # Creates a list of lists as the number of scenarios
-                    parECG = pandas.read_csv(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "ecg",
-                                                          os.listdir(
-                                                              globals.main_path + "\\" + "ride " + str(
-                                                                  ride) + "\\" + "ecg")[
-                                                              index_in_folder]),
-                                             sep="\t", names=['mV', 'Volts', 'BPM', 'Time'], usecols=['BPM', 'Time'],
-                                             skiprows=11, header=None)
-                    parECG['Time'] = [x / 1000 for x in range(0, (len(parECG)))]  # filling a time column
-                    parSIM = pandas.read_csv(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
-                                                          os.listdir(
-                                                              globals.main_path + "\\" + "ride " + str(
-                                                                  ride) + "\\" + "sim")[
-                                                              index_in_folder]),
-                                             sep=",", skiprows=1, usecols=[0, globals.scenario_col_num - 1],
-                                             names=['Time', 'Scenario'])
-                    parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
-                                  True)  # adding scenario column and filling with 0
-                    globals.list_start_time = [0] * globals.scenario_num
-                    globals.list_end_time = [0] * globals.scenario_num
-                    globals.list_min_bpm = [1000] * globals.scenario_num
-                    globals.list_max_bpm = [0] * globals.scenario_num
-                    globals.list_null_bpm = [0] * globals.scenario_num
-                    globals.list_completeness_bpm = [0] * globals.scenario_num
-                    globals.list_median_bpm = [0] * globals.scenario_num
-                    flag_match(parECG, parSIM, list_of_bpm_flag,
-                               'BPM')  # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
-
-                    listBPM = []  # list of Average BPM by scenario
-                    listBPM_per_scenario = []
-                    for i in range(1, globals.scenario_num + 1):
-                        listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
-                        listBPM_per_scenario.append(len(list_of_bpm_flag[i]))
-                        globals.list_median_bpm[i - 1] = np.median(list_of_bpm_flag[i])
-
-                    for i in range(globals.scenario_num):
-                        globals.list_completeness_bpm[i] = str(
-                            round(
-                                ((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100,
-                                2)) + " %"
-
-                    # convert to pickle the "clean files"
-                    parECG.to_pickle(
-                        globals.main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
-                    parSIM.to_pickle(
-                        globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim pkl" + "\pickle_parSIM" + str(par))
-
-                    parRR = pandas.read_excel(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "rr",
-                                                           os.listdir(
-                                                               globals.main_path + "\\" + "ride " + str(
-                                                                   ride) + "\\" + "rr")[
-                                                               index_in_folder]),
-                                              names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
-                                              engine='openpyxl')
-                    parRR.insert(1, 'Time', [0.00 for x in range(0, (len(parRR)))],
-                                 True)  # insert Time column with zero
-                    parRR.insert(2, 'Scenario', [0 for x in range(0, (len(parRR)))],
-                                 True)  # insert Scenario column with zero
+                    # -------------------------------------------- ECG & SIM -----------------------------------------
+                    list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
+                    initial_data_quality()
+                    # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
+                    flag_match(parECG, parSIM, list_of_bpm_flag, 'BPM')
+                    listBPM, listBPM_per_scenario = avg_med_bpm(list_of_bpm_flag)
+                    dq_completeness_bpm(listBPM_per_scenario)
+                    # ------------------------------------------------ RR --------------------------------------------
+                    parRR = early_process_rr(index_in_folder, ride)
                     rr_time_match(parRR)  # function that fill the time column in parRR
-                    list_of_rr_flag = [[] for i in
-                                       range(
-                                           globals.scenario_num + 1)]  # Creates a list of lists as the number of scenarios
-                    flag_match(parRR, parSIM, list_of_rr_flag,
-                               'RRIntervals')  # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
-                    parRR.to_pickle(
-                        globals.main_path + "\\" + "ride " + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
-                    # print(parRR)
-                    # ------------------------------------------ BASE ---------------------------------------
-                    baseECG = pandas.read_csv(os.path.join(globals.main_path + "\\" + "base" + "\\" + "base ecg",
-                                                           os.listdir(
-                                                               globals.main_path + "\\" + "base" + "\\" + "base ecg")[
-                                                               index_in_folder]),
-                                              sep="\t",
-                                              names=['mV', 'Volts', 'BPM'], usecols=['BPM'],
-                                              skiprows=11, header=None)
-                    avg_base = np.average(baseECG)  # avg for column BPM at baseECG
-                    baseECG.to_pickle(
-                        globals.main_path + "\\" + "base" + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
-                    baseRR = pandas.read_excel(os.path.join(globals.main_path + "\\" + "base" + "\\" + "base rr",
-                                                            os.listdir(
-                                                                globals.main_path + "\\" + "base" + "\\" + "base rr")[
-                                                                index_in_folder]),
-                                               names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
-                                               engine='openpyxl')
-                    baseRR.to_pickle(
-                        globals.main_path + "\\" + "base" + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
-                    # ----------------------------------------------------------------------------------------------------------
-                    # filling summary table
-                    globals.summary_table = globals.summary_table.append(
-                        pandas.DataFrame({'Participant': [par] * globals.scenario_num,
-                                          'Ride Number': [ride] * globals.scenario_num,
-                                          'Scenario': list(range(1, globals.scenario_num + 1)),
-                                          'Average BPM': listBPM, 'RMSSD': HRV_METHODS.RMSSD(parRR),
-                                          'SDSD': HRV_METHODS.SDSD(parRR), 'SDNN': HRV_METHODS.SDNN(parRR),
-                                          'PNN50': HRV_METHODS.PNN50(parRR),
-                                          'Baseline BPM': [avg_base] * globals.scenario_num,
-                                          'Baseline RMSSD': HRV_METHODS.Baseline_RMSSD(baseRR),
-                                          'Baseline SDNN': HRV_METHODS.Baseline_SDNN(baseRR),
-                                          'Baseline SDSD': HRV_METHODS.Baseline_SDSD(baseRR),
-                                          'Baseline PNN50': HRV_METHODS.Baseline_PNN50(baseRR)}))
-                    globals.summary_table.reset_index(drop=True, inplace=True)
-                    for k in range(last_k,
-                                   last_k + globals.scenario_num):  # filling substraction columns,for participant&ride
-                        globals.summary_table.at[k, 'Substraction BPM'] = abs(
-                            globals.summary_table.at[k, 'Baseline BPM'] - globals.summary_table.at[k, 'Average BPM'])
-                        globals.summary_table.at[k, 'Substraction RMSSD'] = abs(
-                            globals.summary_table.at[k, 'Baseline RMSSD'] - globals.summary_table.at[k, 'RMSSD'])
-                        globals.summary_table.at[k, 'Substraction SDNN'] = abs(
-                            globals.summary_table.at[k, 'Baseline SDNN'] - globals.summary_table.at[k, 'SDNN'])
-                        globals.summary_table.at[k, 'Substraction SDSD'] = abs(
-                            globals.summary_table.at[k, 'Baseline SDSD'] - globals.summary_table.at[k, 'SDSD'])
-                        globals.summary_table.at[k, 'Substraction PNN50'] = abs(
-                            globals.summary_table.at[k, 'Baseline PNN50'] - globals.summary_table.at[k, 'PNN50'])
-                        # print(summary_table_par.at[k, 'Substraction BPM'])
-                        # print("k:"+str(k))
-                    last_k = last_k + globals.scenario_num
-                    # print("last k:"+str(last_k))
-                    # print(summary_table_par[['Participant', 'Ride Number', 'Substraction BPM','Substraction RMSSD','Substraction SDNN','Substraction SDSD','Substraction PNN50']])
-                    # summary_table_par.to_pickle("summary_table_par" + str(par))#אם היינו רוצות לשמור טבלה לכל ניבדק בנפרד
-
-                    # filling data quality table
+                    # Creates a list of lists as the number of scenarios
+                    list_of_rr_flag = [[] for i in range(globals.scenario_num + 1)]
+                    # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
+                    flag_match(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
+                    # ------------------------------------------ BASE RR & ECG ---------------------------------------
+                    avg_base, baseRR, baseECG = early_process_base(index_in_folder, par)
+                    # ------------------------------------------------------------------------------------------------
+                    # convert to pickle the "clean files"
+                    save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
+                    # ------------------------------------- filling summary table ------------------------------------
+                    last_k = filling_summary_table(avg_base, baseRR, last_k, listBPM, par, parRR, ride)
+                    # ----------------------------------- filling data quality table ---------------------------------
                     globals.data_quality_table = \
                         globals.data_quality_table.append(pandas.DataFrame({'Participant': [par] * globals.scenario_num,
                                                                             'Ride Number': [
@@ -267,7 +100,6 @@ def early_process():
         print(globals.list_median_bpm)
     print(globals.data_quality_table)
     # globals.data_quality_table.to_csv('data_quality_table.csv', index=False, header=True)
-    # summary_table.to_pickle("summary_table") # שמרתי בפיקל בפונקציה שמכינה את הטבלה המסכמת
 
 
 def pickle_early_process():
