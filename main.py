@@ -13,10 +13,10 @@ import HRV_METHODS
 import globals
 from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
-    initial_data_quality
+    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout
-from UI_FUNCTIONS import draw_plot1, draw_plot2, early_summary_table, checkFolders_of_rides, checkFolders_of_base, \
+from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV, add_files_in_folder
 
 
@@ -62,33 +62,16 @@ def early_process():
                     # ------------------------------------- filling summary table ------------------------------------
                     last_k = filling_summary_table(avg_base, baseRR, last_k, listBPM, par, parRR, ride)
                     # ----------------------------------- filling data quality table ---------------------------------
-                    globals.data_quality_table = \
-                        globals.data_quality_table.append(pandas.DataFrame({'Participant': [par] * globals.scenario_num,
-                                                                            'Ride Number': [
-                                                                                               ride] * globals.scenario_num,
-                                                                            'Scenario': list(
-                                                                                range(1, globals.scenario_num + 1)),
-                                                                            "Start time": globals.list_start_time,
-                                                                            "End time": globals.list_end_time,
-                                                                            "BPM(ecg) : Total number of rows": listBPM_per_scenario,
-                                                                            "BPM(ecg) : Number of empty rows": globals.list_null_bpm,
-                                                                            "BPM(ecg) : % Completeness": globals.list_completeness_bpm,
-                                                                            "BPM(ecg) : Minimum value": globals.list_min_bpm,
-                                                                            "BPM(ecg) : Maximum value": globals.list_max_bpm,
-                                                                            "BPM(ecg) : Median": globals.list_median_bpm,
-                                                                            }))
-                    globals.data_quality_table.reset_index(drop=True, inplace=True)
-                    """
-                                                                    "HRV methods(rr) : Total number of rows": par,
-                                                                    "HRV methods(rr) : Number of empty rows": par,
-                                                                    "HRV methods(rr) : % Completeness": par,
-                                                                    "HRV methods(rr) : Minimum value": par,
-                                                                    "HRV methods(rr) : Maximum value": par,
-                                                                    "HRV methods(rr) : Median": par
-                    """
+                    med_rr(list_of_rr_flag)
+                    dq_completeness_rr()
+                    filling_dq_table(listBPM_per_scenario, par, ride)
+
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
                 globals.current_par += 1
         print(globals.percent * 100)
+
+
+"""
         print(globals.list_start_time)
         print(globals.list_end_time)
         print(globals.list_min_bpm)
@@ -96,8 +79,14 @@ def early_process():
         print(globals.list_null_bpm)
         print(globals.list_completeness_bpm)
         print(globals.list_median_bpm)
+        print(globals.list_min_rr)
+        print(globals.list_max_rr)
+        print(globals.list_null_rr)
+        print(globals.list_completeness_rr)
+        print(globals.list_median_rr)
     print(globals.data_quality_table)
     # globals.data_quality_table.to_csv('data_quality_table.csv', index=False, header=True)
+"""
 
 
 def pickle_early_process():
@@ -341,11 +330,12 @@ def ui():
     if globals.percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
         ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
         # ----------------------- Early Summary Table -----------------------
-        summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
+        summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
         layout_summary_table_window = summary_table_window_layout(
             summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
+        dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
+        layout_data_quality_table_window = data_quality_table_window_layout(dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
         # ----------------------- Data Quality Table Window -----------------------
-        layout_data_quality_table_window = data_quality_table_window_layout()
         data_quality_table_window = sg.Window(title="Data Quality Table",
                                               layout=layout_data_quality_table_window,
                                               size=(1730, 970), resizable=True, finalize=True,
@@ -458,6 +448,8 @@ def ui():
                 summary_table_window.hide()
                 data_quality_table_window.un_hide()
                 while True:
+                    data_quality_table_window.element("DataQTable").update(
+                        values=dq_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
                     event6, values6 = data_quality_table_window.read()
                     if event6 == "dq back":
                         data_quality_table_window.hide()

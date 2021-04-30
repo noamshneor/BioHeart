@@ -8,13 +8,9 @@ def RMSSD(file_RR):
     :param file_RR: "clean" RR file (of specific participant & ride),and ready for process
     :type file_RR: DataFrame
     """
-    print()
-    # file_RR = pandas.read_pickle("pickle_parRR1")
-    # print(file_RR)
-    # file_RR.to_csv("RR_CSV", sep='\t')
     line = 0
-    listRMSSD = [0] * (
-            globals.scenario_num + 1)  # Creating a list whose number of places is the same as the number of scenarios, and fill it in zeros.
+    # Creating a list whose number of places is the same as the number of scenarios, and fill it in zeros.
+    listRMSSD = [0] * (globals.scenario_num + 1)
     # global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
     # print(len(listRMSSD))
     # print(listRMSSD)

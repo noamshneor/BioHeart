@@ -34,19 +34,32 @@ def draw_plot2(participants_input, ride_input, table):
     plt.show()
 
 
-def early_summary_table():
-    for i in range(len(globals.summary_table.index)):
-        for j in globals.header_summary_table[3:len(globals.header_summary_table)]:
-            globals.summary_table.at[i, j] = round(globals.summary_table.at[i, j], 4)  # 4 ספרות אחרי הנקודה
-    globals.summary_table.to_pickle("summary_table")  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    summary_table_list = globals.summary_table.values.tolist()
-    summary_table_int = [list(map(int, x)) for x in summary_table_list]
-    for i in range(len(summary_table_list)):
-        summary_table_list[i][0] = summary_table_int[i][0]
-        summary_table_list[i][1] = summary_table_int[i][1]
-        summary_table_list[i][2] = summary_table_int[i][2]
-    summary_table_list = [list(map(str, x)) for x in summary_table_list]  # make str list
-    return summary_table_list
+def early_table(filename):
+    if filename == "summary_table":
+        for i in range(len(globals.summary_table.index)):
+            for j in globals.header_summary_table[3:len(globals.header_summary_table)]:
+                globals.summary_table.at[i, j] = round(globals.summary_table.at[i, j], 4)  # 4 ספרות אחרי הנקודה
+        globals.summary_table.to_pickle(filename)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        summary_table_list = globals.summary_table.values.tolist()
+        summary_table_int = [list(map(int, x)) for x in summary_table_list]
+        for i in range(len(summary_table_list)):
+            summary_table_list[i][0] = summary_table_int[i][0]
+            summary_table_list[i][1] = summary_table_int[i][1]
+            summary_table_list[i][2] = summary_table_int[i][2]
+        summary_table_list = [list(map(str, x)) for x in summary_table_list]  # make str list
+        return summary_table_list
+    else:
+        globals.data_quality_table.to_pickle(filename)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        dq_table_list = globals.data_quality_table.values.tolist()
+        dq_table_int = [list(map(int, x)) for x in dq_table_list]
+        for i in range(len(dq_table_list)):
+            dq_table_list[i][0] = dq_table_int[i][0]
+            dq_table_list[i][1] = dq_table_int[i][1]
+            dq_table_list[i][2] = dq_table_int[i][2]
+            dq_table_list[i][7] = str(dq_table_list[i][7]) + ' %'
+            dq_table_list[i][13] = str(dq_table_list[i][13]) + ' %'
+        dq_table_list = [list(map(str, x)) for x in dq_table_list]  # make str list
+        return dq_table_list
 
 
 def checkFolders_of_rides(load_list, values):

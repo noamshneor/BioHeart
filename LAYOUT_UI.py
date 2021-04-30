@@ -95,13 +95,13 @@ def graphs_window_layout():
     return layout_graphs_window
 
 
-def data_quality_table_window_layout():
+def data_quality_table_window_layout(dq_table_list):
     layout_data_quality_table_window = \
         [
             [
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 80))],
-                    [sg.Table(values=[[""] * len(globals.header_data_quality)], headings=globals.header_data_quality,
+                    [sg.Table(values=dq_table_list, headings=globals.header_data_quality,
                               auto_size_columns=True, bind_return_key=True,
                               num_rows=18, background_color="white", alternating_row_color="lightblue",
                               enable_events=True, key="DataQTable", font=("Century Gothic", 10),

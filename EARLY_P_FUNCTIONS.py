@@ -33,13 +33,15 @@ def flag_match(par, parSIM, lst, col_name):
                     lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
 
                     if col_name == "BPM":
-                        dq_start_end_min_max_null(i, j, par, parSIM)
+                        dq_bpm_start_end_min_max_null(i, j, par, parSIM)
+                    if col_name == "RRIntervals":
+                        dq_rr_min_max_null(i, j, par, parSIM)
                 i += 1  # move to the next ECG/RR row to match
             else:
                 j += 1  # move to the next SIM start range
 
 
-def dq_start_end_min_max_null(i, j, par, parSIM):
+def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
     globals.list_end_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(parSIM.at[j - 1, 'Time'],
                                                                          4)  # insert end time - all the time till the end
     if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
@@ -51,6 +53,15 @@ def dq_start_end_min_max_null(i, j, par, parSIM):
         globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
     if par.at[i, 'BPM'] is None:
         globals.list_null_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] += 1
+
+
+def dq_rr_min_max_null(i, j, par, parSIM):
+    if par.at[i, 'RRIntervals'] < globals.list_min_rr[int(parSIM.at[j - 1, 'Scenario']) - 1]:
+        globals.list_min_rr[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'RRIntervals']
+    if par.at[i, 'RRIntervals'] > globals.list_max_rr[int(parSIM.at[j - 1, 'Scenario']) - 1]:
+        globals.list_max_rr[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'RRIntervals']
+    if par.at[i, 'RRIntervals'] is None:
+        globals.list_null_rr[int(parSIM.at[j - 1, 'Scenario']) - 1] += 1
 
 
 def rr_time_match(parRR):
@@ -102,6 +113,33 @@ def filling_summary_table(avg_base, baseRR, last_k, listBPM, par, parRR, ride):
     return last_k
 
 
+def filling_dq_table(listBPM_per_scenario, par, ride):
+    globals.data_quality_table = \
+        globals.data_quality_table.append(pandas.DataFrame({'Participant': [par] * globals.scenario_num,
+                                                            'Ride Number': [
+                                                                               ride] * globals.scenario_num,
+                                                            'Scenario': list(
+                                                                range(1, globals.scenario_num + 1)),
+                                                            "Start time": globals.list_start_time,
+                                                            "End time": globals.list_end_time,
+                                                            "BPM(ecg) : Total number of rows": listBPM_per_scenario,
+                                                            "BPM(ecg) : Number of empty rows": globals.list_null_bpm,
+                                                            "BPM(ecg) : % Completeness": globals.list_completeness_bpm,
+                                                            "BPM(ecg) : Minimum value": globals.list_min_bpm,
+                                                            "BPM(ecg) : Maximum value": globals.list_max_bpm,
+                                                            "BPM(ecg) : Median": globals.list_median_bpm,
+                                                            "HRV methods(rr) : Total number of rows": globals.list_count_rmssd[
+                                                                                                      1:len(
+                                                                                                          globals.list_count_rmssd)],
+                                                            "HRV methods(rr) : Number of empty rows": globals.list_null_rr,
+                                                            "HRV methods(rr) : % Completeness": globals.list_completeness_rr,
+                                                            "HRV methods(rr) : Minimum value": globals.list_min_rr,
+                                                            "HRV methods(rr) : Maximum value": globals.list_max_rr,
+                                                            "HRV methods(rr) : Median": globals.list_median_rr
+                                                            }))
+    globals.data_quality_table.reset_index(drop=True, inplace=True)
+
+
 def early_process_rr(index_in_folder, ride):
     parRR = pandas.read_excel(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "rr",
                                            os.listdir(
@@ -135,7 +173,16 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
         globals.list_completeness_bpm[i] = \
-            str(round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)) + " %"
+            round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2) \
+            # + " %"
+
+
+def dq_completeness_rr():
+    # print(globals.list_count_rmssd)
+    for i in range(globals.scenario_num):
+        globals.list_completeness_rr[i] = \
+            round(((globals.list_count_rmssd[i+1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[i+1]) * 100, 2) \
+            # + " %"
 
 
 def avg_med_bpm(list_of_bpm_flag):
@@ -144,8 +191,13 @@ def avg_med_bpm(list_of_bpm_flag):
     for i in range(1, globals.scenario_num + 1):
         listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
         listBPM_per_scenario.append(len(list_of_bpm_flag[i]))
-        globals.list_median_bpm[i - 1] = np.median(list_of_bpm_flag[i])
+        globals.list_median_bpm[i - 1] = round(np.median(list_of_bpm_flag[i]), 4)
     return listBPM, listBPM_per_scenario
+
+
+def med_rr(list_of_rr_flag):
+    for i in range(1, globals.scenario_num + 1):
+        globals.list_median_rr[i - 1] = round(np.median(list_of_rr_flag[i]), 4)
 
 
 def early_process_ecg_sim(index_in_folder, ride):
@@ -200,3 +252,8 @@ def initial_data_quality():
     globals.list_null_bpm = [0] * globals.scenario_num
     globals.list_completeness_bpm = [0] * globals.scenario_num
     globals.list_median_bpm = [0] * globals.scenario_num
+    globals.list_min_rr = [100] * globals.scenario_num
+    globals.list_max_rr = [0] * globals.scenario_num
+    globals.list_null_rr = [0] * globals.scenario_num
+    globals.list_completeness_rr = [0] * globals.scenario_num
+    globals.list_median_rr = [0] * globals.scenario_num
