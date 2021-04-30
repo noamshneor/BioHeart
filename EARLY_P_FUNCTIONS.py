@@ -5,6 +5,7 @@ import pandas
 
 import HRV_METHODS
 import globals
+import openpyxl
 
 
 def flag_match(par, parSIM, lst, col_name):
@@ -113,7 +114,9 @@ def early_process_rr(index_in_folder, ride):
                  True)  # insert Time column with zero
     parRR.insert(2, 'Scenario', [0 for x in range(0, (len(parRR)))],
                  True)  # insert Scenario column with zero
-    return parRR
+    # Creates a list of lists as the number of scenarios
+    list_of_rr_flag = [[] for i in range(globals.scenario_num + 1)]
+    return parRR, list_of_rr_flag
 
 
 def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
@@ -131,10 +134,8 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
-        globals.list_completeness_bpm[i] = str(
-            round(
-                ((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100,
-                2)) + " %"
+        globals.list_completeness_bpm[i] = \
+            str(round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)) + " %"
 
 
 def avg_med_bpm(list_of_bpm_flag):

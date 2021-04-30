@@ -35,11 +35,11 @@ def early_process():
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
-            # print(filename)
+            print(filename)
             if str(par) in filename:
                 index_in_folder = os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg").index(
                     filename)
-                # print(index_in_folder)  # checked
+                print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
                     # -------------------------------------------- ECG & SIM -----------------------------------------
@@ -50,10 +50,8 @@ def early_process():
                     listBPM, listBPM_per_scenario = avg_med_bpm(list_of_bpm_flag)
                     dq_completeness_bpm(listBPM_per_scenario)
                     # ------------------------------------------------ RR --------------------------------------------
-                    parRR = early_process_rr(index_in_folder, ride)
+                    parRR, list_of_rr_flag = early_process_rr(index_in_folder, ride)
                     rr_time_match(parRR)  # function that fill the time column in parRR
-                    # Creates a list of lists as the number of scenarios
-                    list_of_rr_flag = [[] for i in range(globals.scenario_num + 1)]
                     # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
                     flag_match(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
                     # ------------------------------------------ BASE RR & ECG ---------------------------------------
@@ -346,12 +344,6 @@ def ui():
         summary_table_list = early_summary_table()  # עיבוד מקדים לטבלה
         layout_summary_table_window = summary_table_window_layout(
             summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
-        # ----------------------- Summary Table Window -----------------------
-        summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
-                                         size=(1730, 970), resizable=True, finalize=True,
-                                         disable_minimize=True,
-                                         location=(90, 0), background_image="backsum.png",
-                                         element_padding=(0, 0))
         # ----------------------- Data Quality Table Window -----------------------
         layout_data_quality_table_window = data_quality_table_window_layout()
         data_quality_table_window = sg.Window(title="Data Quality Table",
@@ -360,6 +352,7 @@ def ui():
                                               disable_minimize=True,
                                               location=(90, 0), background_image="backsum.png",
                                               element_padding=(0, 0))
+        data_quality_table_window.hide()
         # -------------------------- Graphs Window -----------------------------
         layout_graphs_window = graphs_window_layout()
         graph_window = sg.Window(title="graphs", no_titlebar=False, layout=layout_graphs_window,
@@ -367,12 +360,18 @@ def ui():
                                  disable_minimize=True,
                                  location=(90, 0), background_image="backsum.png",
                                  element_padding=(0, 0))
+        graph_window.hide()
+        # ----------------------- Summary Table Window -----------------------
+        summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
+                                         size=(1730, 970), resizable=True, finalize=True,
+                                         disable_minimize=True,
+                                         location=(90, 0), background_image="backsum.png",
+                                         element_padding=(0, 0))
         # figure_agg = None
         # fig = PyplotSimple()
         # figure_agg = draw_figure(graph_window['-CANVAS-'].TKCanvas, fig)
         # canvas = FigureCanvasTkAgg(fig)
-        graph_window.hide()
-        data_quality_table_window.hide()
+
         while True:
             summary_table_window.element("SumTable").update(values=summary_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
             event4, values4 = summary_table_window.read()
