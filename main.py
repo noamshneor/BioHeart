@@ -55,7 +55,7 @@ def early_process():
                     # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
                     flag_match(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
                     # ------------------------------------------ BASE RR & ECG ---------------------------------------
-                    avg_base, baseRR, baseECG = early_process_base(index_in_folder, par)
+                    avg_base, baseRR, baseECG = early_process_base(index_in_folder)
                     # ------------------------------------------------------------------------------------------------
                     # convert to pickle the "clean files"
                     save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
@@ -321,14 +321,13 @@ def ui():
 
             loading_window.element("p bar").update_bar(globals.percent * 100)
 
-            if globals.percent * 100 >= 99.99:  ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
+            if globals.percent * 100 >= 99.99:
                 break
             if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
                 sys.exit()  # יציאה כפויה של התכנית, הטרד מת
         loading_window.close()
 
     if globals.percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
-        ###############################רק ככה הרצה של 3 משתתפים ו2 נסיעות עובדת
         # ----------------------- Early Summary Table -----------------------
         summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
         layout_summary_table_window = summary_table_window_layout(
@@ -339,16 +338,16 @@ def ui():
         data_quality_table_window = sg.Window(title="Data Quality Table",
                                               layout=layout_data_quality_table_window,
                                               size=(1730, 970), resizable=True, finalize=True,
-                                              disable_minimize=True,
-                                              location=(90, 0), background_image="backsum.png",
+                                              disable_minimize=True, no_titlebar=True,
+                                              location=(90, 20), background_image="backsum.png",
                                               element_padding=(0, 0))
         data_quality_table_window.hide()
         # -------------------------- Graphs Window -----------------------------
         layout_graphs_window = graphs_window_layout()
-        graph_window = sg.Window(title="graphs", no_titlebar=False, layout=layout_graphs_window,
+        graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
                                  size=(1730, 970), resizable=True, finalize=True,
                                  disable_minimize=True,
-                                 location=(90, 0), background_image="backsum.png",
+                                 location=(90, 20), background_image="backsum.png",
                                  element_padding=(0, 0))
         graph_window.hide()
         # ----------------------- Summary Table Window -----------------------
@@ -357,17 +356,10 @@ def ui():
                                          disable_minimize=True,
                                          location=(90, 0), background_image="backsum.png",
                                          element_padding=(0, 0))
-        # figure_agg = None
-        # fig = PyplotSimple()
-        # figure_agg = draw_figure(graph_window['-CANVAS-'].TKCanvas, fig)
-        # canvas = FigureCanvasTkAgg(fig)
 
         while True:
             summary_table_window.element("SumTable").update(values=summary_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
             event4, values4 = summary_table_window.read()
-            if event4 == "SumTable":
-                if values4["SumTable"] == [0]:
-                    print("row1")
             if event4 == "summary exit" or event4 == sg.WIN_CLOSED:
                 break
             if event4 == 'Export to CSV':
@@ -380,7 +372,7 @@ def ui():
                 while True:
                     event5, values5 = graph_window.read()
                     graph_window.bring_to_front()
-                    print(event5)
+                    # print(event5)
                     if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
                         choose_graph_flag = False
                     else:
@@ -406,8 +398,6 @@ def ui():
                         graph_window['combo_ride_graph1'].update(visible=False)
 
                     if event5 == "graphs back":
-                        # End program if user closes window or presses the EXIT button
-                        # summary_table_window.un_hide()
                         graph_window.hide()
                         summary_table_window.un_hide()
                         graph_window['participant graph1'].update(visible=False)
@@ -455,7 +445,19 @@ def ui():
                         data_quality_table_window.hide()
                         summary_table_window.un_hide()
                         break
-
+            if event4 == "SumTable":
+                if values4["SumTable"]:
+                    line = [dq_table_list[values4["SumTable"][0]]]
+                    summary_table_window.hide()
+                    data_quality_table_window.un_hide()
+                    while True:
+                        data_quality_table_window.element("DataQTable").update(
+                            values=line)  # מונע מהמשתמש לשנות ערכים בטבלה
+                        event7, values7 = data_quality_table_window.read()
+                        if event7 == "dq back":
+                            data_quality_table_window.hide()
+                            summary_table_window.un_hide()
+                            break
         data_quality_table_window.close()
         graph_window.close()
         summary_table_window.close()
