@@ -179,16 +179,13 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
         globals.list_completeness_bpm[i] = \
-            round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2) \
-            # + " %"
+            round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)
 
 
 def dq_completeness_rr():
-    # print(globals.list_count_rmssd)
     for i in range(globals.scenario_num):
         globals.list_completeness_rr[i] = \
-            round(((globals.list_count_rmssd[i+1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[i+1]) * 100, 2) \
-            # + " %"
+            round(((globals.list_count_rmssd[i+1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[i+1]) * 100, 2)
 
 
 def avg_med_bpm(list_of_bpm_flag):
@@ -232,7 +229,7 @@ def early_process_ecg_sim(index_in_folder, ride):
     return list_of_bpm_flag, parECG, parSIM
 
 
-def early_process_base(index_in_folder, par):
+def early_process_base(index_in_folder):
     baseECG = pandas.read_csv(os.path.join(globals.main_path + "\\" + "base" + "\\" + "base ecg",
                                            os.listdir(
                                                globals.main_path + "\\" + "base" + "\\" + "base ecg")[

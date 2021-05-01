@@ -127,18 +127,36 @@ def summary_table_window_layout(summary_table_list):
             [
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 140), )],
-                    [sg.Checkbox("Average BPM", background_color='transparent', key='Average BPM', default=True,
-                                 enable_events=True, font=("Century Gothic", 13))],
-                    [sg.Checkbox("RMSSD", background_color='transparent', key='RMSSD', default=True,
-                                 enable_events=True, font=("Century Gothic", 13))],
-                    [sg.Checkbox("SDSD", background_color='transparent', key='SDSD', default=True,
-                                 enable_events=True, font=("Century Gothic", 13))],
-                    [sg.Checkbox("SDNN", background_color='transparent', key='SDNN', default=True,
-                                 enable_events=True, font=("Century Gothic", 13))],
-                    [sg.Checkbox("pNN50", background_color='transparent', key='pNN50', default=True,
-                                 enable_events=True, font=("Century Gothic", 13))],
-                    [sg.Checkbox("Baseline BPM", background_color='transparent', key='Baseline BPM', default=True,
-                                 enable_events=True, font=("Century Gothic", 13))],
+                    [
+                        sg.Checkbox("Average BPM", background_color='transparent', key='Average BPM', default=True,
+                                    enable_events=True, font=("Century Gothic", 13), text_color="black",
+                                    tooltip="Average of the number of heart beats per minute (BPM).")
+                    ],
+                    [
+                        sg.Checkbox("RMSSD", background_color='transparent', key='RMSSD', default=True,
+                                    enable_events=True, font=("Century Gothic", 13), text_color="black",
+                                    tooltip="The root mean square of successive differences between normal heartbeats (RMSSD) is obtained by first calculating each successive time difference between heartbeats in ms. Then, each of the values is squared and the result is averaged before the square root of the total is obtained.")
+                    ],
+                    [
+                        sg.Checkbox("SDSD", background_color='transparent', key='SDSD', default=True,
+                                    enable_events=True, font=("Century Gothic", 13), text_color="black",
+                                    tooltip="The standard deviation of successive RR interval differences (SDSD).")
+                    ],
+                    [
+                        sg.Checkbox("SDNN", background_color='transparent', key='SDNN', default=True,
+                                    enable_events=True, font=("Century Gothic", 13), text_color="black",
+                                    tooltip="The standard deviation of the IBI of normal sinus beats (SDNN) is measured in ms.")
+                    ],
+                    [
+                        sg.Checkbox("pNN50", background_color='transparent', key='pNN50', default=True,
+                                    enable_events=True, font=("Century Gothic", 13), text_color="black",
+                                    tooltip="The percentage of adjacent NN intervals that differ from each other by more than 50 ms (pNN50).")
+                    ],
+                    [
+                        sg.Checkbox("Baseline BPM", background_color='transparent', key='Baseline BPM', default=True,
+                                    enable_events=True, font=("Century Gothic", 13), text_color="black",
+                                    tooltip="Resting average beats per minute (BPM).")
+                    ],
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
                     [sg.Button(button_text="Export to CSV", size_px=(250, 60), key="Export to CSV",
                                enable_events=True,
