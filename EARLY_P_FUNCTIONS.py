@@ -77,10 +77,16 @@ def rr_time_match(parRR):
 
 def initial_list_of_existing_par():
     globals.list_of_existing_par = [*range(1, globals.par_num + 1)]
-    for num in globals.list_of_existing_par:
+    copy_of_list_of_existing_par = [*range(1, globals.par_num + 1)]
+    print("begining: list of existing par")
+    print(globals.list_of_existing_par)#1,2,3
+    for num in copy_of_list_of_existing_par:
+        print("the num in list of copy of existing is " + str(num))
         if num in globals.par_not_existing:
             globals.list_of_existing_par.remove(num)
-    # print(globals.list_of_existing_par)
+            print(globals.list_of_existing_par)
+    print("list of existing par end:\n")
+    print(*globals.list_of_existing_par)
 
 
 def filling_summary_table(avg_base, baseRR, last_k, listBPM, par, parRR, ride):

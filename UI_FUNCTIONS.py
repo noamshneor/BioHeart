@@ -91,12 +91,12 @@ def checkFolders_of_base(load_list, values):
 
 def checkFiles_of_rides(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
-        globals.par_num) + " FILES according to the number of participants"
+        len(globals.list_of_existing_par)) + " FILES according to the number of existing participants"
     for ride in range(1, globals.par_ride_num + 1):
-        for folder in range(0, len(load_list)):
+        for folder in range(0, len(load_list)):#ecg, sim, rr
             if len(os.listdir(
                     values["-MAIN FOLDER-"] + "\\" + "ride " + str(ride) + "\\" + load_list[
-                        folder])) != globals.par_num:
+                        folder])) != len(globals.list_of_existing_par):
                 sg.popup_quick_message(message, font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880), auto_close_duration=5)
                 return False
@@ -105,9 +105,9 @@ def checkFiles_of_rides(load_list, values):
 
 def checkFiles_of_base(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
-        globals.par_num) + " FILES according to the number of participants"
+       len(globals.list_of_existing_par)) + " FILES according to the number of existing participants"
     for folder in range(0, len(load_list)):  # base rr, bese ecg
-        if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != globals.par_num:
+        if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != len(globals.list_of_existing_par):
             sg.popup_quick_message(message, font=("Century Gothic", 14),
                                    background_color='red', location=(970, 880), auto_close_duration=5)
             return False
