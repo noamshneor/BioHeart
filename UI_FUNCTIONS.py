@@ -56,8 +56,8 @@ def early_table(filename):
             dq_table_list[i][0] = dq_table_int[i][0]
             dq_table_list[i][1] = dq_table_int[i][1]
             dq_table_list[i][2] = dq_table_int[i][2]
-            dq_table_list[i][7] = str(dq_table_list[i][7]) + ' %'
-            dq_table_list[i][13] = str(dq_table_list[i][13]) + ' %'
+            dq_table_list[i][8] = str(dq_table_list[i][8]) + ' %'
+            dq_table_list[i][14] = str(dq_table_list[i][14]) + ' %'
         dq_table_list = [list(map(str, x)) for x in dq_table_list]  # make str list
         return dq_table_list
 

@@ -122,6 +122,7 @@ def filling_dq_table(listBPM_per_scenario, par, ride):
                                                                 range(1, globals.scenario_num + 1)),
                                                             "Start time": globals.list_start_time,
                                                             "End time": globals.list_end_time,
+                                                            "Duration": [round(x - y, 4) for x, y in zip(globals.list_end_time, globals.list_start_time)],
                                                             "BPM(ecg) : Total number of rows": listBPM_per_scenario,
                                                             "BPM(ecg) : Number of empty rows": globals.list_null_bpm,
                                                             "BPM(ecg) : % Completeness": globals.list_completeness_bpm,

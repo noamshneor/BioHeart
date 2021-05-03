@@ -145,7 +145,7 @@ def summary_table_window_layout(summary_table_list):
                     [
                         sg.Checkbox("SDNN", background_color='transparent', key='SDNN', default=True,
                                     enable_events=True, font=("Century Gothic", 13), text_color="black",
-                                    tooltip="The standard deviation of the IBI of normal sinus beats (SDNN) is measured in ms.")
+                                    tooltip="The standard deviation of the IBI(Inter-Beat Interval) of normal sinus beats (SDNN) is measured in ms.")
                     ],
                     [
                         sg.Checkbox("pNN50", background_color='transparent', key='pNN50', default=True,
