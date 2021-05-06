@@ -1,4 +1,5 @@
 import PySimpleGUIQt as sg
+from numpy import linspace
 
 import globals
 
@@ -232,6 +233,92 @@ def loading_window_layout():
 
         ]
     return layout_loading_window
+
+
+def exceptions_values_layout():
+    yes_no_list = ["Yes", "No"]
+    layout_exceptions_values = \
+        [
+
+            [
+                sg.Text("", background_color="transparent", size=(0, 100))
+            ],
+            [  # second row
+                sg.Text("", background_color="transparent", size_px=(200, 0)),
+                sg.Text(text="Exceptions Filtering", background_color="transparent", text_color='black',
+                        size_px=(600, 100), font=("Century Gothic", 32, 'bold'), ),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(5, 0)),
+                sg.Radio(group_id="EXCEPTIONS", text="no filtering",
+                         background_color="transparent",
+                         key='no filtering radio', size_px=(670, 36), font=("Century Gothic", 16, 'bold'),
+                         enable_events=True, text_color='red',default=True),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(0, 40)),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(5, 0)),
+                sg.Radio(group_id="EXCEPTIONS", text="exceptions values - RR intervals",
+                         background_color="transparent",
+                         key='Radio exceptions RR', size_px=(670, 35), font=("Century Gothic", 16, 'bold'),
+                         enable_events=True, text_color='red'),
+            ],
+
+            [
+                sg.Text("", background_color="transparent", size=(15, 0)),
+                sg.Text('choose desired range of RR values:', size=(52, 1), background_color="transparent",
+                        visible=True,
+                        key='choose desired RR range',
+                        font=("Century Gothic", 14), text_color='black'),
+                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=0.6, key='_SPIN_RR_LOWER', size=(7, 1.2),
+                        font=("Century Gothic", 14), tooltip="Lower boundary"),
+                sg.Text(' - ', size=(2.5, 1), background_color="transparent",
+                        visible=True, font=("Century Gothic", 16), text_color='black'),
+                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=1.2, key='_SPIN_RR_UPPER', size=(7, 1.2),
+                        font=("Century Gothic", 14), tooltip="Upper boundary"),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(0, 40)),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(5, 0)),
+                sg.Radio(group_id="EXCEPTIONS", text="exceptions values - ECG BPM",
+                         background_color="transparent",
+                         key="Radio exceptions bpm", size=(670, 35), font=("Century Gothic", 16, 'bold'),
+                         enable_events=True,
+                         text_color='red'),
+            ],
+
+            [
+                sg.Text("", background_color="transparent", size=(15, 0)),
+                sg.Text('choose desired range of BPM values:', size=(52, 1), background_color="transparent",
+                        visible=True,
+                        key='choose desired BPM range',
+                        font=("Century Gothic", 14), text_color='black'),
+                sg.Spin([str(i) for i in range(0, 180, 1)], change_submits=True, initial_value="40", key='_SPIN_BPM_LOWER',size=(7, 1.2),
+                        font=("Century Gothic", 14), tooltip="Lower boundary"),
+                sg.Text(' - ', size=(2.5, 1), background_color="transparent",
+                        visible=True, font=("Century Gothic", 16), text_color='black'),
+                sg.Spin([str(i) for i in range(0, 180, 1)], change_submits=True, initial_value='140',
+                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary"),
+            ],
+
+            [sg.Text(text="", background_color="transparent", size_px=(0, 110), )],
+            [
+                sg.Text("", background_color="transparent", size_px=(250, 0),
+                        font=("Century Gothic", 16)),
+                sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="BACK_EXCEPTIONS",
+                          enable_events=True),
+                sg.Text("", background_color="transparent", size=(80, 35),
+                        font=("Century Gothic", 16)),
+                sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_EXCEPTIONS",
+                          enable_events=True)
+            ]
+
+        ]
+    return layout_exceptions_values
 
 
 def path_load_window_layout():

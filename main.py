@@ -15,7 +15,7 @@ from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existin
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
-    loading_window_layout, path_load_window_layout, open_window_layout
+    loading_window_layout, path_load_window_layout, open_window_layout, exceptions_values_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV, add_files_in_folder,checkFiles_of_rides,checkFiles_of_base
 
@@ -191,6 +191,7 @@ def ui():
     layout_open_window = open_window_layout()
     layout_path_load_window = path_load_window_layout()
     layout_loading_window = loading_window_layout()
+    layout_exceptions_values_window =exceptions_values_layout()
 
     correct_open_window = False  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
     correct_path_window = False  # האם כל הפרטים במסך הנתיב מולאו בצורה נכונה
@@ -299,6 +300,17 @@ def ui():
         path_load_window.close()
 
     if correct_path_window:  # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
+        # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
+        exceptions_values_window = sg.Window(title="filter exceptional values", layout=layout_exceptions_values_window,
+                                             size=(500, 500),
+                                             disable_minimize=True,
+                                             location=(700, 250), background_image="load.png", element_padding=(0, 0),
+                                             finalize=True)
+        while True:
+            event8, values6 = exceptions_values_window.read()
+            if event8 == "EXIT" or event8 == sg.WIN_CLOSED:
+                break
+
         # ------------------------------------------- LOADING Window -------------------------------------------
         loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
                                    disable_minimize=True,
@@ -466,4 +478,15 @@ def ui():
 
 
 if __name__ == '__main__':
-    ui()
+    #ui()
+    layout_exceptions_values_window =exceptions_values_layout()
+    # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
+    exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
+                                         size=(1000, 680),
+                                         disable_minimize=True,
+                                         location=(450, 120), background_image="backsum.png", element_padding=(0, 0),
+                                         finalize=True)
+    while True:
+        event8, values6 = exceptions_values_window.read()
+        if event8 == "EXIT" or event8 == sg.WIN_CLOSED:
+            break
