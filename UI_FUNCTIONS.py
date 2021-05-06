@@ -133,15 +133,17 @@ def checkFiles_of_base(load_list, values):
 
 
 def exportCSV(values):
+    path = sg.popup_get_folder(no_window=True)
     headerlist = [True, True, True, values['Average BPM'], values['RMSSD'],
                   values['SDSD'], values['SDNN'], values['pNN50'], values['Baseline BPM'],
                   values['Baseline BPM'], values['RMSSD'], values['RMSSD'], values['SDNN'], values['SDNN'],
                   values['SDSD'], values['SDSD'], values['pNN50'], values['pNN50']]
-    globals.summary_table.to_csv('summary_table.csv', index=False, header=True,
-                                 columns=headerlist)
-    sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 10),
-                           background_color='white', text_color='black',
-                           location=(120, 540))
+    if path:
+        globals.summary_table.to_csv(path+'\\summary_table.csv', index=False, header=True,
+                                     columns=headerlist)
+        sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 10),
+                               background_color='white', text_color='black',
+                               location=(120, 540))
 
 
 def add_files_in_folder(parent, dirname):
