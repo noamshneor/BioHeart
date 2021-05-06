@@ -98,6 +98,7 @@ def pickle_early_process():
     globals.current_par = 0
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
     last_k = 0  # variable that helps to know how many rows in the summary table has been filled
+    initial_list_of_existing_par()
 
     for par in range(1, globals.par_num + 1):  # loop for participants
         for ride in range(1, globals.par_ride_num + 1):  # loop for rides
@@ -265,8 +266,7 @@ def ui():
                     message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
                     for ride in range(1, globals.par_ride_num + 1):
                         if not os.path.isdir(
-                                values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(
-                            values2["-MAIN FOLDER-"] + "\\" + "base"):
+                                values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
                             flag = False  # יש תיקיה חסרה
                             if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
                                 message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
@@ -280,8 +280,6 @@ def ui():
                             newload = True
                             new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
                             new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
-                            print("bla")
-                            print(globals.list_of_existing_par)
                             if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(
                                     new_load_list_in_base, values2):  # בדיקת תיקיות קיימות
                                 if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(new_load_list_in_base,values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
