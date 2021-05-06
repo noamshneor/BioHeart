@@ -133,7 +133,7 @@ def checkFiles_of_base(load_list, values):
 
 
 def exportCSV(values):
-    path = sg.popup_get_folder(no_window=True)
+    path = sg.popup_get_folder(no_window=True, message="choose folder")
     headerlist = [True, True, True, values['Average BPM'], values['RMSSD'],
                   values['SDSD'], values['SDNN'], values['pNN50'], values['Baseline BPM'],
                   values['Baseline BPM'], values['RMSSD'], values['RMSSD'], values['SDNN'], values['SDNN'],

@@ -43,6 +43,7 @@ def early_process():
                 print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
+                    globals.current_ride = ride - 1
                     # -------------------------------------------- ECG & SIM -----------------------------------------
                     list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
                     initial_data_quality()
@@ -326,7 +327,9 @@ def ui():
             event3, values3 = loading_window.read(timeout=10)
             # ---------------------------------- update window elements ----------------------------------
             loading_window.element("num of num").update(
-                "                  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
+                "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
+            loading_window.element("current_ride").update(
+                "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
             loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
 
             elapsed_time = time.time() - start_time
