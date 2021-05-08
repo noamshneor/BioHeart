@@ -387,13 +387,13 @@ def open_window_layout():
     layout_open_window = \
         [
             [
-                sg.Text("", background_color="transparent", size=(250, 500))
+                sg.Text("", background_color="transparent", size=(250, 450))
             ],
             [
                 sg.Text("                             Participant’s number", background_color="transparent",
                         size=(670, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key="par_num", enable_events=True,
-                         font=("Century Gothic", 14)),
+                         font=("Century Gothic", 16)),
                 sg.Text("          Number of participant’s rides", background_color="transparent",
                         size=(630, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Combo(values=[1, 2, 3, 4, 5], size=[50, 40], key='par_ride_num', enable_events=True,
@@ -407,14 +407,32 @@ def open_window_layout():
                 sg.Text("                             Scenario’s number", background_color="transparent",
                         size=(670, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_num', enable_events=True,
-                         font=("Century Gothic", 14)),
+                         font=("Century Gothic", 16)),
                 sg.Text("          Scenario’s column number", background_color="transparent",
                         size=(630, 35), font=("Century Gothic", 18), text_color='black'),
-                sg.InputText(size=[80, 40], justification="center", key='scenario_col_num', enable_events=True,
-                             font=("Century Gothic", 14))
+                sg.Input(size=[80, 40], justification="center", key='scenario_col_num', enable_events=True,
+                         font=("Century Gothic", 16))
             ],
             [
-                sg.Text("", background_color="transparent", size=(320, 300)),
+                sg.Text("", background_color="transparent", size=(250, 70)),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(30, 0)),
+                sg.Checkbox("Synchronized", background_color='transparent', key='Sync', default=True,
+                            enable_events=True, font=("Century Gothic", 18), text_color="black", size_px=(370, 40),
+                            tooltip="Did you run the simulator and the ECG measurement at the same time?"),
+                sg.Text("Simulator start at", background_color="transparent",
+                        size=(310, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Input(size=[100, 40], justification="center", key="sim_start", enable_events=True,
+                         font=("Century Gothic", 16), default_text="0", disabled=True),
+                sg.Text(" ,   ", background_color="transparent", size=(50, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Text("ECG start at", background_color="transparent",
+                        size=(230, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Input(size=[100, 40], justification="center", key='ecg_start', enable_events=True,
+                         font=("Century Gothic", 16), default_text="0", disabled=True),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(320, 240)),
             ],
             [
                 sg.Text("                                   ", background_color="transparent", size=(670, 35),

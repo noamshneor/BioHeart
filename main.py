@@ -215,23 +215,44 @@ def ui():
         if event == 'scenario_col_num' and values['scenario_col_num'] and values['scenario_col_num'][
             -1] not in '0123456789':
             open_window['scenario_col_num'].update(values['scenario_col_num'][:-1])
+        if event == 'sim_start' and values['sim_start'] and values['sim_start'][-1] not in '0123456789.':
+            open_window['sim_start'].update(values['sim_start'][:-1])
+        if event == 'ecg_start' and values['ecg_start'] and values['ecg_start'][-1] not in '0123456789.':
+            open_window['ecg_start'].update(values['ecg_start'][:-1])
+
+        if event == 'Sync':
+            if not values['Sync']:
+                open_window["sim_start"].update(disabled=False)
+                open_window["ecg_start"].update(disabled=False)
+            else:
+                open_window["sim_start"].update(disabled=True)
+                open_window["sim_start"].update("0")
+                open_window["ecg_start"].update(disabled=True)
+                open_window["ecg_start"].update("0")
 
         if event == "CONTINUE_OPEN":
             # ----------------------------------------- SAVE INPUT -----------------------------------------
             if (not values['par_num']) or (not values['scenario_num']) or (
-                    not values['scenario_col_num']):
+                    not values['scenario_col_num']) or (not values['Sync'] and (not values['sim_start']) or (not values['ecg_start'])):
                 # בדיקה האם אחד מ3 השדות לפחות לא מלא
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
             else:  # כולם מלאים
-                # שמירת האינפוטים במשתנים
-                globals.par_num = int(values['par_num'])
-                globals.par_ride_num = int(values['par_ride_num'])
-                globals.scenario_num = int(values['scenario_num'])
-                globals.scenario_col_num = int(values['scenario_col_num'])
-                initial_list_of_existing_par()
-                correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
-                break  # אפשר לעצור את הלולאה והחלון ייסגר
+                if not values['Sync'] and ((values['sim_start'] != "0") and (values['ecg_start'] != "0")):
+                    sg.popup_quick_message('At least one of the simulator/ECG fields must start from 0',
+                                           font=("Century Gothic", 14), background_color='red', location=(970, 880),
+                                           auto_close_duration=5)
+                else:
+                    # שמירת האינפוטים במשתנים
+                    globals.par_num = int(values['par_num'])
+                    globals.par_ride_num = int(values['par_ride_num'])
+                    globals.scenario_num = int(values['scenario_num'])
+                    globals.scenario_col_num = int(values['scenario_col_num'])
+                    globals.sim_start = float(values['sim_start'])
+                    globals.ecg_start = float(values['ecg_start'])
+                    initial_list_of_existing_par()
+                    correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
+                    break  # אפשר לעצור את הלולאה והחלון ייסגר
     open_window.close()  # פקודת סגירת חלון ביציאה מהלולאה
 
     if correct_open_window:  # רק אם כל הפרטים היו נכונים ונשמרו במסך הקודם

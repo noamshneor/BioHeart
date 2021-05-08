@@ -216,15 +216,17 @@ def early_process_ecg_sim(index_in_folder, ride):
                                                   ride) + "\\" + "ecg")[
                                               index_in_folder]),
                              sep="\t", names=['mV', 'Volts', 'BPM', 'Time'], usecols=['BPM', 'Time'],
-                             skiprows=11, header=None)
+                             skiprows=11 + int(globals.ecg_start * 1000), header=None)
     parECG['Time'] = [x / 1000 for x in range(0, (len(parECG)))]  # filling a time column
     parSIM = pandas.read_csv(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
                                           os.listdir(
                                               globals.main_path + "\\" + "ride " + str(
                                                   ride) + "\\" + "sim")[
                                               index_in_folder]),
-                             sep=",", skiprows=1, usecols=[0, globals.scenario_col_num - 1],
+                             sep=",", skiprows=1 + int(globals.sim_start * 60), usecols=[0, globals.scenario_col_num - 1],
                              names=['Time', 'Scenario'])
+    if globals.sim_start > 0:  # Sync sim time
+        parSIM['Time'] = [x - globals.sim_start for x in parSIM['Time']]
     parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                   True)  # adding scenario column and filling with 0
     return list_of_bpm_flag, parECG, parSIM
