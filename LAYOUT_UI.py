@@ -180,6 +180,9 @@ def summary_table_window_layout(summary_table_list):
                     [sg.Button(button_text="Graphs", size_px=(220, 60), key="Graphs button", enable_events=True,
                                font=("Century Gothic", 16))],
                     [sg.Text(text="", background_color="transparent", size_px=(200, 50))],
+                    [sg.Button(button_text="Restart", size_px=(220, 60), key="Restart button", enable_events=True,
+                               font=("Century Gothic", 16))],
+                    [sg.Text(text="", background_color="transparent", size_px=(200, 50))],
                     [sg.Button(button_text="EXIT", size_px=(220, 60), key="summary exit", enable_events=True,
                                font=("Century Gothic", 16))],
                 ], background_color="transparent", element_justification="center"
