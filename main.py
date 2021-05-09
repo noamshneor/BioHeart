@@ -17,7 +17,7 @@ from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existin
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout, exceptions_values_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
-    exportCSV, add_files_in_folder,checkFiles_of_rides,checkFiles_of_base,checks_boundaries
+    exportCSV, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries,  initial_tree
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -37,9 +37,9 @@ def early_process():
         print("par in list_of_existing_par:" + str(par))
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
             print("the filename in ecg:" + filename)
-            if str(par) in filename:#אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ בecg
+            if str(par) in filename:  # אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ בecg
                 index_in_folder = os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg").index(
-                    filename)#באיזה אינדקס מבין הרשימה של הקבצים בecg מופיע הקובץ filename
+                    filename)  # באיזה אינדקס מבין הרשימה של הקבצים בecg מופיע הקובץ filename
                 print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
@@ -69,7 +69,7 @@ def early_process():
                     filling_dq_table(listBPM_per_scenario, par, ride)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
-                globals.current_par += 1# עוברים על הקובץ השני בתיקית ecg וכך הלאה
+                globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
         print(globals.percent * 100)
 
 
@@ -203,6 +203,7 @@ def ui():
                             location=(90, 0), background_image="back1.png", element_padding=(0, 0), finalize=True)
     while True:  # Create an event loop
         event, values = open_window.read()
+        open_window.bring_to_front()
         if event == "EXIT_OPEN" or event == sg.WIN_CLOSED:
             # End program if user closes window or presses the EXIT button
             break  # אפשר לעצור את הלולאה והחלון ייסגר
@@ -233,7 +234,8 @@ def ui():
         if event == "CONTINUE_OPEN":
             # ----------------------------------------- SAVE INPUT -----------------------------------------
             if (not values['par_num']) or (not values['scenario_num']) or (
-                    not values['scenario_col_num']) or (not values['Sync'] and (not values['sim_start']) or (not values['ecg_start'])):
+                    not values['scenario_col_num']) or (
+                    not values['Sync'] and (not values['sim_start']) or (not values['ecg_start'])):
                 # בדיקה האם אחד מ3 השדות לפחות לא מלא
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
@@ -262,22 +264,17 @@ def ui():
                                      disable_minimize=True,
                                      location=(90, 0), background_image="back2.png", element_padding=(0, 0),
                                      finalize=True)
+        initial_tree(path_load_window['-TREE-'], "")
         while True:
             event2, values2 = path_load_window.read()
             if event2 == "EXIT" or event2 == sg.WIN_CLOSED:
                 break
             if event2 == "-MAIN FOLDER-":
-                '''
-                treedata.tree_dict.clear()
-                treedata.root_node.children.clear()
-                treedata.root_node = treedata.Node("", "", 'root', [], None)
-                treedata.tree_dict[""] = treedata.root_node
-                print(treedata)
-                '''
                 if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
-                    globals.treedata = sg.TreeData()
-                    add_files_in_folder('', values2["-MAIN FOLDER-"])
-                    path_load_window['-TREE-'].update(globals.treedata)  # הצגת תכולת התיקייה שנבחרה
+                    initial_tree(path_load_window['-TREE-'], os.path.basename(values2["-MAIN FOLDER-"]))
+                    tree = sg.TreeData()
+                    add_files_in_folder('', values2["-MAIN FOLDER-"], tree)
+                    path_load_window['-TREE-'].update(tree)  # הצגת תכולת התיקייה שנבחרה
 
             if event2 == "CONTINUE_PATH":
                 # check if can continue - להפוך לפונקציה
@@ -289,7 +286,8 @@ def ui():
                     message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
                     for ride in range(1, globals.par_ride_num + 1):
                         if not os.path.isdir(
-                                values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
+                                values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(
+                            values2["-MAIN FOLDER-"] + "\\" + "base"):
                             flag = False  # יש תיקיה חסרה
                             if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
                                 message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
@@ -305,7 +303,9 @@ def ui():
                             new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
                             if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(
                                     new_load_list_in_base, values2):  # בדיקת תיקיות קיימות
-                                if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(new_load_list_in_base,values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
+                                if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(
+                                        new_load_list_in_base,
+                                        values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     globals.main_path = values2["-MAIN FOLDER-"]
                                     break  # אפשר לעצור את הלולאה והחלון ייסגר
@@ -315,7 +315,8 @@ def ui():
                             exist_load_list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
                             if checkFolders_of_rides(exist_load_list_in_ride, values2) and checkFolders_of_base(
                                     exist_load_list_in_base, values2):
-                                if checkFiles_of_rides(exist_load_list_in_ride, values2) and checkFiles_of_base(exist_load_list_in_base, values2):
+                                if checkFiles_of_rides(exist_load_list_in_ride, values2) and checkFiles_of_base(
+                                        exist_load_list_in_base, values2):
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     globals.main_path = values2["-MAIN FOLDER-"]
                                     break
@@ -437,7 +438,8 @@ def ui():
             layout_summary_table_window = summary_table_window_layout(
                 summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
             dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
-            layout_data_quality_table_window = data_quality_table_window_layout(dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
+            layout_data_quality_table_window = data_quality_table_window_layout(
+                dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
             # ----------------------- Data Quality Table Window -----------------------
             data_quality_table_window = sg.Window(title="Data Quality Table",
                                                   layout=layout_data_quality_table_window,
@@ -460,11 +462,14 @@ def ui():
                                              disable_minimize=True,
                                              location=(90, 0), background_image="backsum.png",
                                              element_padding=(0, 0))
-
+            do_restart = False
             while True:
                 summary_table_window.element("SumTable").update(values=summary_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
                 event4, values4 = summary_table_window.read()
                 if event4 == "summary exit" or event4 == sg.WIN_CLOSED:
+                    break
+                if event4 == "Restart button":
+                    do_restart = True
                     break
                 if event4 == 'Export to CSV':
                     exportCSV(values4)
@@ -545,6 +550,7 @@ def ui():
                         data_quality_table_window.element("DataQTable").update(
                             values=dq_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
                         event6, values6 = data_quality_table_window.read()
+                        data_quality_table_window.bring_to_front()
                         if event6 == "dq back":
                             data_quality_table_window.hide()
                             summary_table_window.un_hide()
@@ -565,10 +571,17 @@ def ui():
             data_quality_table_window.close()
             graph_window.close()
             summary_table_window.close()
+            return do_restart
 
 
 if __name__ == '__main__':
-    ui()
+    # restart = False
+    restart = ui()
+    if restart:
+        os.system('main.py')
+        exit()
+    else:
+        sys.exit(0)
 """
     layout_exceptions_values_window =exceptions_values_layout()
     # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
