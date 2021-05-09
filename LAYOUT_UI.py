@@ -263,29 +263,29 @@ def path_load_window_layout():
                          font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(300, 30)),
             ],
             [
-                sg.Text("", background_color="transparent", size=(1010, 20)),
+                sg.Text("", background_color="transparent", size=(970, 20)),
                 sg.Text("Main Folder", background_color="transparent", text_color='black',
                         font=("Century Gothic", 12, 'bold'), size_px=(150, 30)),
-                sg.In(size=(45, 1), enable_events=True, key="-MAIN FOLDER-", font=("Century Gothic", 9)),
+                sg.In(size=(49, 1), enable_events=True, key="-MAIN FOLDER-", font=("Century Gothic", 8), disabled=True),
                 sg.FolderBrowse(button_text="...", enable_events=True, key="main path button", size=(40, 35)),
             ],
             [
-                sg.Text("", background_color="transparent", size=(1160, 20)),
-                sg.Tree(data=globals.treedata,
-                        headings="",
+                sg.Text("", background_color="transparent", size=(1120, 20)),
+                sg.Tree(data=sg.TreeData(),
+                        headings=[""],
                         auto_size_columns=False,
-                        num_rows=20,
+                        num_rows=29,
                         def_col_width=0,
                         col0_width=0,
                         key='-TREE-',
-                        size_px=(490, 600),
+                        size_px=(490, 1200),
                         text_color='black',
                         background_color='white',
                         show_expanded=False,
                         enable_events=True),
             ],
             [
-                sg.Text("", background_color="transparent", size=(1225, 20)),
+                sg.Text("", background_color="transparent", size=(1175, 20)),
                 sg.Button("EXIT", size=(110, 45), font=("Century Gothic", 18)),
                 sg.Text("", background_color="transparent", size=(50, 35),
                         font=("Century Gothic", 16)),
@@ -293,7 +293,7 @@ def path_load_window_layout():
                           enable_events=True),
             ],
             [
-                sg.Text("", background_color="transparent", size=(0, 200)),
+                sg.Text("", background_color="transparent", size=(0, 20)),
             ]
         ]
     return layout_path_load_window

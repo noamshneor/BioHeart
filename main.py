@@ -17,7 +17,7 @@ from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existin
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
-    exportCSV, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base
+    exportCSV, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, initial_tree
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -263,22 +263,17 @@ def ui():
                                      disable_minimize=True,
                                      location=(90, 0), background_image="back2.png", element_padding=(0, 0),
                                      finalize=True)
+        initial_tree(path_load_window['-TREE-'], "")
         while True:
             event2, values2 = path_load_window.read()
             if event2 == "EXIT" or event2 == sg.WIN_CLOSED:
                 break
             if event2 == "-MAIN FOLDER-":
-                '''
-                treedata.tree_dict.clear()
-                treedata.root_node.children.clear()
-                treedata.root_node = treedata.Node("", "", 'root', [], None)
-                treedata.tree_dict[""] = treedata.root_node
-                print(treedata)
-                '''
                 if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
-                    globals.treedata = sg.TreeData()
-                    add_files_in_folder('', values2["-MAIN FOLDER-"])
-                    path_load_window['-TREE-'].update(globals.treedata)  # הצגת תכולת התיקייה שנבחרה
+                    initial_tree(path_load_window['-TREE-'], os.path.basename(values2["-MAIN FOLDER-"]))
+                    tree = sg.TreeData()
+                    add_files_in_folder('', values2["-MAIN FOLDER-"], tree)
+                    path_load_window['-TREE-'].update(tree)  # הצגת תכולת התיקייה שנבחרה
 
             if event2 == "CONTINUE_PATH":
                 # check if can continue - להפוך לפונקציה
