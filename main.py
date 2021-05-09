@@ -333,26 +333,24 @@ def ui():
         exit_from_exceptions_window = False
         while True:
             event8, values8 = exceptions_values_window.read()
-            if  event8 == sg.WIN_CLOSED:
+            if event8 == sg.WIN_CLOSED:
                 exit_from_exceptions_window = True
                 break
 
-            if event8 == "checkbox exceptions BPM": #אם לחצתי
-                if values8["checkbox exceptions BPM"] and values8["no filtering checkbox"]:
-                    event8 = "no filtering checkbox" #יוצר איבנט
-
-            if event8 == "checkbox exceptions RR":  # אם לחצתי
-                if values8["checkbox exceptions RR"] and values8["no filtering checkbox"]:
-                    event8 = "no filtering checkbox"  # יוצר איבנט
+            if event8 == "checkbox exceptions BPM" or event8 == "checkbox exceptions RR":  # אם לחצתי
+                if values8["checkbox exceptions BPM"] or values8["no filtering checkbox"]:
+                    exceptions_values_window["no filtering checkbox"].update(False)
+                if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+                    exceptions_values_window["no filtering checkbox"].update(True)
 
             if event8 == "no filtering checkbox":
                 if values8["no filtering checkbox"]:
                     if values8["checkbox exceptions RR"] or values8["checkbox exceptions BPM"]:
                         exceptions_values_window["no filtering checkbox"].update(False)
-                    if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
-                        exceptions_values_window["no filtering checkbox"].update(True)
                     exceptions_values_window["checkbox exceptions RR"].update(False)
                     exceptions_values_window["checkbox exceptions BPM"].update(False)
+                if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+                    exceptions_values_window["no filtering checkbox"].update(True)
 
             if event8 == "CONTINUE_EXCEPTIONS":
                 if values8["no filtering checkbox"]:
@@ -395,11 +393,10 @@ def ui():
                                 background_color='white', text_color='red', location=(670, 655))
             #if event8 == "BACK_EXCEPTIONS":
 
-
         print(globals.is_filtering)
-        print(globals.RR_lower,globals.RR_upper,globals.BPM_lower,globals.BPM_upper)
+        print(globals.RR_lower, globals.RR_upper, globals.BPM_lower, globals.BPM_upper)
         exceptions_values_window.close()
-        if exit_from_exceptions_window == False:
+        if not exit_from_exceptions_window:
             # ------------------------------------------- LOADING Window -------------------------------------------
             loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
                                        disable_minimize=True,
@@ -575,15 +572,17 @@ def ui():
 
 
 if __name__ == '__main__':
-    # restart = False
+    # """
     restart = ui()
     if restart:
         os.system('main.py')
         exit()
     else:
         sys.exit(0)
-"""
-    layout_exceptions_values_window =exceptions_values_layout()
+    # """
+
+    """
+    layout_exceptions_values_window = exceptions_values_layout()
     # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
     exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
                                          size=(1000, 680),
@@ -591,7 +590,9 @@ if __name__ == '__main__':
                                          location=(450, 120), background_image="backsum.png", element_padding=(0, 0),
                                          finalize=True)
     while True:
-        event8, values6 = exceptions_values_window.read()
-        if event8 == "EXIT" or event8 == sg.WIN_CLOSED:
-           break
-                    """
+        event8, values8 = exceptions_values_window.read()
+        if event8 == sg.WIN_CLOSED:
+            exit_from_exceptions_window = True
+            break
+
+    """
