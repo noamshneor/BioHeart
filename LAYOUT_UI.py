@@ -242,7 +242,6 @@ def loading_window_layout():
 
 
 def exceptions_values_layout():
-    yes_no_list = ["Yes", "No"]
     layout_exceptions_values = \
         [
 
@@ -256,20 +255,17 @@ def exceptions_values_layout():
             ],
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
-                sg.Radio(group_id="EXCEPTIONS", text="no filtering",
-                         background_color="transparent",
-                         key='no filtering radio', size_px=(670, 36), font=("Century Gothic", 16, 'bold'),
-                         enable_events=True, text_color='red',default=True),
+                sg.Checkbox("No filtering", background_color='transparent', key='no filtering checkbox', default=True,
+                            enable_events=True,text_color='red', font=("Century Gothic", 16,'bold'),size_px=(670, 36)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(0, 40)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
-                sg.Radio(group_id="EXCEPTIONS", text="exceptions values - RR intervals",
-                         background_color="transparent",
-                         key='Radio exceptions RR', size_px=(670, 35), font=("Century Gothic", 16, 'bold'),
-                         enable_events=True, text_color='red'),
+                sg.Checkbox("Exceptions values - RR intervals", background_color='transparent', key='checkbox exceptions RR', default=False,
+                            enable_events=True, text_color='red', font=("Century Gothic", 16, 'bold'),
+                            size_px=(670, 35))
             ],
 
             [
@@ -279,22 +275,22 @@ def exceptions_values_layout():
                         key='choose desired RR range',
                         font=("Century Gothic", 14), text_color='black'),
                 sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=0.6, key='_SPIN_RR_LOWER', size=(7, 1.2),
-                        font=("Century Gothic", 14), tooltip="Lower boundary"),
+                        font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
                 sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=1.2, key='_SPIN_RR_UPPER', size=(7, 1.2),
-                        font=("Century Gothic", 14), tooltip="Upper boundary"),
+                        font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True),
             ],
             [
                 sg.Text("", background_color="transparent", size=(0, 40)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
-                sg.Radio(group_id="EXCEPTIONS", text="exceptions values - ECG BPM",
-                         background_color="transparent",
-                         key="Radio exceptions bpm", size=(670, 35), font=("Century Gothic", 16, 'bold'),
-                         enable_events=True,
-                         text_color='red'),
+                sg.Checkbox("Exceptions values - ECG BPM", background_color='transparent',
+                            key='checkbox exceptions BPM', default=False,
+                            enable_events=True, text_color='red', font=("Century Gothic", 16, 'bold'),
+                            size_px=(670, 35))
+
             ],
 
             [
@@ -304,11 +300,11 @@ def exceptions_values_layout():
                         key='choose desired BPM range',
                         font=("Century Gothic", 14), text_color='black'),
                 sg.Spin([str(i) for i in range(0, 180, 1)], change_submits=True, initial_value="40", key='_SPIN_BPM_LOWER',size=(7, 1.2),
-                        font=("Century Gothic", 14), tooltip="Lower boundary"),
+                        font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
                 sg.Spin([str(i) for i in range(0, 180, 1)], change_submits=True, initial_value='140',
-                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary"),
+                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True),
             ],
 
             [sg.Text(text="", background_color="transparent", size_px=(0, 110), )],

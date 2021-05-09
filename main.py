@@ -13,11 +13,11 @@ import HRV_METHODS
 import globals
 from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
-    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table
+    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout, exceptions_values_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
-    exportCSV, add_files_in_folder,checkFiles_of_rides,checkFiles_of_base
+    exportCSV, add_files_in_folder,checkFiles_of_rides,checkFiles_of_base,checks_boundaries
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -48,7 +48,7 @@ def early_process():
                     list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
                     initial_data_quality()
                     # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
-                    flag_match(parECG, parSIM, list_of_bpm_flag, 'BPM')
+                    flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')
                     listBPM, listBPM_per_scenario = avg_med_bpm(list_of_bpm_flag)
                     dq_completeness_bpm(listBPM_per_scenario)
                     # ------------------------------------------------ RR --------------------------------------------
@@ -323,186 +323,253 @@ def ui():
 
     if correct_path_window:  # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
         # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
-        exceptions_values_window = sg.Window(title="filter exceptional values", layout=layout_exceptions_values_window,
-                                             size=(500, 500),
+        exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
+                                             size=(1000, 680),
                                              disable_minimize=True,
-                                             location=(700, 250), background_image="load.png", element_padding=(0, 0),
+                                             location=(450, 120), background_image="backsum.png",
+                                             element_padding=(0, 0),
                                              finalize=True)
+        exit_from_exceptions_window = False
         while True:
-            event8, values6 = exceptions_values_window.read()
-            if event8 == "EXIT" or event8 == sg.WIN_CLOSED:
+            event8, values8 = exceptions_values_window.read()
+            if  event8 == sg.WIN_CLOSED:
+                exit_from_exceptions_window = True
                 break
 
-        # ------------------------------------------- LOADING Window -------------------------------------------
-        loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
-                                   disable_minimize=True,
-                                   location=(700, 250), background_image="load.png", element_padding=(0, 0),
-                                   finalize=True)
-        start_time = time.time()  # קביעת זמן התחלת ריצת החלון
-        t = threading.Thread(
-            target=early_process if newload else pickle_early_process)  # הרצת טרד במקביל על הפונקציה המתאימה שרצה ברקע של המסך
-        t.setDaemon(True)  # גורם לטרד למות כשנרצה שהוא ימות
-        t.start()  # התחלת ריצת הטרד
+            if event8 == "checkbox exceptions BPM": #אם לחצתי
+                if values8["checkbox exceptions BPM"] and values8["no filtering checkbox"]:
+                    event8 = "no filtering checkbox" #יוצר איבנט
 
-        while True:
-            event3, values3 = loading_window.read(timeout=10)
-            # ---------------------------------- update window elements ----------------------------------
-            loading_window.element("num of num").update(
-                "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
-            loading_window.element("current_ride").update(
-                "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
-            loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
+            if event8 == "checkbox exceptions RR":  # אם לחצתי
+                if values8["checkbox exceptions RR"] and values8["no filtering checkbox"]:
+                    event8 = "no filtering checkbox"  # יוצר איבנט
 
-            elapsed_time = time.time() - start_time
-            loading_window.element("Time elapsed").update(
-                time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+            if event8 == "no filtering checkbox":
+                if values8["no filtering checkbox"]:
+                    if values8["checkbox exceptions RR"] or values8["checkbox exceptions BPM"]:
+                        exceptions_values_window["no filtering checkbox"].update(False)
+                    if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+                        exceptions_values_window["no filtering checkbox"].update(True)
+                    exceptions_values_window["checkbox exceptions RR"].update(False)
+                    exceptions_values_window["checkbox exceptions BPM"].update(False)
 
-            loading_window.element("p bar").update_bar(globals.percent * 100)
-
-            if globals.percent * 100 >= 99.99:
-                break
-            if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
-                sys.exit()  # יציאה כפויה של התכנית, הטרד מת
-        loading_window.close()
-
-    if globals.percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
-        # ----------------------- Early Summary Table -----------------------
-        summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
-        layout_summary_table_window = summary_table_window_layout(
-            summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
-        dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
-        layout_data_quality_table_window = data_quality_table_window_layout(dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
-        # ----------------------- Data Quality Table Window -----------------------
-        data_quality_table_window = sg.Window(title="Data Quality Table",
-                                              layout=layout_data_quality_table_window,
-                                              size=(1730, 970), resizable=True, finalize=True,
-                                              disable_minimize=True, no_titlebar=True,
-                                              location=(90, 20), background_image="backsum.png",
-                                              element_padding=(0, 0))
-        data_quality_table_window.hide()
-        # -------------------------- Graphs Window -----------------------------
-        layout_graphs_window = graphs_window_layout()
-        graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
-                                 size=(1730, 970), resizable=True, finalize=True,
-                                 disable_minimize=True,
-                                 location=(90, 20), background_image="backsum.png",
-                                 element_padding=(0, 0))
-        graph_window.hide()
-        # ----------------------- Summary Table Window -----------------------
-        summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
-                                         size=(1730, 970), resizable=True, finalize=True,
-                                         disable_minimize=True,
-                                         location=(90, 0), background_image="backsum.png",
-                                         element_padding=(0, 0))
-
-        while True:
-            summary_table_window.element("SumTable").update(values=summary_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
-            event4, values4 = summary_table_window.read()
-            if event4 == "summary exit" or event4 == sg.WIN_CLOSED:
-                break
-            if event4 == 'Export to CSV':
-                exportCSV(values4)
-            if event4 == "Graphs button":
-                summary_table_window.hide()
-                graph_window.un_hide()
-                choose_graph_flag = False
-
-                while True:
-                    event5, values5 = graph_window.read()
-                    graph_window.bring_to_front()
-                    # print(event5)
-                    if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
-                        choose_graph_flag = False
-                    else:
-                        choose_graph_flag = True
-                    if event5 == "avg bpm 1 par":
-                        graph_window['participant graph1'].update(visible=True)
-                        graph_window['combo_par_graph1'].update(visible=True)
-                        graph_window['ride graph1'].update(visible=True)
-                        graph_window['combo_ride_graph1'].update(visible=True)
-                        graph_window['participant graph2'].update(visible=False)
-                        graph_window['combo_par_graph2'].update(visible=False)
-                        graph_window['ride graph2'].update(visible=False)
-                        graph_window['combo_ride_graph2'].update(visible=False)
-
-                    if event5 == "rmssd for several par":
-                        graph_window['participant graph2'].update(visible=True)
-                        graph_window['combo_par_graph2'].update(visible=True)
-                        graph_window['ride graph2'].update(visible=True)
-                        graph_window['combo_ride_graph2'].update(visible=True)
-                        graph_window['participant graph1'].update(visible=False)
-                        graph_window['combo_par_graph1'].update(visible=False)
-                        graph_window['ride graph1'].update(visible=False)
-                        graph_window['combo_ride_graph1'].update(visible=False)
-
-                    if event5 == "graphs back":
-                        graph_window.hide()
-                        summary_table_window.un_hide()
-                        graph_window['participant graph1'].update(visible=False)
-                        graph_window['combo_par_graph1'].update(visible=False)
-                        graph_window['ride graph1'].update(visible=False)
-                        graph_window['combo_ride_graph1'].update(visible=False)
-                        graph_window['participant graph2'].update(visible=False)
-                        graph_window['combo_par_graph2'].update(visible=False)
-                        graph_window['ride graph2'].update(visible=False)
-                        graph_window['combo_ride_graph2'].update(visible=False)
-                        choose_graph_flag = False
-                        break
-
-                    if event5 == "CONTINUE_GRAPH":
-                        if values5["avg bpm 1 par"] and choose_graph_flag:
-                            # שמירת האינפוטים במשתנים
-                            participant_num_input = int(values5['combo_par_graph1'])
-                            ride_input = int(values5['combo_ride_graph1'])
-                            p1 = Process(target=draw_plot1,
-                                         args=(participant_num_input, ride_input, globals.summary_table))
-                            p1.start()
-                            choose_graph_flag = False
-
-                        elif values5["rmssd for several par"] and choose_graph_flag:
-                            # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
-                            participants_input = values5['combo_par_graph2']
-                            ride_input = int(values5['combo_ride_graph2'])
-                            p2 = Process(target=draw_plot2,
-                                         args=(participants_input, ride_input, globals.summary_table))
-                            p2.start()
-                            choose_graph_flag = False
-
+            if event8 == "CONTINUE_EXCEPTIONS":
+                if values8["no filtering checkbox"]:
+                    # שמירת האינפוטים במשתנים
+                    globals.is_filtering = False
+                    break
+                else:
+                    globals.is_filtering = True
+                    if values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+                        globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
+                        globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
+                        if checks_boundaries(globals.RR_lower, globals.RR_upper):
+                            break
                         else:
-                            sg.popup_quick_message('Please choose graph before continue',
-                                                   font=("Century Gothic", 14), background_color='red',
-                                                   location=(970, 880))
-            if event4 == "dq button":
-                summary_table_window.hide()
-                data_quality_table_window.un_hide()
-                while True:
-                    data_quality_table_window.element("DataQTable").update(
-                        values=dq_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
-                    event6, values6 = data_quality_table_window.read()
-                    if event6 == "dq back":
-                        data_quality_table_window.hide()
-                        summary_table_window.un_hide()
-                        break
-            if event4 == "SumTable":
-                if values4["SumTable"]:
-                    line = [dq_table_list[values4["SumTable"][0]]]
+                            sg.popup_quick_message('Error! Notice that the lower RR limit must be smaller than the upper RR limit', font=("Century Gothic", 10),
+                                                   background_color='white', text_color='red',location=(670, 655))
+
+                    if values8["checkbox exceptions BPM"] and not values8["checkbox exceptions RR"]:
+                        globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
+                        globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
+                        if checks_boundaries(globals.BPM_lower, globals.BPM_upper):
+                            break
+                        else:
+                            sg.popup_quick_message(
+                                'Error! Notice that the lower BPM limit must be smaller than the upper BPM limit',
+                                font=("Century Gothic", 10),
+                                background_color='white', text_color='red', location=(670, 655))
+
+                    if values8["checkbox exceptions BPM"] and values8["checkbox exceptions RR"]:
+                        globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
+                        globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
+                        globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
+                        globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
+                        if checks_boundaries(globals.BPM_lower, globals.BPM_upper) and checks_boundaries(globals.RR_lower, globals.RR_upper):
+                            break
+                        else:
+                            sg.popup_quick_message(
+                                'Error! Notice that the lower limits must be smaller than the upper limits',
+                                font=("Century Gothic", 10),
+                                background_color='white', text_color='red', location=(670, 655))
+            #if event8 == "BACK_EXCEPTIONS":
+
+
+        print(globals.is_filtering)
+        print(globals.RR_lower,globals.RR_upper,globals.BPM_lower,globals.BPM_upper)
+        exceptions_values_window.close()
+        if exit_from_exceptions_window == False:
+            # ------------------------------------------- LOADING Window -------------------------------------------
+            loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
+                                       disable_minimize=True,
+                                       location=(700, 250), background_image="load.png", element_padding=(0, 0),
+                                       finalize=True)
+            start_time = time.time()  # קביעת זמן התחלת ריצת החלון
+            t = threading.Thread(
+                target=early_process if newload else pickle_early_process)  # הרצת טרד במקביל על הפונקציה המתאימה שרצה ברקע של המסך
+            t.setDaemon(True)  # גורם לטרד למות כשנרצה שהוא ימות
+            t.start()  # התחלת ריצת הטרד
+
+            while True:
+                event3, values3 = loading_window.read(timeout=10)
+                # ---------------------------------- update window elements ----------------------------------
+                loading_window.element("num of num").update(
+                    "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
+                loading_window.element("current_ride").update(
+                    "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
+                loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
+
+                elapsed_time = time.time() - start_time
+                loading_window.element("Time elapsed").update(
+                    time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
+                loading_window.element("p bar").update_bar(globals.percent * 100)
+
+                if globals.percent * 100 >= 99.99:
+                    break
+                if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
+                    sys.exit()  # יציאה כפויה של התכנית, הטרד מת
+            loading_window.close()
+
+        if globals.percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
+            # ----------------------- Early Summary Table -----------------------
+            summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
+            layout_summary_table_window = summary_table_window_layout(
+                summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
+            dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
+            layout_data_quality_table_window = data_quality_table_window_layout(dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
+            # ----------------------- Data Quality Table Window -----------------------
+            data_quality_table_window = sg.Window(title="Data Quality Table",
+                                                  layout=layout_data_quality_table_window,
+                                                  size=(1730, 970), resizable=True, finalize=True,
+                                                  disable_minimize=True, no_titlebar=True,
+                                                  location=(90, 20), background_image="backsum.png",
+                                                  element_padding=(0, 0))
+            data_quality_table_window.hide()
+            # -------------------------- Graphs Window -----------------------------
+            layout_graphs_window = graphs_window_layout()
+            graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
+                                     size=(1730, 970), resizable=True, finalize=True,
+                                     disable_minimize=True,
+                                     location=(90, 20), background_image="backsum.png",
+                                     element_padding=(0, 0))
+            graph_window.hide()
+            # ----------------------- Summary Table Window -----------------------
+            summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
+                                             size=(1730, 970), resizable=True, finalize=True,
+                                             disable_minimize=True,
+                                             location=(90, 0), background_image="backsum.png",
+                                             element_padding=(0, 0))
+
+            while True:
+                summary_table_window.element("SumTable").update(values=summary_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
+                event4, values4 = summary_table_window.read()
+                if event4 == "summary exit" or event4 == sg.WIN_CLOSED:
+                    break
+                if event4 == 'Export to CSV':
+                    exportCSV(values4)
+                if event4 == "Graphs button":
+                    summary_table_window.hide()
+                    graph_window.un_hide()
+                    choose_graph_flag = False
+
+                    while True:
+                        event5, values5 = graph_window.read()
+                        graph_window.bring_to_front()
+                        # print(event5)
+                        if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
+                            choose_graph_flag = False
+                        else:
+                            choose_graph_flag = True
+                        if event5 == "avg bpm 1 par":
+                            graph_window['participant graph1'].update(visible=True)
+                            graph_window['combo_par_graph1'].update(visible=True)
+                            graph_window['ride graph1'].update(visible=True)
+                            graph_window['combo_ride_graph1'].update(visible=True)
+                            graph_window['participant graph2'].update(visible=False)
+                            graph_window['combo_par_graph2'].update(visible=False)
+                            graph_window['ride graph2'].update(visible=False)
+                            graph_window['combo_ride_graph2'].update(visible=False)
+
+                        if event5 == "rmssd for several par":
+                            graph_window['participant graph2'].update(visible=True)
+                            graph_window['combo_par_graph2'].update(visible=True)
+                            graph_window['ride graph2'].update(visible=True)
+                            graph_window['combo_ride_graph2'].update(visible=True)
+                            graph_window['participant graph1'].update(visible=False)
+                            graph_window['combo_par_graph1'].update(visible=False)
+                            graph_window['ride graph1'].update(visible=False)
+                            graph_window['combo_ride_graph1'].update(visible=False)
+
+                        if event5 == "graphs back":
+                            graph_window.hide()
+                            summary_table_window.un_hide()
+                            graph_window['participant graph1'].update(visible=False)
+                            graph_window['combo_par_graph1'].update(visible=False)
+                            graph_window['ride graph1'].update(visible=False)
+                            graph_window['combo_ride_graph1'].update(visible=False)
+                            graph_window['participant graph2'].update(visible=False)
+                            graph_window['combo_par_graph2'].update(visible=False)
+                            graph_window['ride graph2'].update(visible=False)
+                            graph_window['combo_ride_graph2'].update(visible=False)
+                            choose_graph_flag = False
+                            break
+
+                        if event5 == "CONTINUE_GRAPH":
+                            if values5["avg bpm 1 par"] and choose_graph_flag:
+                                # שמירת האינפוטים במשתנים
+                                participant_num_input = int(values5['combo_par_graph1'])
+                                ride_input = int(values5['combo_ride_graph1'])
+                                p1 = Process(target=draw_plot1,
+                                             args=(participant_num_input, ride_input, globals.summary_table))
+                                p1.start()
+                                choose_graph_flag = False
+
+                            elif values5["rmssd for several par"] and choose_graph_flag:
+                                # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
+                                participants_input = values5['combo_par_graph2']
+                                ride_input = int(values5['combo_ride_graph2'])
+                                p2 = Process(target=draw_plot2,
+                                             args=(participants_input, ride_input, globals.summary_table))
+                                p2.start()
+                                choose_graph_flag = False
+
+                            else:
+                                sg.popup_quick_message('Please choose graph before continue',
+                                                       font=("Century Gothic", 14), background_color='red',
+                                                       location=(970, 880))
+                if event4 == "dq button":
                     summary_table_window.hide()
                     data_quality_table_window.un_hide()
                     while True:
                         data_quality_table_window.element("DataQTable").update(
-                            values=line)  # מונע מהמשתמש לשנות ערכים בטבלה
-                        event7, values7 = data_quality_table_window.read()
-                        if event7 == "dq back":
+                            values=dq_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
+                        event6, values6 = data_quality_table_window.read()
+                        if event6 == "dq back":
                             data_quality_table_window.hide()
                             summary_table_window.un_hide()
                             break
-        data_quality_table_window.close()
-        graph_window.close()
-        summary_table_window.close()
+                if event4 == "SumTable":
+                    if values4["SumTable"]:
+                        line = [dq_table_list[values4["SumTable"][0]]]
+                        summary_table_window.hide()
+                        data_quality_table_window.un_hide()
+                        while True:
+                            data_quality_table_window.element("DataQTable").update(
+                                values=line)  # מונע מהמשתמש לשנות ערכים בטבלה
+                            event7, values7 = data_quality_table_window.read()
+                            if event7 == "dq back":
+                                data_quality_table_window.hide()
+                                summary_table_window.un_hide()
+                                break
+            data_quality_table_window.close()
+            graph_window.close()
+            summary_table_window.close()
 
 
 if __name__ == '__main__':
-    #ui()
+    ui()
+"""
     layout_exceptions_values_window =exceptions_values_layout()
     # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
     exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
@@ -513,4 +580,5 @@ if __name__ == '__main__':
     while True:
         event8, values6 = exceptions_values_window.read()
         if event8 == "EXIT" or event8 == sg.WIN_CLOSED:
-            break
+           break
+                    """
