@@ -93,18 +93,20 @@ def checkFiles_of_rides(load_list, values):
     message = "Each folder should have EXACTLY " + str(
         len(globals.list_of_existing_par)) + " FILES according to the number of existing participants"
     for ride in range(1, globals.par_ride_num + 1):
-        for folder in range(0, len(load_list)):#ecg, sim, rr
+        for folder in range(0, len(load_list)):  # ecg, sim, rr
             if len(os.listdir(
                     values["-MAIN FOLDER-"] + "\\" + "ride " + str(ride) + "\\" + load_list[
                         folder])) != len(globals.list_of_existing_par):
                 sg.popup_quick_message(message, font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880), auto_close_duration=5)
                 return False
-            else:#יש לי מספר קבצים כנדרש בתיקיה
-                i=0
+            else:  # יש לי מספר קבצים כנדרש בתיקיה
+                i = 0
                 for file in os.listdir(values["-MAIN FOLDER-"] + "\\" + "ride " + str(ride) + "\\" + load_list[folder]):
-                    if str(globals.list_of_existing_par[i]) not in file:# שולפת קובץ בתיקיה ובודקת אם השם שלו תואם לרשימת הנבדקים הקיימים
-                        message = "the file of par " + str(globals.list_of_existing_par[i]) + " of folder " + load_list[folder] + " in ride " + str(ride) + " doesnt exist"
+                    if str(globals.list_of_existing_par[
+                               i]) not in file:  # שולפת קובץ בתיקיה ובודקת אם השם שלו תואם לרשימת הנבדקים הקיימים
+                        message = "the file of par " + str(globals.list_of_existing_par[i]) + " of folder " + load_list[
+                            folder] + " in ride " + str(ride) + " doesnt exist"
                         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                                background_color='red', location=(970, 880), auto_close_duration=5)
                         return False
@@ -114,17 +116,20 @@ def checkFiles_of_rides(load_list, values):
 
 def checkFiles_of_base(load_list, values):
     message = "Missing files! Each folder should have EXACTLY " + str(
-       len(globals.list_of_existing_par)) + " FILES according to the number of existing participants"
+        len(globals.list_of_existing_par)) + " FILES according to the number of existing participants"
     for folder in range(0, len(load_list)):  # base rr, bese ecg
-        if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != len(globals.list_of_existing_par):
+        if len(os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder])) != len(
+                globals.list_of_existing_par):
             sg.popup_quick_message(message, font=("Century Gothic", 14),
                                    background_color='red', location=(970, 880), auto_close_duration=5)
             return False
         else:  # יש לי מספר קבצים כנדרש בתיקיה
             i = 0
             for file in os.listdir(values["-MAIN FOLDER-"] + "\\" + "base" + "\\" + load_list[folder]):
-                if str(globals.list_of_existing_par[i]) not in file:  # שולפת קובץ בתיקיה ובודקת אם השם שלו תואם לרשימת הנבדקים הקיימים
-                    message = "the file of par " + str(globals.list_of_existing_par[i]) + " of folder " + load_list[folder] + " in base doesnt exist"
+                if str(globals.list_of_existing_par[
+                           i]) not in file:  # שולפת קובץ בתיקיה ובודקת אם השם שלו תואם לרשימת הנבדקים הקיימים
+                    message = "the file of par " + str(globals.list_of_existing_par[i]) + " of folder " + load_list[
+                        folder] + " in base doesnt exist"
                     sg.popup_quick_message(message, font=("Century Gothic", 14),
                                            background_color='red', location=(970, 880), auto_close_duration=5)
                     return False
@@ -132,21 +137,32 @@ def checkFiles_of_base(load_list, values):
     return True
 
 
-def exportCSV(values):
+def exportCSV_summary(values):
     path = sg.popup_get_folder(no_window=True, message="choose folder")
     headerlist = [True, True, True, values['Average BPM'], values['RMSSD'],
                   values['SDSD'], values['SDNN'], values['pNN50'], values['Baseline BPM'],
                   values['Baseline BPM'], values['RMSSD'], values['RMSSD'], values['SDNN'], values['SDNN'],
                   values['SDSD'], values['SDSD'], values['pNN50'], values['pNN50']]
     if path:
-        globals.summary_table.to_csv(path+'\\summary_table.csv', index=False, header=True,
+        globals.summary_table.to_csv(path + '\\summary_table.csv', index=False, header=True,
                                      columns=headerlist)
         sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 10),
                                background_color='white', text_color='black',
                                location=(120, 540))
 
-def checks_boundaries(lower,upper):
-    if lower>=upper:
+
+def exportCSV_dq():
+    path = sg.popup_get_folder(no_window=True, message="choose folder")
+
+    if path:
+        globals.data_quality_table.to_csv(path + '\\data_quality_table.csv', index=False, header=True)
+        sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 12),
+                               background_color='white', text_color='black',
+                               location=(1280, 880))
+
+
+def checks_boundaries(lower, upper):
+    if lower >= upper:
         return False
     else:
         return True

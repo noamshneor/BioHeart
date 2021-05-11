@@ -17,7 +17,8 @@ from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existin
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout, exceptions_values_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
-    exportCSV, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree
+    exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
+    exportCSV_dq
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -486,7 +487,7 @@ def ui():
                 do_restart = True
                 break
             if event4 == 'Export to CSV':
-                exportCSV(values4)
+                exportCSV_summary(values4)
             if event4 == "Graphs button":
                 summary_table_window.hide()
                 graph_window.un_hide()
@@ -560,6 +561,7 @@ def ui():
             if event4 == "dq button":
                 summary_table_window.hide()
                 data_quality_table_window.un_hide()
+                data_quality_table_window.element("dq export").update(visible=True)
                 while True:
                     data_quality_table_window.element("DataQTable").update(
                         values=dq_table_list)  # מונע מהמשתמש לשנות ערכים בטבלה
@@ -569,11 +571,14 @@ def ui():
                         data_quality_table_window.hide()
                         summary_table_window.un_hide()
                         break
+                    if event6 == "dq export":
+                        exportCSV_dq()
             if event4 == "SumTable":
                 if values4["SumTable"]:
                     line = [dq_table_list[values4["SumTable"][0]]]
                     summary_table_window.hide()
                     data_quality_table_window.un_hide()
+                    data_quality_table_window.element("dq export").update(visible=False)
                     while True:
                         data_quality_table_window.element("DataQTable").update(
                             values=line)  # מונע מהמשתמש לשנות ערכים בטבלה

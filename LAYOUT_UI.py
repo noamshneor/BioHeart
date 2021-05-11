@@ -108,12 +108,13 @@ def data_quality_table_window_layout(dq_table_list):
                               enable_events=True, key="DataQTable", font=("Century Gothic", 10),
                               text_color="black", justification='center')],
                     [
-                        sg.Text(text="", background_color="transparent", size_px=(700, 50)),
-                        sg.Button(button_text="EXPORT", size_px=(150, 60), key="dq export", enable_events=True,
+                        sg.Text(text="", background_color="transparent", size_px=(600, 50)),
+                        sg.Button(button_text="BACK", size_px=(150, 60), key="dq back", enable_events=True,
                                   font=("Century Gothic", 16)),
                         sg.Text(text="", background_color="transparent", size_px=(100, 0)),
-                        sg.Button(button_text="BACK", size_px=(150, 60), key="dq back", enable_events=True,
-                                  font=("Century Gothic", 16))
+                        sg.Button(button_text="Export to CSV", size_px=(250, 60), key="dq export",
+                                  enable_events=True, font=("Century Gothic", 16))
+
                     ],
                 ], background_color="transparent"
                 )
@@ -236,8 +237,9 @@ def loading_window_layout():
                 sg.Text(text="", background_color="transparent", size_px=(100, 30))
             ],
             [
-                sg.Text(text="", background_color="transparent", size_px=(210, 50)),
-                sg.Button(button_text="CANCEL", size_px=(80, 50), key="p bar cancel", enable_events=True)
+                sg.Text(text="", background_color="transparent", size_px=(140, 50)),
+                sg.Button(button_text="CANCEL", size_px=(150, 60), key="p bar cancel", enable_events=True,
+                          font=("Century Gothic", 16))
             ],
 
         ]
