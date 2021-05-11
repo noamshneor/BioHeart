@@ -406,6 +406,7 @@ def ui():
                     if event8 == "BACK_EXCEPTIONS":
                         exceptions_values_window.hide()
                         path_load_window.un_hide()
+                        correct_path_window = False  # בשביל שתתבצע שוב בדיקה על התיקייה אם בוחרים שוב
                         break
 
                 print(globals.is_filtering)
