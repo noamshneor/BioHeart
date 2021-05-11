@@ -302,11 +302,11 @@ def exceptions_values_layout():
                         visible=True,
                         key='choose desired BPM range',
                         font=("Century Gothic", 14), text_color='black'),
-                sg.Spin([str(i) for i in range(0, 180, 1)], change_submits=True, initial_value="40", key='_SPIN_BPM_LOWER',size=(7, 1.2),
+                sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value="40", key='_SPIN_BPM_LOWER',size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
-                sg.Spin([str(i) for i in range(0, 180, 1)], change_submits=True, initial_value='140',
+                sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value='140',
                         key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True),
             ],
 

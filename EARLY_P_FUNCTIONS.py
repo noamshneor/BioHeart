@@ -29,10 +29,10 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
     rows_sim = len(parSIM)
     print("initial_rows_at_par: " + str(initial_rows_at_par))
     print("initial_rows_at_sim: " + str(rows_sim))
-    if (col_name == 'BPM'):
+    if col_name == 'BPM':
         l_limit = globals.BPM_lower
         u_limit = globals.BPM_upper
-    if (col_name == 'RRIntervals'):
+    if col_name == 'RRIntervals':
         l_limit = globals.RR_lower
         u_limit = globals.RR_upper
     print(l_limit)
@@ -97,9 +97,6 @@ def flag_match(par, parSIM, lst, col_name):
             else:
                 j += 1  # move to the next SIM start range
 
-
-
-#
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
     globals.list_end_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(parSIM.at[j - 1, 'Time'],
@@ -279,9 +276,9 @@ def early_process_ecg_sim(index_in_folder, ride):
                                               globals.main_path + "\\" + "ride " + str(
                                                   ride) + "\\" + "ecg")[
                                               index_in_folder]),
-                             sep="\t", names=['mV', 'Volts', 'BPM', 'Time'], usecols=['BPM', 'Time'],
+                             sep="\t", usecols=[2], names=['BPM'],
                              skiprows=11 + int(globals.ecg_start * 1000), header=None)
-    parECG['Time'] = [x / 1000 for x in range(0, (len(parECG)))]  # filling a time column
+    parECG.insert(1, 'Time', [x / 1000 for x in range(0, (len(parECG)))], True)  # filling a time column
     parSIM = pandas.read_csv(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
                                           os.listdir(
                                               globals.main_path + "\\" + "ride " + str(
@@ -303,7 +300,7 @@ def early_process_base(index_in_folder):
                                                globals.main_path + "\\" + "base" + "\\" + "base ecg")[
                                                index_in_folder]),
                               sep="\t",
-                              names=['mV', 'Volts', 'BPM'], usecols=['BPM'],
+                              names=['BPM'], usecols=[2],
                               skiprows=11, header=None)
     avg_base = np.average(baseECG)  # avg for column BPM at baseECG
     baseRR = pandas.read_excel(os.path.join(globals.main_path + "\\" + "base" + "\\" + "base rr",
