@@ -227,6 +227,8 @@ def create_empty_folders():
         sg.popup_quick_message('Created successfully!', font=("Century Gothic", 12),
                                background_color='white', text_color='black',
                                location=(850, 920))
+        path = os.path.realpath(path + "\\main folder")
+        os.startfile(path)
 
 
 def tree_handle(path_load_window, values2):
