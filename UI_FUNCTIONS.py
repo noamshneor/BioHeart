@@ -1,4 +1,5 @@
 import os
+import shutil
 import time
 import PySimpleGUIQt as sg
 from matplotlib import pyplot as plt
@@ -209,6 +210,23 @@ def sync_handle(open_window, values):
         open_window["sim_start"].update("0")
         open_window["ecg_start"].update(disabled=True)
         open_window["ecg_start"].update("0")
+
+
+def create_empty_folders():
+    path = sg.popup_get_folder(no_window=True, message="choose folder")
+
+    if path:
+        if os.path.exists(path + "\\main folder"):
+            shutil.rmtree(path + "\\main folder")
+        os.makedirs(path + "\\main folder\\base\\base ecg")
+        os.makedirs(path + "\\main folder\\base\\base rr")
+        for ride in range(1, globals.par_ride_num + 1):
+            os.makedirs(path + "\\main folder\\ride " + str(ride) + "\\ecg")
+            os.makedirs(path + "\\main folder\\ride " + str(ride) + "\\sim")
+            os.makedirs(path + "\\main folder\\ride " + str(ride) + "\\rr")
+        sg.popup_quick_message('Created successfully!', font=("Century Gothic", 12),
+                               background_color='white', text_color='black',
+                               location=(850, 920))
 
 
 def tree_handle(path_load_window, values2):

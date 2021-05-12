@@ -16,7 +16,7 @@ from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, su
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
-    exceptions_checkbox_handle
+    exceptions_checkbox_handle, create_empty_folders
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -78,7 +78,6 @@ def pickle_early_process():
     """
     globals.current_par = 0
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
-    last_k = 0  # variable that helps to know how many rows in the summary table has been filled
     initial_list_of_existing_par()
 
     for par in range(1, globals.par_num + 1):  # loop for participants
@@ -102,8 +101,6 @@ def pickle_early_process():
             for i in range(1, globals.scenario_num + 1):
                 listBPM.append(
                     sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))  # list with Average BPM for each scenario
-            # print(sum(list_of_bpm_flag[i]))
-            # print(len(list_of_bpm_flag[i]))
 
             list_of_rr_flag = [[] for i in range(globals.scenario_num + 1)]
             line = 0
@@ -138,22 +135,6 @@ def pickle_early_process():
                                       baseRR_pickle) * globals.scenario_num}))
 
             globals.summary_table.reset_index(drop=True, inplace=True)
-            # print(globals.summary_table)
-            for k in range(last_k, last_k + globals.scenario_num):
-                globals.summary_table.at[k, 'Subtraction BPM'] = abs(
-                    globals.summary_table.at[k, 'Baseline BPM'] - globals.summary_table.at[k, 'Average BPM'])
-                globals.summary_table.at[k, 'Subtraction RMSSD'] = abs(
-                    globals.summary_table.at[k, 'Baseline RMSSD'] - globals.summary_table.at[k, 'RMSSD'])
-                globals.summary_table.at[k, 'Subtraction SDNN'] = abs(
-                    globals.summary_table.at[k, 'Baseline SDNN'] - globals.summary_table.at[k, 'SDNN'])
-                globals.summary_table.at[k, 'Subtraction SDSD'] = abs(
-                    globals.summary_table.at[k, 'Baseline SDSD'] - globals.summary_table.at[k, 'SDSD'])
-                globals.summary_table.at[k, 'Subtraction PNN50'] = abs(
-                    globals.summary_table.at[k, 'Baseline PNN50'] - globals.summary_table.at[k, 'PNN50'])
-                # print(globals.summary_table_par.at[k, 'Subtraction BPM'])
-                # print("k:"+str(k))
-            last_k = last_k + globals.scenario_num
-            # print("last k:"+str(last_k))
             # print(summary_table_par[['Participant', 'Ride Number', 'Subtraction BPM','Subtraction RMSSD','Subtraction SDNN','Subtraction SDSD','Subtraction PNN50']])
             # summary_table_par.to_pickle("summary_table_par" + str(par))#אם היינו רוצות לשמור טבלה לכל ניבדק בנפרד
             globals.percent += (1 / globals.par_num) / globals.par_ride_num
@@ -236,6 +217,8 @@ def ui():
             event2, values2 = path_load_window.read()
             if event2 == "EXIT" or event2 == sg.WIN_CLOSED:
                 return False
+            if event2 == "Create empty folders":
+                create_empty_folders()
             if event2 == "-MAIN FOLDER-":
                 tree_handle(path_load_window, values2)
             if event2 == "CONTINUE_PATH":

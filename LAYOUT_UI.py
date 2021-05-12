@@ -370,7 +370,10 @@ def path_load_window_layout():
                         enable_events=True),
             ],
             [
-                sg.Text("", background_color="transparent", size=(1175, 20)),
+                sg.Text("", background_color="transparent", size=(262, 20)),
+                sg.Button("Create empty folders", size=(414, 45), font=("Century Gothic", 18), key="Create empty folders",
+                          enable_events=True, tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"Main Folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
+                sg.Text("", background_color="transparent", size=(500, 20)),
                 sg.Button("EXIT", size=(110, 45), font=("Century Gothic", 18)),
                 sg.Text("", background_color="transparent", size=(50, 35),
                         font=("Century Gothic", 16)),
