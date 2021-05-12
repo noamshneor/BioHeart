@@ -1,9 +1,6 @@
 import time
 import threading
 import pandas
-# import biosppy
-# import HeartPy
-# import NeuroKit2
 import numpy as np
 import os
 import PySimpleGUIQt as sg
@@ -18,7 +15,8 @@ from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, su
     loading_window_layout, path_load_window_layout, open_window_layout, exceptions_values_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
-    exportCSV_dq
+    exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
+    exceptions_checkbox_handle
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -31,7 +29,6 @@ def early_process():
     """
     globals.current_par = 0
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
-    last_k = 0  # variable that helps to know how many rows in the summary table has been filled
     initial_list_of_existing_par()
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
@@ -63,7 +60,7 @@ def early_process():
                     # convert to pickle the "clean files"
                     save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
                     # ------------------------------------- filling summary table ------------------------------------
-                    last_k = filling_summary_table(avg_base, baseRR, last_k, listBPM, par, parRR, ride)
+                    filling_summary_table(avg_base, baseRR, listBPM, par, parRR, ride)
                     # ----------------------------------- filling data quality table ---------------------------------
                     med_rr(list_of_rr_flag)
                     dq_completeness_rr()
@@ -72,24 +69,6 @@ def early_process():
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
                 globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
         print(globals.percent * 100)
-
-
-"""
-        print(globals.list_start_time)
-        print(globals.list_end_time)
-        print(globals.list_min_bpm)
-        print(globals.list_max_bpm)
-        print(globals.list_null_bpm)
-        print(globals.list_completeness_bpm)
-        print(globals.list_median_bpm)
-        print(globals.list_min_rr)
-        print(globals.list_max_rr)
-        print(globals.list_null_rr)
-        print(globals.list_completeness_rr)
-        print(globals.list_median_rr)
-    print(globals.data_quality_table)
-    # globals.data_quality_table.to_csv('data_quality_table.csv', index=False, header=True)
-"""
 
 
 def pickle_early_process():
@@ -161,21 +140,21 @@ def pickle_early_process():
             globals.summary_table.reset_index(drop=True, inplace=True)
             # print(globals.summary_table)
             for k in range(last_k, last_k + globals.scenario_num):
-                globals.summary_table.at[k, 'Substraction BPM'] = abs(
+                globals.summary_table.at[k, 'Subtraction BPM'] = abs(
                     globals.summary_table.at[k, 'Baseline BPM'] - globals.summary_table.at[k, 'Average BPM'])
-                globals.summary_table.at[k, 'Substraction RMSSD'] = abs(
+                globals.summary_table.at[k, 'Subtraction RMSSD'] = abs(
                     globals.summary_table.at[k, 'Baseline RMSSD'] - globals.summary_table.at[k, 'RMSSD'])
-                globals.summary_table.at[k, 'Substraction SDNN'] = abs(
+                globals.summary_table.at[k, 'Subtraction SDNN'] = abs(
                     globals.summary_table.at[k, 'Baseline SDNN'] - globals.summary_table.at[k, 'SDNN'])
-                globals.summary_table.at[k, 'Substraction SDSD'] = abs(
+                globals.summary_table.at[k, 'Subtraction SDSD'] = abs(
                     globals.summary_table.at[k, 'Baseline SDSD'] - globals.summary_table.at[k, 'SDSD'])
-                globals.summary_table.at[k, 'Substraction PNN50'] = abs(
+                globals.summary_table.at[k, 'Subtraction PNN50'] = abs(
                     globals.summary_table.at[k, 'Baseline PNN50'] - globals.summary_table.at[k, 'PNN50'])
-                # print(globals.summary_table_par.at[k, 'Substraction BPM'])
+                # print(globals.summary_table_par.at[k, 'Subtraction BPM'])
                 # print("k:"+str(k))
             last_k = last_k + globals.scenario_num
             # print("last k:"+str(last_k))
-            # print(summary_table_par[['Participant', 'Ride Number', 'Substraction BPM','Substraction RMSSD','Substraction SDNN','Substraction SDSD','Substraction PNN50']])
+            # print(summary_table_par[['Participant', 'Ride Number', 'Subtraction BPM','Subtraction RMSSD','Subtraction SDNN','Subtraction SDSD','Subtraction PNN50']])
             # summary_table_par.to_pickle("summary_table_par" + str(par))#אם היינו רוצות לשמור טבלה לכל ניבדק בנפרד
             globals.percent += (1 / globals.par_num) / globals.par_ride_num
         globals.current_par = par
@@ -210,27 +189,10 @@ def ui():
             return False  # אפשר לעצור את הלולאה והחלון ייסגר
 
         # הגבלת השדות לקבל אך ורק ספרות בין 0 ל9 ללא שום תווים אחרים
-        if event == 'par_num' and values['par_num'] and values['par_num'][-1] not in '0123456789':
-            open_window['par_num'].update(values['par_num'][:-1])
-        if event == 'scenario_num' and values['scenario_num'] and values['scenario_num'][-1] not in '0123456789':
-            open_window['scenario_num'].update(values['scenario_num'][:-1])
-        if event == 'scenario_col_num' and values['scenario_col_num'] and values['scenario_col_num'][
-            -1] not in '0123456789':
-            open_window['scenario_col_num'].update(values['scenario_col_num'][:-1])
-        if event == 'sim_start' and values['sim_start'] and values['sim_start'][-1] not in '0123456789.':
-            open_window['sim_start'].update(values['sim_start'][:-1])
-        if event == 'ecg_start' and values['ecg_start'] and values['ecg_start'][-1] not in '0123456789.':
-            open_window['ecg_start'].update(values['ecg_start'][:-1])
+        all_input_0_9(event, open_window, values)
 
         if event == 'Sync':
-            if not values['Sync']:
-                open_window["sim_start"].update(disabled=False)
-                open_window["ecg_start"].update(disabled=False)
-            else:
-                open_window["sim_start"].update(disabled=True)
-                open_window["sim_start"].update("0")
-                open_window["ecg_start"].update(disabled=True)
-                open_window["ecg_start"].update("0")
+            sync_handle(open_window, values)
 
         if event == "CONTINUE_OPEN":
             # ----------------------------------------- SAVE INPUT -----------------------------------------
@@ -247,12 +209,7 @@ def ui():
                                            auto_close_duration=5)
                 else:
                     # שמירת האינפוטים במשתנים
-                    globals.par_num = int(values['par_num'])
-                    globals.par_ride_num = int(values['par_ride_num'])
-                    globals.scenario_num = int(values['scenario_num'])
-                    globals.scenario_col_num = int(values['scenario_col_num'])
-                    globals.sim_start = float(values['sim_start'])
-                    globals.ecg_start = float(values['ecg_start'])
+                    save_input_open_window(values)
                     initial_list_of_existing_par()
                     correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
                     break  # אפשר לעצור את הלולאה והחלון ייסגר
@@ -260,11 +217,6 @@ def ui():
 
     if correct_open_window:  # רק אם כל הפרטים היו נכונים ונשמרו במסך הקודם
         # כלומר - אם החלון הקודם נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
-        # -------------------------------------------- Path Load Windows --------------------------------------------
-        path_load_window = sg.Window(title="BIO Heart", layout=layout_path_load_window, size=(1730, 970),
-                                     disable_minimize=True,
-                                     location=(90, 0), background_image="back2.png", element_padding=(0, 0),
-                                     finalize=True)
         exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
                                              size=(1000, 680),
                                              disable_minimize=True,
@@ -272,6 +224,12 @@ def ui():
                                              element_padding=(0, 0),
                                              finalize=True)
         exceptions_values_window.hide()
+        # -------------------------------------------- Path Load Windows --------------------------------------------
+        path_load_window = sg.Window(title="BIO Heart", layout=layout_path_load_window, size=(1730, 970),
+                                     disable_minimize=True,
+                                     location=(90, 0), background_image="back2.png", element_padding=(0, 0),
+                                     finalize=True)
+
         initial_tree(path_load_window['-TREE-'], "")
         exit_path_load = False
         while not exit_path_load:
@@ -279,12 +237,7 @@ def ui():
             if event2 == "EXIT" or event2 == sg.WIN_CLOSED:
                 return False
             if event2 == "-MAIN FOLDER-":
-                if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
-                    initial_tree(path_load_window['-TREE-'], os.path.basename(values2["-MAIN FOLDER-"]))
-                    tree = sg.TreeData()
-                    add_files_in_folder('', values2["-MAIN FOLDER-"], tree)
-                    path_load_window['-TREE-'].update(tree)  # הצגת תכולת התיקייה שנבחרה
-
+                tree_handle(path_load_window, values2)
             if event2 == "CONTINUE_PATH":
                 # check if can continue - להפוך לפונקציה
                 if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
@@ -317,7 +270,6 @@ def ui():
                                         values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     globals.main_path = values2["-MAIN FOLDER-"]
-                                    # path_load_window.hide()
                         else:  # מדובר בטעינה קיימת
                             newload = False
                             exist_load_list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
@@ -328,35 +280,18 @@ def ui():
                                         exist_load_list_in_base, values2):
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     globals.main_path = values2["-MAIN FOLDER-"]
-                                    # path_load_window.hide()
-                                    # break
 
             if correct_path_window:
                 path_load_window.hide()
                 exceptions_values_window.un_hide()
                 # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
                 # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
-
                 while True:
                     event8, values8 = exceptions_values_window.read()
                     if event8 == sg.WIN_CLOSED:
-                        return
-                        # exit_from_exceptions_window = True
+                        return False
 
-                    if event8 == "checkbox exceptions BPM" or event8 == "checkbox exceptions RR":  # אם לחצתי
-                        if values8["checkbox exceptions BPM"] or values8["no filtering checkbox"]:
-                            exceptions_values_window["no filtering checkbox"].update(False)
-                        if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
-                            exceptions_values_window["no filtering checkbox"].update(True)
-
-                    if event8 == "no filtering checkbox":
-                        if values8["no filtering checkbox"]:
-                            if values8["checkbox exceptions RR"] or values8["checkbox exceptions BPM"]:
-                                exceptions_values_window["no filtering checkbox"].update(False)
-                            exceptions_values_window["checkbox exceptions RR"].update(False)
-                            exceptions_values_window["checkbox exceptions BPM"].update(False)
-                        if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
-                            exceptions_values_window["no filtering checkbox"].update(True)
+                    exceptions_checkbox_handle(event8, exceptions_values_window, values8)
 
                     if event8 == "CONTINUE_EXCEPTIONS":
                         if values8["no filtering checkbox"]:
@@ -428,18 +363,7 @@ def ui():
         while True:
             event3, values3 = loading_window.read(timeout=10)
             # ---------------------------------- update window elements ----------------------------------
-            loading_window.element("num of num").update(
-                "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
-            loading_window.element("current_ride").update(
-                "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
-            loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
-
-            elapsed_time = time.time() - start_time
-            loading_window.element("Time elapsed").update(
-                time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
-
-            loading_window.element("p bar").update_bar(globals.percent * 100)
-
+            loading_window_update(loading_window, start_time)
             if globals.percent * 100 >= 99.99:
                 break
             if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
@@ -614,7 +538,6 @@ if __name__ == '__main__':
     while True:
         event8, values8 = exceptions_values_window.read()
         if event8 == sg.WIN_CLOSED:
-            exit_from_exceptions_window = True
             break
 
     """

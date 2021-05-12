@@ -1,8 +1,6 @@
 import os
-
 import numpy as np
 import pandas
-
 import HRV_METHODS
 import globals
 import openpyxl
@@ -42,7 +40,8 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
         curr_value = par.at[i, col_name]
         if l_limit <= curr_value <= u_limit:  # האם הטווח תקין
             if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
-                if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:  # אם האקג בזמן הוא בין הזמנים של הסימולטור
+                if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[
+                    j, 'Time']:  # אם האקג בזמן הוא בין הזמנים של הסימולטור
                     # if time in ECG/RR between time range in SIM
                     if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
                         scenario = parSIM.at[j, 'Scenario']
@@ -146,34 +145,42 @@ def initial_list_of_existing_par():
     print(*globals.list_of_existing_par)
 
 
-def filling_summary_table(avg_base, baseRR, last_k, listBPM, par, parRR, ride):
+def list_hrv_methods(avg_base, baseRR, parRR):
+    listRMSSD = HRV_METHODS.RMSSD(parRR)
+    listSDSD = HRV_METHODS.SDSD(parRR)
+    listSDNN = HRV_METHODS.SDNN(parRR)
+    listPNN50 = HRV_METHODS.PNN50(parRR)
+    listBaseBPM = [avg_base] * globals.scenario_num
+    listBaseRMSSD = [HRV_METHODS.Baseline_RMSSD(baseRR)] * globals.scenario_num
+    listBaseSDNN = [HRV_METHODS.Baseline_SDNN(baseRR)] * globals.scenario_num
+    listBaseSDSD = [HRV_METHODS.Baseline_SDSD(baseRR)] * globals.scenario_num
+    listBasePNN50 = [HRV_METHODS.Baseline_PNN50(baseRR)] * globals.scenario_num
+    return listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD
+
+
+def filling_summary_table(avg_base, baseRR, listBPM, par, parRR, ride):
+    listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD = list_hrv_methods(
+        avg_base, baseRR, parRR)
     globals.summary_table = globals.summary_table.append(
         pandas.DataFrame({'Participant': [par] * globals.scenario_num,
                           'Ride Number': [ride] * globals.scenario_num,
                           'Scenario': list(range(1, globals.scenario_num + 1)),
-                          'Average BPM': listBPM, 'RMSSD': HRV_METHODS.RMSSD(parRR),
-                          'SDSD': HRV_METHODS.SDSD(parRR), 'SDNN': HRV_METHODS.SDNN(parRR),
-                          'PNN50': HRV_METHODS.PNN50(parRR),
-                          'Baseline BPM': [avg_base] * globals.scenario_num,
-                          'Baseline RMSSD': HRV_METHODS.Baseline_RMSSD(baseRR),
-                          'Baseline SDNN': HRV_METHODS.Baseline_SDNN(baseRR),
-                          'Baseline SDSD': HRV_METHODS.Baseline_SDSD(baseRR),
-                          'Baseline PNN50': HRV_METHODS.Baseline_PNN50(baseRR)}))
+                          'Average BPM': listBPM, 'RMSSD': listRMSSD, 'SDSD': listSDSD,
+                          'SDNN': listSDNN, 'PNN50': listPNN50, 'Baseline BPM': listBaseBPM,
+                          'Baseline RMSSD': listBaseRMSSD, 'Baseline SDNN': listBaseSDNN,
+                          'Baseline SDSD': listBaseSDSD, 'Baseline PNN50': listBasePNN50,
+                          'Subtraction BPM': [round(abs(x - y), 4) for x, y in
+                                               zip(listBaseBPM, listBPM)],
+                          'Subtraction RMSSD': [round(abs(x - y), 4) for x, y in
+                                                 zip(listBaseRMSSD, listRMSSD)],
+                          'Subtraction SDNN': [round(abs(x - y), 4) for x, y in
+                                                zip(listBaseSDNN, listSDNN)],
+                          'Subtraction SDSD': [round(abs(x - y), 4) for x, y in
+                                                zip(listBaseSDSD, listSDSD)],
+                          'Subtraction PNN50': [round(abs(x - y), 4) for x, y in
+                                                 zip(listBasePNN50, listPNN50)]
+                          }))
     globals.summary_table.reset_index(drop=True, inplace=True)
-    for k in range(last_k,
-                   last_k + globals.scenario_num):  # filling substraction columns,for participant&ride
-        globals.summary_table.at[k, 'Substraction BPM'] = abs(
-            globals.summary_table.at[k, 'Baseline BPM'] - globals.summary_table.at[k, 'Average BPM'])
-        globals.summary_table.at[k, 'Substraction RMSSD'] = abs(
-            globals.summary_table.at[k, 'Baseline RMSSD'] - globals.summary_table.at[k, 'RMSSD'])
-        globals.summary_table.at[k, 'Substraction SDNN'] = abs(
-            globals.summary_table.at[k, 'Baseline SDNN'] - globals.summary_table.at[k, 'SDNN'])
-        globals.summary_table.at[k, 'Substraction SDSD'] = abs(
-            globals.summary_table.at[k, 'Baseline SDSD'] - globals.summary_table.at[k, 'SDSD'])
-        globals.summary_table.at[k, 'Substraction PNN50'] = abs(
-            globals.summary_table.at[k, 'Baseline PNN50'] - globals.summary_table.at[k, 'PNN50'])
-    last_k = last_k + globals.scenario_num
-    return last_k
 
 
 def filling_dq_table(listBPM_per_scenario, par, ride):

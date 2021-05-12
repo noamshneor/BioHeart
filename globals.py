@@ -36,10 +36,10 @@ main_path = ""
 treedata = sg.TreeData()
 header_summary_table = ["Participant", "Ride Number", "Scenario", "Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50",
                         "Baseline BPM",
-                        "Substraction BPM", "Baseline RMSSD", "Substraction RMSSD", "Baseline SDNN",
-                        "Substraction SDNN",
-                        "Baseline SDSD", "Substraction SDSD", "Baseline PNN50",
-                        "Substraction PNN50"]
+                        "Subtraction BPM", "Baseline RMSSD", "Subtraction RMSSD", "Baseline SDNN",
+                        "Subtraction SDNN",
+                        "Baseline SDSD", "Subtraction SDSD", "Baseline PNN50",
+                        "Subtraction PNN50"]
 summary_table = pandas.DataFrame(columns=header_summary_table)  # create empty table,only with columns names
 header_data_quality = ["Participant", "Ride Number", "Scenario", "Start time", "End time", "Duration",
                        "BPM(ecg) : Total number of rows", "BPM(ecg) : Number of empty rows",

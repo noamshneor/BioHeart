@@ -1,8 +1,7 @@
 import os
-
+import time
 import PySimpleGUIQt as sg
 from matplotlib import pyplot as plt
-
 import globals
 
 
@@ -185,3 +184,75 @@ def initial_tree(element, label):
     widget = element.QT_QTreeWidget
     widget.setHeaderLabel(label)
     widget.clear()
+
+
+def all_input_0_9(event, open_window, values):
+    if event == 'par_num' and values['par_num'] and values['par_num'][-1] not in '0123456789':
+        open_window['par_num'].update(values['par_num'][:-1])
+    if event == 'scenario_num' and values['scenario_num'] and values['scenario_num'][-1] not in '0123456789':
+        open_window['scenario_num'].update(values['scenario_num'][:-1])
+    if event == 'scenario_col_num' and values['scenario_col_num'] and values['scenario_col_num'][
+        -1] not in '0123456789':
+        open_window['scenario_col_num'].update(values['scenario_col_num'][:-1])
+    if event == 'sim_start' and values['sim_start'] and values['sim_start'][-1] not in '0123456789.':
+        open_window['sim_start'].update(values['sim_start'][:-1])
+    if event == 'ecg_start' and values['ecg_start'] and values['ecg_start'][-1] not in '0123456789.':
+        open_window['ecg_start'].update(values['ecg_start'][:-1])
+
+
+def sync_handle(open_window, values):
+    if not values['Sync']:
+        open_window["sim_start"].update(disabled=False)
+        open_window["ecg_start"].update(disabled=False)
+    else:
+        open_window["sim_start"].update(disabled=True)
+        open_window["sim_start"].update("0")
+        open_window["ecg_start"].update(disabled=True)
+        open_window["ecg_start"].update("0")
+
+
+def tree_handle(path_load_window, values2):
+    if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
+        initial_tree(path_load_window['-TREE-'], os.path.basename(values2["-MAIN FOLDER-"]))
+        tree = sg.TreeData()
+        add_files_in_folder('', values2["-MAIN FOLDER-"], tree)
+        path_load_window['-TREE-'].update(tree)  # הצגת תכולת התיקייה שנבחרה
+
+
+def exceptions_checkbox_handle(event8, exceptions_values_window, values8):
+    if event8 == "checkbox exceptions BPM" or event8 == "checkbox exceptions RR":  # אם לחצתי
+        if values8["checkbox exceptions BPM"] or values8["no filtering checkbox"]:
+            exceptions_values_window["no filtering checkbox"].update(False)
+        if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+            exceptions_values_window["no filtering checkbox"].update(True)
+    if event8 == "no filtering checkbox":
+        if values8["no filtering checkbox"]:
+            if values8["checkbox exceptions RR"] or values8["checkbox exceptions BPM"]:
+                exceptions_values_window["no filtering checkbox"].update(False)
+            exceptions_values_window["checkbox exceptions RR"].update(False)
+            exceptions_values_window["checkbox exceptions BPM"].update(False)
+        if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+            exceptions_values_window["no filtering checkbox"].update(True)
+
+
+def save_input_open_window(values):
+    globals.par_num = int(values['par_num'])
+    globals.par_ride_num = int(values['par_ride_num'])
+    globals.scenario_num = int(values['scenario_num'])
+    globals.scenario_col_num = int(values['scenario_col_num'])
+    globals.sim_start = float(values['sim_start'])
+    globals.ecg_start = float(values['ecg_start'])
+
+
+def loading_window_update(loading_window, start_time):
+    loading_window.element("num of num").update(
+        "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
+    loading_window.element("current_ride").update(
+        "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
+    loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
+    elapsed_time = time.time() - start_time
+    loading_window.element("Time elapsed").update(
+        time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+    loading_window.element("p bar").update_bar(globals.percent * 100)
+
+
