@@ -8,7 +8,7 @@ import sys
 from multiprocessing import Process
 import HRV_METHODS
 import globals
-from EARLY_P_FUNCTIONS import flag_match, rr_time_match, initial_list_of_existing_par, filling_summary_table, \
+from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
@@ -46,6 +46,7 @@ def early_process():
                     list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
                     initial_data_quality()
                     # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
+                    print("flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')")
                     flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')
                     listBPM, listBPM_per_scenario = avg_med_bpm(list_of_bpm_flag)
                     dq_completeness_bpm(listBPM_per_scenario)
@@ -53,7 +54,8 @@ def early_process():
                     parRR, list_of_rr_flag = early_process_rr(index_in_folder, ride)
                     rr_time_match(parRR)  # function that fill the time column in parRR
                     # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
-                    flag_match(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
+                    print("flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')")
+                    flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
                     # ------------------------------------------ BASE RR & ECG ---------------------------------------
                     avg_base, baseRR, baseECG = early_process_base(index_in_folder)
                     # ------------------------------------------------------------------------------------------------
@@ -201,10 +203,11 @@ def ui():
         exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
                                              size=(1000, 680),
                                              disable_minimize=True,
-                                             location=(450, 120), background_image="backsum.png",
+                                             location=(5000, 5000), background_image="backsum.png",
                                              element_padding=(0, 0),
                                              finalize=True)
         exceptions_values_window.hide()
+        exceptions_values_window.move(450, 120)
         # -------------------------------------------- Path Load Windows --------------------------------------------
         path_load_window = sg.Window(title="BIO Heart", layout=layout_path_load_window, size=(1730, 970),
                                      disable_minimize=True,
@@ -279,16 +282,17 @@ def ui():
                     if event8 == "CONTINUE_EXCEPTIONS":
                         if values8["no filtering checkbox"]:
                             # שמירת האינפוטים במשתנים
-                            globals.is_filtering = False
+                            globals.filter_type = globals.Filter.NONE
                             exit_path_load = True
                             break
                         else:
-                            globals.is_filtering = True
                             if values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
                                 globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
                                 globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
                                 if checks_boundaries(globals.RR_lower, globals.RR_upper):
+                                    globals.filter_type = globals.Filter.RR
                                     exit_path_load = True
+
                                     break
                                 else:
                                     sg.popup_quick_message(
@@ -300,6 +304,7 @@ def ui():
                                 globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
                                 globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
                                 if checks_boundaries(globals.BPM_lower, globals.BPM_upper):
+                                    globals.filter_type = globals.Filter.BPM
                                     exit_path_load = True
                                     break
                                 else:
@@ -315,6 +320,7 @@ def ui():
                                 globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
                                 if checks_boundaries(globals.BPM_lower, globals.BPM_upper) and checks_boundaries(
                                         globals.RR_lower, globals.RR_upper):
+                                    globals.filter_type = globals.Filter.BOTH
                                     exit_path_load = True
                                     break
                                 else:
@@ -328,7 +334,7 @@ def ui():
                         correct_path_window = False  # בשביל שתתבצע שוב בדיקה על התיקייה אם בוחרים שוב
                         break
 
-                print(globals.is_filtering)
+                print(globals.filter_type)
                 print(globals.RR_lower, globals.RR_upper, globals.BPM_lower, globals.BPM_upper)
         exceptions_values_window.close()
         path_load_window.close()

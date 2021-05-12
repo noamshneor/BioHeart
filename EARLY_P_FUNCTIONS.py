@@ -36,65 +36,78 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
     print(l_limit)
     print(u_limit)
     print("start while loop")
+    exceptions_ok = check_filter_type(col_name)
     while i < initial_rows_at_par:
         curr_value = par.at[i, col_name]
-        if l_limit <= curr_value <= u_limit:  # האם הטווח תקין
-            if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
-                if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[
-                    j, 'Time']:  # אם האקג בזמן הוא בין הזמנים של הסימולטור
-                    # if time in ECG/RR between time range in SIM
-                    if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
-                        scenario = parSIM.at[j, 'Scenario']
-                        par.at[i, 'Scenario'] = scenario  # match the flag
-                        lst[scenario].append(curr_value)  # מכניס לרשימה של הרשימות- bpm לכל flag
-                        if col_name == "BPM":
-                            dq_bpm_start_end_min_max_null(i, j, par, parSIM)
-                        if col_name == "RRIntervals":
-                            dq_rr_min_max_null(i, j, par, parSIM)
-                    i += 1  # move to the next ECG/RR row to match
-                else:
-                    j += 1
-        else:  # צריך להסיר שורות מהקובץ בגלל טווח חריגים
-            # exception_count += 1
-            # exceptions.append(i)
-            i += 1
-    print("i is: " + str(i))
-    # while i < len(exceptions):
-    #     par.drop(exceptions[i])
-    #     print("dropped line "+ str(i))
-    #     i += 1
-
-
-def flag_match(par, parSIM, lst, col_name):
-    """ Match the scenario flag
-    from:simulation data
-    to:ecg data
-    --> by time
-
-    :param par: DataFrame of par data
-    :param parSIM: DataFrame of SIMULATION data
-    :param lst: List of value for specific flag
-    :param col_name: column name
-    :type par: DataFrame
-    :type parSIM: DataFrame
-    :type col_name: str
-    """
-    i = 0
-    j = 1
-    while i < len(par):  # while there are still rows to match in ECG/RR
-        if j < len(parSIM):
-            if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
+        if exceptions_ok:
+            if not (l_limit <= curr_value <= u_limit):
+                i += 1
+                continue # האם הטווח תקין
+        if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
+            if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[
+                j, 'Time']:  # אם האקג בזמן הוא בין הזמנים של הסימולטור
                 # if time in ECG/RR between time range in SIM
-                if int(parSIM.at[j - 1, 'Scenario']) != 0:
-                    par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
-                    lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
+                if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
+                    scenario = parSIM.at[j, 'Scenario']
+                    par.at[i, 'Scenario'] = scenario  # match the flag
+                    lst[scenario].append(curr_value)  # מכניס לרשימה של הרשימות- bpm לכל flag
                     if col_name == "BPM":
                         dq_bpm_start_end_min_max_null(i, j, par, parSIM)
                     if col_name == "RRIntervals":
                         dq_rr_min_max_null(i, j, par, parSIM)
                 i += 1  # move to the next ECG/RR row to match
             else:
-                j += 1  # move to the next SIM start range
+                j += 1
+        # else:  # צריך להסיר שורות מהקובץ בגלל טווח חריגים
+        #     # exception_count += 1
+        #     # exceptions.append(i)
+        #     i += 1
+        #print("i is: " + str(i))
+        # while i < len(exceptions):
+        #     par.drop(exceptions[i])
+        #     print("dropped line "+ str(i))
+        #     i += 1
+
+
+def check_filter_type(col_name):
+    if globals.filter_type == globals.Filter.NONE:
+        return False
+    if globals.filter_type == globals.Filter.BPM and col_name != "BPM":
+        return False
+    if globals.filter_type == globals.Filter.RR and col_name != "RRIntervals":
+        return False
+    return True
+
+# def flag_match(par, parSIM, lst, col_name):
+#     """ Match the scenario flag
+#     from:simulation data
+#     to:ecg data
+#     --> by time
+#
+#     :param par: DataFrame of par data
+#     :param parSIM: DataFrame of SIMULATION data
+#     :param lst: List of value for specific flag
+#     :param col_name: column name
+#     :type par: DataFrame
+#     :type parSIM: DataFrame
+#     :type col_name: str
+#     """
+#     i = 0
+#     j = 1
+#     while i < len(par):  # while there are still rows to match in ECG/RR
+#         if j < len(parSIM):
+#             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
+#                 # if time in ECG/RR between time range in SIM
+#                 if int(parSIM.at[j - 1, 'Scenario']) != 0:
+#                     par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
+#                     lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
+#                     if col_name == "BPM":
+#                         dq_bpm_start_end_min_max_null(i, j, par, parSIM)
+#                     if col_name == "RRIntervals":
+#                         dq_rr_min_max_null(i, j, par, parSIM)
+#                 i += 1  # move to the next ECG/RR row to match
+#             else:
+#                 j += 1  # move to the next SIM start range
 
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
@@ -245,7 +258,10 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
-        globals.list_completeness_bpm[i] = \
+        if listBPM_per_scenario[i] == 0:
+            globals.list_completeness_bpm[i] = 0
+        else:
+            globals.list_completeness_bpm[i] = \
             round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)
 
 
@@ -261,9 +277,15 @@ def avg_med_bpm(list_of_bpm_flag):
     listBPM = []  # list of Average BPM by scenario
     listBPM_per_scenario = []
     for i in range(1, globals.scenario_num + 1):
-        listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
+        if len(list_of_bpm_flag[i])!= 0:
+            listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
+            globals.list_median_bpm[i - 1] = round(np.median(list_of_bpm_flag[i]), 4)
+
+        else:
+            listBPM.append(0)
+            globals.list_median_bpm[i - 1] = 0
         listBPM_per_scenario.append(len(list_of_bpm_flag[i]))
-        globals.list_median_bpm[i - 1] = round(np.median(list_of_bpm_flag[i]), 4)
+
     return listBPM, listBPM_per_scenario
 
 

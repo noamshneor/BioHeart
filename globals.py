@@ -1,5 +1,13 @@
+from enum import Enum
+
 import pandas
 import PySimpleGUIQt as sg
+
+class Filter(Enum):
+    NONE=1
+    BPM=2
+    RR=3
+    BOTH=4
 
 scenario_num = 0
 scenario_col_num = 0
@@ -7,7 +15,7 @@ par_num = 0
 par_ride_num = 0
 sim_start = 0.0
 ecg_start = 0.0
-par_not_existing = [3,5,7]
+par_not_existing = [1,2]
 current_par = 0
 current_ride = 0
 percent = 0
@@ -25,7 +33,7 @@ list_max_rr = []
 list_null_rr = []
 list_completeness_rr = []
 list_median_rr = []
-is_filtering = False
+filter_type = Filter.NONE
 RR_lower = 0
 RR_upper = 0
 BPM_lower = 0
