@@ -259,7 +259,7 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
         if listBPM_per_scenario[i] == 0:
-            globals.list_completeness_bpm[i] = 0
+            globals.list_completeness_bpm[i] = round(0, 2)
         else:
             globals.list_completeness_bpm[i] = \
             round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)
@@ -267,8 +267,11 @@ def dq_completeness_bpm(listBPM_per_scenario):
 
 def dq_completeness_rr():
     for i in range(globals.scenario_num):
-        globals.list_completeness_rr[i] = \
-            round(
+        if globals.list_count_rmssd[i + 1] == 0:
+            globals.list_completeness_rr[i] = round(0, 2)
+        else:
+            globals.list_completeness_rr[i] = \
+                round(
                 ((globals.list_count_rmssd[i + 1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[i + 1]) * 100,
                 2)
 
@@ -277,7 +280,7 @@ def avg_med_bpm(list_of_bpm_flag):
     listBPM = []  # list of Average BPM by scenario
     listBPM_per_scenario = []
     for i in range(1, globals.scenario_num + 1):
-        if len(list_of_bpm_flag[i])!= 0:
+        if len(list_of_bpm_flag[i]) != 0:
             listBPM.append(sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))
             globals.list_median_bpm[i - 1] = round(np.median(list_of_bpm_flag[i]), 4)
 
@@ -291,8 +294,10 @@ def avg_med_bpm(list_of_bpm_flag):
 
 def med_rr(list_of_rr_flag):
     for i in range(1, globals.scenario_num + 1):
-        globals.list_median_rr[i - 1] = round(np.median(list_of_rr_flag[i]), 4)
-
+        if len(list_of_rr_flag[i]) != 0:
+            globals.list_median_rr[i - 1] = round(np.median(list_of_rr_flag[i]), 4)
+        else:
+            globals.list_median_rr[i - 1] = 0
 
 def early_process_ecg_sim(index_in_folder, ride):
     globals.list_count_rmssd = [0] * (

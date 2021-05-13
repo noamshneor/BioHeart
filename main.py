@@ -507,16 +507,18 @@ def ui():
 
 
 if __name__ == '__main__':
-    # """
+    #RR_hara = pandas.read_pickle("pickle_parRR1")
+    #hara2 = RR_hara.to_csv('RR_with_time_and_scenario.csv')
+
     restart = ui()
     if restart:
         os.system('main.py')
         exit()
     else:
         sys.exit(0)
-    # """
 
     """
+    
     layout_exceptions_values_window = exceptions_values_layout()
     # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
     exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,

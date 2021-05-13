@@ -24,7 +24,10 @@ def RMSSD(file_RR):
     # print(listRMSSD)
     # print(list_count_rmssd)
     for i in range(1, len(listRMSSD)):
-        listRMSSD[i] = math.sqrt(listRMSSD[i] / (globals.list_count_rmssd[i]))  # For each scenario performs the rmssd formula
+        if globals.list_count_rmssd[i] != 0:
+            listRMSSD[i] = math.sqrt(listRMSSD[i] / (globals.list_count_rmssd[i]))  # For each scenario performs the rmssd formula
+        else:
+            listRMSSD[i] = 0
     return listRMSSD[1:len(listRMSSD)]  # return RMSSD per scenario, without scenario 0
 
 
@@ -48,8 +51,11 @@ def SDNN(file_RR):
     # print("listSumSDNN")
     # print(listSumSDNN)  # checked
     for i in range(1, len(list_AVG_SDNN)):
-        list_AVG_SDNN[i] = (listSumSDNN[i] / (globals.list_count_rmssd[i] + 1))
-    # print(list_AVG_SDNN)  # checked
+        if globals.list_count_rmssd[i] != 0:
+            list_AVG_SDNN[i] = (listSumSDNN[i] / (globals.list_count_rmssd[i] + 1))
+        else:
+            list_AVG_SDNN[i] = 0
+            # print(list_AVG_SDNN)  # checked
     line2 = 0
     while line2 < len(file_RR):
         if file_RR.at[line2, 'Scenario'] != 0:
@@ -57,7 +63,10 @@ def SDNN(file_RR):
                 int(file_RR.at[line2, 'Scenario'])]) ** 2
         line2 = line2 + 1
     for i in range(1, len(listSDNN)):
-        listSDNN[i] = math.sqrt(listSDNN[i] / globals.list_count_rmssd[i])
+        if globals.list_count_rmssd[i] != 0:
+            listSDNN[i] = math.sqrt(listSDNN[i] / globals.list_count_rmssd[i])
+        else:
+            listSDNN[i] = 0
     # print("listSDNN")  # checked
     # print(listSDNN)
     return listSDNN[1:len(listSDNN)]
@@ -82,8 +91,11 @@ def SDSD(file_RR):
     # print("listSumSDSD")
     # print(listSumSDSD)
     for i in range(1, len(list_AVG_SDSD)):
-        list_AVG_SDSD[i] = (listSumSDSD[i] / globals.list_count_rmssd[i])
-    # print(list_AVG_SDSD)
+        if globals.list_count_rmssd[i] != 0:
+            list_AVG_SDSD[i] = (listSumSDSD[i] / globals.list_count_rmssd[i])
+        else:
+            list_AVG_SDSD[i] = 0
+            # print(list_AVG_SDSD)
     line = 0
     while line < len(file_RR) - 1:
         if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
@@ -93,7 +105,10 @@ def SDSD(file_RR):
     # print("list_count_rmssd")
     # print(list_count_rmssd)
     for i in range(1, len(listSDSD)):
-        listSDSD[i] = math.sqrt(listSDSD[i] / globals.list_count_rmssd[i])
+        if globals.list_count_rmssd[i] !=0:
+            listSDSD[i] = math.sqrt(listSDSD[i] / globals.list_count_rmssd[i])
+        else:
+            listSDSD[i] = 0
     # print("listSDSD")  # checked
     # print(listSDSD)
     return listSDSD[1:len(listSDSD)]
@@ -117,8 +132,11 @@ def PNN50(file_RR):
                 list_count_above50[int(file_RR.at[line, 'Scenario'])] += 1
         line = line + 1
     for i in range(1, len(listPNN50)):
-        listPNN50[i] = (list_count_above50[i] / globals.list_count_rmssd[i]) * 100
-    # print("listPNN50")
+        if globals.list_count_rmssd[i] != 0:
+            listPNN50[i] = (list_count_above50[i] / globals.list_count_rmssd[i]) * 100
+        else:
+            listPNN50[i] = 0
+            # print("listPNN50")
     # print(listPNN50)
     return listPNN50[1:len(listPNN50)]
 

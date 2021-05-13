@@ -51,6 +51,7 @@ def early_table(filename):
     else:
         globals.data_quality_table.to_pickle(filename)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         dq_table_list = globals.data_quality_table.values.tolist()
+        print(dq_table_list)
         dq_table_int = [list(map(int, x)) for x in dq_table_list]
         for i in range(len(dq_table_list)):
             dq_table_list[i][0] = dq_table_int[i][0]
