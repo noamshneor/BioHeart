@@ -42,10 +42,9 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
         if exceptions_ok:
             if not (l_limit <= curr_value <= u_limit):
                 i += 1
-                continue # האם הטווח תקין
+                continue  # האם הטווח תקין
         if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
-            if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[
-                j, 'Time']:  # אם האקג בזמן הוא בין הזמנים של הסימולטור
+            if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG/RR between time range in SIM
                 if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
                     scenario = parSIM.at[j, 'Scenario']
@@ -62,7 +61,7 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
         #     # exception_count += 1
         #     # exceptions.append(i)
         #     i += 1
-        #print("i is: " + str(i))
+        # print("i is: " + str(i))
         # while i < len(exceptions):
         #     par.drop(exceptions[i])
         #     print("dropped line "+ str(i))
@@ -77,6 +76,7 @@ def check_filter_type(col_name):
     if globals.filter_type == globals.Filter.RR and col_name != "RRIntervals":
         return False
     return True
+
 
 # def flag_match(par, parSIM, lst, col_name):
 #     """ Match the scenario flag
@@ -133,6 +133,18 @@ def dq_rr_min_max_null(i, j, par, parSIM):
         globals.list_null_rr[int(parSIM.at[j - 1, 'Scenario']) - 1] += 1
 
 
+def fix_min_bpm():
+    for x in range(globals.scenario_num):
+        if globals.list_min_bpm[x] == 1000:
+            globals.list_min_bpm[x] = 0
+
+
+def fix_min_rr():
+    for x in range(globals.scenario_num):
+        if globals.list_min_rr[x] == 100:
+            globals.list_min_rr[x] = 0
+
+
 def rr_time_match(parRR):
     """
     filling Time coloumn in RR file
@@ -183,15 +195,15 @@ def filling_summary_table(avg_base, baseRR, listBPM, par, parRR, ride):
                           'Baseline RMSSD': listBaseRMSSD, 'Baseline SDNN': listBaseSDNN,
                           'Baseline SDSD': listBaseSDSD, 'Baseline PNN50': listBasePNN50,
                           'Subtraction BPM': [round(abs(x - y), 4) for x, y in
-                                               zip(listBaseBPM, listBPM)],
+                                              zip(listBaseBPM, listBPM)],
                           'Subtraction RMSSD': [round(abs(x - y), 4) for x, y in
-                                                 zip(listBaseRMSSD, listRMSSD)],
+                                                zip(listBaseRMSSD, listRMSSD)],
                           'Subtraction SDNN': [round(abs(x - y), 4) for x, y in
-                                                zip(listBaseSDNN, listSDNN)],
+                                               zip(listBaseSDNN, listSDNN)],
                           'Subtraction SDSD': [round(abs(x - y), 4) for x, y in
-                                                zip(listBaseSDSD, listSDSD)],
+                                               zip(listBaseSDSD, listSDSD)],
                           'Subtraction PNN50': [round(abs(x - y), 4) for x, y in
-                                                 zip(listBasePNN50, listPNN50)]
+                                                zip(listBasePNN50, listPNN50)]
                           }))
     globals.summary_table.reset_index(drop=True, inplace=True)
 
@@ -262,7 +274,7 @@ def dq_completeness_bpm(listBPM_per_scenario):
             globals.list_completeness_bpm[i] = round(0, 2)
         else:
             globals.list_completeness_bpm[i] = \
-            round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)
+                round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)
 
 
 def dq_completeness_rr():
@@ -272,8 +284,9 @@ def dq_completeness_rr():
         else:
             globals.list_completeness_rr[i] = \
                 round(
-                ((globals.list_count_rmssd[i + 1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[i + 1]) * 100,
-                2)
+                    ((globals.list_count_rmssd[i + 1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[
+                        i + 1]) * 100,
+                    2)
 
 
 def avg_med_bpm(list_of_bpm_flag):
@@ -298,6 +311,7 @@ def med_rr(list_of_rr_flag):
             globals.list_median_rr[i - 1] = round(np.median(list_of_rr_flag[i]), 4)
         else:
             globals.list_median_rr[i - 1] = 0
+
 
 def early_process_ecg_sim(index_in_folder, ride):
     globals.list_count_rmssd = [0] * (

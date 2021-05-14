@@ -10,7 +10,7 @@ import HRV_METHODS
 import globals
 from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
-    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec
+    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm
 from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, summary_table_window_layout, \
     loading_window_layout, path_load_window_layout, open_window_layout, exceptions_values_layout
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
@@ -48,6 +48,7 @@ def early_process():
                     # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
                     print("flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')")
                     flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')
+                    fix_min_bpm()
                     listBPM, listBPM_per_scenario = avg_med_bpm(list_of_bpm_flag)
                     dq_completeness_bpm(listBPM_per_scenario)
                     # ------------------------------------------------ RR --------------------------------------------
@@ -56,6 +57,7 @@ def early_process():
                     # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
                     print("flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')")
                     flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
+                    fix_min_rr()
                     # ------------------------------------------ BASE RR & ECG ---------------------------------------
                     avg_base, baseRR, baseECG = early_process_base(index_in_folder)
                     # ------------------------------------------------------------------------------------------------
