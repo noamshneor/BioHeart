@@ -203,10 +203,10 @@ def loading_window_layout():
             [
                 sg.Text(text="              0 of " + str(globals.par_num), background_color="transparent",
                         text_color='black',
-                        size_px=(430, 35), font=("Century Gothic", 20), key="num of num", enable_events=True)
+                        size_px=(430, 50), font=("Century Gothic", 20), key="num of num", enable_events=True)
             ],
             [
-                sg.Text(text="              ", background_color="transparent", size_px=(100, 35)),
+                sg.Text(text="              ", background_color="transparent", size_px=(100, 45)),
                 sg.Text(text="", background_color="transparent", text_color='black',
                         size_px=(350, 60),
                         font=("Century Gothic", 20), key="current_ride", enable_events=True),
@@ -237,7 +237,7 @@ def loading_window_layout():
                 sg.Text(text="", background_color="transparent", size_px=(100, 30))
             ],
             [
-                sg.Text(text="", background_color="transparent", size_px=(140, 50)),
+                sg.Text(text="", background_color="transparent", size_px=(165, 50)),
                 sg.Button(button_text="CANCEL", size_px=(150, 60), key="p bar cancel", enable_events=True,
                           font=("Century Gothic", 16))
             ],

@@ -268,12 +268,13 @@ def save_input_open_window(values):
 def loading_window_update(loading_window, start_time):
     loading_window.element("num of num").update(
         "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
-    loading_window.element("current_ride").update(
-        "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
     loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
     elapsed_time = time.time() - start_time
     loading_window.element("Time elapsed").update(
         time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
     loading_window.element("p bar").update_bar(globals.percent * 100)
+    loading_window.element("current_ride").update(
+        "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
+
 
 

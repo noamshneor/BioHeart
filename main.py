@@ -28,6 +28,7 @@ def early_process():
      and the heart rate variance
     """
     globals.current_par = 0
+    globals.current_ride = 0
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
     initial_list_of_existing_par()
 
@@ -41,10 +42,10 @@ def early_process():
                 print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
-                    globals.current_ride = ride - 1
                     # -------------------------------------------- ECG & SIM -----------------------------------------
                     list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
                     initial_data_quality()
+                    globals.current_ride = ride - 1
                     # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
                     print("flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')")
                     flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')
@@ -71,6 +72,7 @@ def early_process():
                     filling_dq_table(listBPM_per_scenario, par, ride)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
+                    globals.current_ride += 1
                 globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
         print(globals.percent * 100)
 
@@ -352,10 +354,12 @@ def ui():
         t.start()  # התחלת ריצת הטרד
 
         while True:
-            event3, values3 = loading_window.read(timeout=10)
+            event3, values3 = loading_window.read(timeout=1)
             # ---------------------------------- update window elements ----------------------------------
             loading_window_update(loading_window, start_time)
             if globals.percent * 100 >= 99.99:
+                loading_window_update(loading_window, start_time)
+                time.sleep(3)
                 break
             if event3 == "p bar cancel" or event3 == sg.WIN_CLOSED:
                 sys.exit()  # יציאה כפויה של התכנית, הטרד מת
@@ -509,8 +513,8 @@ def ui():
 
 
 if __name__ == '__main__':
-    #RR_hara = pandas.read_pickle("pickle_parRR1")
-    #hara2 = RR_hara.to_csv('RR_with_time_and_scenario.csv')
+    # RR_hara = pandas.read_pickle("pickle_parRR1")
+    # hara2 = RR_hara.to_csv('RR_with_time_and_scenario.csv')
 
     restart = ui()
     if restart:

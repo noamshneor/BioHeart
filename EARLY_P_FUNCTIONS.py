@@ -271,7 +271,7 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
         if listBPM_per_scenario[i] == 0:
-            globals.list_completeness_bpm[i] = round(0, 2)
+            globals.list_completeness_bpm[i] = 0
         else:
             globals.list_completeness_bpm[i] = \
                 round(((listBPM_per_scenario[i] - globals.list_null_bpm[i]) / listBPM_per_scenario[i]) * 100, 2)
@@ -280,7 +280,7 @@ def dq_completeness_bpm(listBPM_per_scenario):
 def dq_completeness_rr():
     for i in range(globals.scenario_num):
         if globals.list_count_rmssd[i + 1] == 0:
-            globals.list_completeness_rr[i] = round(0, 2)
+            globals.list_completeness_rr[i] = 0
         else:
             globals.list_completeness_rr[i] = \
                 round(

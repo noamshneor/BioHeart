@@ -1,6 +1,7 @@
 import globals
 import math
 
+
 def RMSSD(file_RR):
     """
     return a list of RMSSD per scenario (of specific participant & ride), without scenario 0
@@ -21,8 +22,8 @@ def RMSSD(file_RR):
                 line, 'RRIntervals']) ** 2  # The numerator in the rmssd formula, is listed according to the scenarios
             globals.list_count_rmssd[int(file_RR.at[line, 'Scenario'])] += 1  # counting intervals (N) for all scenarios
         line = line + 1
-    # print(listRMSSD)
-    # print(list_count_rmssd)
+    print(listRMSSD)
+    print(globals.list_count_rmssd)
     for i in range(1, len(listRMSSD)):
         if globals.list_count_rmssd[i] != 0:
             listRMSSD[i] = math.sqrt(listRMSSD[i] / (globals.list_count_rmssd[i]))  # For each scenario performs the rmssd formula
