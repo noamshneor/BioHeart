@@ -16,7 +16,7 @@ from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, su
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
-    exceptions_checkbox_handle, create_empty_folders
+    exceptions_checkbox_handle, create_empty_folders, pickle_folders
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -260,6 +260,7 @@ def ui():
                                         values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                                     correct_path_window = True  # הכל תקין אפשר להמשיך
                                     globals.main_path = values2["-MAIN FOLDER-"]
+                                    pickle_folders()
                         else:  # מדובר בטעינה קיימת
                             newload = False
                             exist_load_list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה

@@ -63,6 +63,21 @@ def early_table(filename):
         return dq_table_list
 
 
+def pickle_folders():
+    list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
+    list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
+
+    for ride in range(1, globals.par_ride_num + 1):  # מעבר על התיקיות של הנסיעות
+        for folder in range(0, len(list_in_ride)):  # rr,ecg, sim
+            if not os.path.isdir(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder]):
+                os.makedirs(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder])
+                # create folder if not exist
+    for folder in range(0, len(list_in_base)):  # base rr, base ecg
+        if not os.path.isdir(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder]):
+            os.makedirs(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder])
+            # create folder if not exist
+
+
 def checkFolders_of_rides(load_list, values):
     flag = True
     message = "Missing folders:"
