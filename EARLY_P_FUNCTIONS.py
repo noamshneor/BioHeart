@@ -40,16 +40,16 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
     while i < initial_rows_at_par:
         curr_value = par.at[i, col_name]
         if exceptions_ok:
-            if not (l_limit <= curr_value <= u_limit):
+            if not (l_limit <= curr_value <= u_limit):  # value not in range
                 i += 1
-                continue  # האם הטווח תקין
+                continue  # move to the next value
         if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG/RR between time range in SIM
                 if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
                     scenario = parSIM.at[j, 'Scenario']
                     par.at[i, 'Scenario'] = scenario  # match the flag
-                    lst[scenario].append(curr_value)  # מכניס לרשימה של הרשימות- bpm לכל flag
+                    lst[scenario].append(par.at[i, col_name])  # מכניס לרשימה של הרשימות- bpm לכל flag
                     if col_name == "BPM":
                         dq_bpm_start_end_min_max_null(i, j, par, parSIM)
                     if col_name == "RRIntervals":
@@ -170,11 +170,11 @@ def initial_list_of_existing_par():
     print(*globals.list_of_existing_par)
 
 
-def list_hrv_methods(avg_base, baseRR, parRR):
-    listRMSSD = HRV_METHODS.RMSSD(parRR)
-    listSDSD = HRV_METHODS.SDSD(parRR)
-    listSDNN = HRV_METHODS.SDNN(parRR)
-    listPNN50 = HRV_METHODS.PNN50(parRR)
+def list_hrv_methods(avg_base, baseRR, list_of_rr_flag):
+    listRMSSD = HRV_METHODS.RMSSD(list_of_rr_flag)
+    listSDSD = HRV_METHODS.SDSD(list_of_rr_flag)
+    listSDNN = HRV_METHODS.SDNN(list_of_rr_flag)
+    listPNN50 = HRV_METHODS.PNN50(list_of_rr_flag)
     listBaseBPM = [avg_base] * globals.scenario_num
     listBaseRMSSD = [HRV_METHODS.Baseline_RMSSD(baseRR)] * globals.scenario_num
     listBaseSDNN = [HRV_METHODS.Baseline_SDNN(baseRR)] * globals.scenario_num
@@ -183,9 +183,9 @@ def list_hrv_methods(avg_base, baseRR, parRR):
     return listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD
 
 
-def filling_summary_table(avg_base, baseRR, listBPM, par, parRR, ride):
+def filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride):
     listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD = list_hrv_methods(
-        avg_base, baseRR, parRR)
+        avg_base, baseRR, list_of_rr_flag)
     globals.summary_table = globals.summary_table.append(
         pandas.DataFrame({'Participant': [par] * globals.scenario_num,
                           'Ride Number': [ride] * globals.scenario_num,
@@ -208,7 +208,20 @@ def filling_summary_table(avg_base, baseRR, listBPM, par, parRR, ride):
     globals.summary_table.reset_index(drop=True, inplace=True)
 
 
+def calc_rr_num_of_rows_per_flag():
+    list_count_rr_flag = []  # rr values count per flag - number of rows in RR file per flag
+    for i in range(1, len(globals.list_count_rr_intervals_flag)):
+        # add 1 to the interval to get the count of rr values - not rr intervals
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            list_count_rr_flag.append(globals.list_count_rr_intervals_flag[i] + 1)
+        else:
+            list_count_rr_flag.append(0)
+    return list_count_rr_flag
+
+
 def filling_dq_table(listBPM_per_scenario, par, ride):
+    list_count_rr_flag = calc_rr_num_of_rows_per_flag()
+
     globals.data_quality_table = \
         globals.data_quality_table.append(pandas.DataFrame({'Participant': [par] * globals.scenario_num,
                                                             'Ride Number': [
@@ -226,9 +239,7 @@ def filling_dq_table(listBPM_per_scenario, par, ride):
                                                             "BPM(ecg) : Minimum value": globals.list_min_bpm,
                                                             "BPM(ecg) : Maximum value": globals.list_max_bpm,
                                                             "BPM(ecg) : Median": globals.list_median_bpm,
-                                                            "HRV methods(rr) : Total number of rows": globals.list_count_rmssd[
-                                                                                                      1:len(
-                                                                                                          globals.list_count_rmssd)],
+                                                            "HRV methods(rr) : Total number of rows": list_count_rr_flag,
                                                             "HRV methods(rr) : Number of empty rows": globals.list_null_rr,
                                                             "HRV methods(rr) : % Completeness": globals.list_completeness_rr,
                                                             "HRV methods(rr) : Minimum value": globals.list_min_rr,
@@ -279,12 +290,12 @@ def dq_completeness_bpm(listBPM_per_scenario):
 
 def dq_completeness_rr():
     for i in range(globals.scenario_num):
-        if globals.list_count_rmssd[i + 1] == 0:
+        if globals.list_count_rr_intervals_flag[i + 1] == 0:
             globals.list_completeness_rr[i] = 0
         else:
             globals.list_completeness_rr[i] = \
                 round(
-                    ((globals.list_count_rmssd[i + 1] - globals.list_null_bpm[i]) / globals.list_count_rmssd[
+                    ((globals.list_count_rr_intervals_flag[i + 1] - globals.list_null_bpm[i]) / globals.list_count_rr_intervals_flag[
                         i + 1]) * 100,
                     2)
 
@@ -314,7 +325,7 @@ def med_rr(list_of_rr_flag):
 
 
 def early_process_ecg_sim(index_in_folder, ride):
-    globals.list_count_rmssd = [0] * (
+    globals.list_count_rr_intervals_flag = [0] * (
             globals.scenario_num + 1)  # Initialize the list to zero for each scenario
     list_of_bpm_flag = [[] for i in
                         range(

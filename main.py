@@ -65,7 +65,7 @@ def early_process():
                     # convert to pickle the "clean files"
                     save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
                     # ------------------------------------- filling summary table ------------------------------------
-                    filling_summary_table(avg_base, baseRR, listBPM, par, parRR, ride)
+                    filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride)
                     # ----------------------------------- filling data quality table ---------------------------------
                     med_rr(list_of_rr_flag)
                     dq_completeness_rr()

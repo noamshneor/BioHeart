@@ -255,6 +255,19 @@ def exceptions_checkbox_handle(event8, exceptions_values_window, values8):
         if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
             exceptions_values_window["no filtering checkbox"].update(True)
 
+    if values8["checkbox exceptions RR"]:
+        exceptions_values_window.element('_SPIN_RR_LOWER').update(disabled=False)
+        exceptions_values_window.element('_SPIN_RR_UPPER').update(disabled=False)
+    else:
+        exceptions_values_window.element('_SPIN_RR_LOWER').update(disabled=True)
+        exceptions_values_window.element('_SPIN_RR_UPPER').update(disabled=True)
+
+    if values8["checkbox exceptions BPM"]:
+        exceptions_values_window.element('_SPIN_BPM_LOWER').update(disabled=False)
+        exceptions_values_window.element('_SPIN_BPM_UPPER').update(disabled=False)
+    else:
+        exceptions_values_window.element('_SPIN_BPM_LOWER').update(disabled=True)
+        exceptions_values_window.element('_SPIN_BPM_UPPER').update(disabled=True)
 
 def save_input_open_window(values):
     globals.par_num = int(values['par_num'])

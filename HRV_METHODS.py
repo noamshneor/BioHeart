@@ -2,143 +2,106 @@ import globals
 import math
 
 
-def RMSSD(file_RR):
+def RMSSD(list_of_rr_flag):
     """
     return a list of RMSSD per scenario (of specific participant & ride), without scenario 0
 
-    :param file_RR: "clean" RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
+    ## לשנות את התיעוד לפונקציות כאן !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    :param list_of_rr_flag: "clean" RR list (of specific participant & ride),and ready for process
+    :type list_of_rr_flag: list of lists
     """
-    line = 0
     # Creating a list whose number of places is the same as the number of scenarios, and fill it in zeros.
     listRMSSD = [0] * (globals.scenario_num + 1)
-    # global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
-    # print(len(listRMSSD))
-    # print(listRMSSD)
-    # print(listRMSSD[int(file_RR.at[line, 'Scenario'])])
-    while line < len(file_RR) - 1:  # Go over all the lines in the file_RR
-        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:  # if the scenario is not 0
-            listRMSSD[int(file_RR.at[line, 'Scenario'])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
-                line, 'RRIntervals']) ** 2  # The numerator in the rmssd formula, is listed according to the scenarios
-            globals.list_count_rmssd[int(file_RR.at[line, 'Scenario'])] += 1  # counting intervals (N) for all scenarios
-        line = line + 1
-    print(listRMSSD)
-    print(globals.list_count_rmssd)
+    for i in range(1, len(list_of_rr_flag)):
+        if len(list_of_rr_flag[i]) != 0:
+            for j in range(len(list_of_rr_flag[i])-1):
+                listRMSSD[i] += (list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j]) ** 2  # The numerator in the rmssd formula, is listed according to the scenarios
+                globals.list_count_rr_intervals_flag[i] += 1
+
     for i in range(1, len(listRMSSD)):
-        if globals.list_count_rmssd[i] != 0:
-            listRMSSD[i] = math.sqrt(listRMSSD[i] / (globals.list_count_rmssd[i]))  # For each scenario performs the rmssd formula
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            listRMSSD[i] = math.sqrt(listRMSSD[i] / (globals.list_count_rr_intervals_flag[i]))  # For each scenario performs the rmssd formula
         else:
             listRMSSD[i] = 0
     return listRMSSD[1:len(listRMSSD)]  # return RMSSD per scenario, without scenario 0
 
 
-def SDNN(file_RR):
+def SDNN(list_of_rr_flag):
     """
     return a list of SDNN per scenario (of specific participant & ride), without scenario 0
-
-    :param file_RR: "clean" RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
     """
-
-    line = 0
     listSumSDNN = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
     list_AVG_SDNN = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
     listSDNN = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    # global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
-    while line < len(file_RR):
-        if file_RR.at[line, 'Scenario'] != 0:
-            listSumSDNN[int(file_RR.at[line, 'Scenario'])] += file_RR.at[line, 'RRIntervals']
-        line = line + 1
-    # print("listSumSDNN")
-    # print(listSumSDNN)  # checked
+    for i in range(1, len(list_of_rr_flag)):
+        listSumSDNN[i] = sum(list_of_rr_flag[i])
     for i in range(1, len(list_AVG_SDNN)):
-        if globals.list_count_rmssd[i] != 0:
-            list_AVG_SDNN[i] = (listSumSDNN[i] / (globals.list_count_rmssd[i] + 1))
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            list_AVG_SDNN[i] = (listSumSDNN[i] / (globals.list_count_rr_intervals_flag[i] + 1))
         else:
             list_AVG_SDNN[i] = 0
-            # print(list_AVG_SDNN)  # checked
-    line2 = 0
-    while line2 < len(file_RR):
-        if file_RR.at[line2, 'Scenario'] != 0:
-            listSDNN[int(file_RR.at[line2, 'Scenario'])] += (file_RR.at[line2, 'RRIntervals'] - list_AVG_SDNN[
-                int(file_RR.at[line2, 'Scenario'])]) ** 2
-        line2 = line2 + 1
+    for i in range(1, len(list_of_rr_flag)):
+        if len(list_of_rr_flag[i]) != 0:
+            for j in range(len(list_of_rr_flag[i])):
+                listSDNN[i] += (list_of_rr_flag[i][j] - list_AVG_SDNN[i]) ** 2
     for i in range(1, len(listSDNN)):
-        if globals.list_count_rmssd[i] != 0:
-            listSDNN[i] = math.sqrt(listSDNN[i] / globals.list_count_rmssd[i])
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            listSDNN[i] = math.sqrt(listSDNN[i] / globals.list_count_rr_intervals_flag[i])
         else:
             listSDNN[i] = 0
-    # print("listSDNN")  # checked
-    # print(listSDNN)
     return listSDNN[1:len(listSDNN)]
 
 
-def SDSD(file_RR):
+def SDSD(list_of_rr_flag):
     """ return a list of SDSD per scenario (of specific participant & ride), without scenario 0
-
-    :param file_RR: "clean" RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
     """
-    line = 0
     listSDSD = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
     listSumSDSD = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
     list_AVG_SDSD = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    # global list_count_rmssd
-    while line < len(file_RR) - 1:
-        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
-            listSumSDSD[int(file_RR.at[line, 'Scenario'])] += (
-                    file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'])
-        line = line + 1
-    # print("listSumSDSD")
-    # print(listSumSDSD)
+
+    for i in range(1, len(list_of_rr_flag)):
+        if len(list_of_rr_flag[i]) != 0:
+            for j in range(len(list_of_rr_flag[i])-1):
+                listSumSDSD[i] += list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j]
+
     for i in range(1, len(list_AVG_SDSD)):
-        if globals.list_count_rmssd[i] != 0:
-            list_AVG_SDSD[i] = (listSumSDSD[i] / globals.list_count_rmssd[i])
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            list_AVG_SDSD[i] = (listSumSDSD[i] / globals.list_count_rr_intervals_flag[i])
         else:
             list_AVG_SDSD[i] = 0
-            # print(list_AVG_SDSD)
-    line = 0
-    while line < len(file_RR) - 1:
-        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
-            listSDSD[int(file_RR.at[line, 'Scenario'])] += (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[
-                line, 'RRIntervals'] - list_AVG_SDSD[int(file_RR.at[line, 'Scenario'])]) ** 2
-        line = line + 1
-    # print("list_count_rmssd")
-    # print(list_count_rmssd)
+
+    for i in range(1, len(list_of_rr_flag)):
+        if len(list_of_rr_flag[i]) != 0:
+            for j in range(len(list_of_rr_flag[i])-1):
+                listSDSD[i] += (list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j] - list_AVG_SDSD[i]) ** 2
+
     for i in range(1, len(listSDSD)):
-        if globals.list_count_rmssd[i] !=0:
-            listSDSD[i] = math.sqrt(listSDSD[i] / globals.list_count_rmssd[i])
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            listSDSD[i] = math.sqrt(listSDSD[i] / globals.list_count_rr_intervals_flag[i])
         else:
             listSDSD[i] = 0
-    # print("listSDSD")  # checked
-    # print(listSDSD)
     return listSDSD[1:len(listSDSD)]
 
 
-def PNN50(file_RR):
+def PNN50(list_of_rr_flag):
     """
     return a list of PNN50 per scenario (of specific participant & ride), without scenario 0
-
-    :param file_RR: "clean" RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
     """
-    line = 0
     list_count_above50 = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
     listPNN50 = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    # global list_count_rmssd  # list which contains the number of N (RR intervals) in all scenarios.
 
-    while line < len(file_RR) - 1:
-        if file_RR.at[line, 'Scenario'] != 0 and file_RR.at[line + 1, 'Scenario'] != 0:
-            if file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'] > 0.05:
-                list_count_above50[int(file_RR.at[line, 'Scenario'])] += 1
-        line = line + 1
+    for i in range(1, len(list_of_rr_flag)):
+        if len(list_of_rr_flag[i]) != 0:
+            for j in range(len(list_of_rr_flag[i])-1):
+                if list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j] > 0.05:
+                    list_count_above50[i] += 1
+
     for i in range(1, len(listPNN50)):
-        if globals.list_count_rmssd[i] != 0:
-            listPNN50[i] = (list_count_above50[i] / globals.list_count_rmssd[i]) * 100
+        if globals.list_count_rr_intervals_flag[i] != 0:
+            listPNN50[i] = (list_count_above50[i] / globals.list_count_rr_intervals_flag[i]) * 100
         else:
             listPNN50[i] = 0
-            # print("listPNN50")
-    # print(listPNN50)
     return listPNN50[1:len(listPNN50)]
 
 
