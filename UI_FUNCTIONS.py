@@ -1,12 +1,178 @@
 import os
 import shutil
+import threading
 import time
 import PySimpleGUIQt as sg
 from matplotlib import pyplot as plt
 import globals
+from LAYOUT_UI import open_window_layout, loading_window_layout, path_load_window_layout, exceptions_values_layout, \
+    optional_window_layout, summary_table_window_layout, data_quality_table_window_layout, graphs_window_layout
 
 
 # --------------------------------------------- UI FUNCTIONS ---------------------------------------------
+def windows_initialization_part_1():
+    layout_open_window = open_window_layout()
+    layout_path_load_window = path_load_window_layout()
+    layout_loading_window = loading_window_layout()
+    layout_exceptions_values_window = exceptions_values_layout()
+    layout_optional_window = optional_window_layout()
+    optional_window = sg.Window(title="BIO Heart", layout=layout_optional_window, size=(1730, 970),
+                                disable_minimize=True,
+                                location=(5000, 5000), background_image="back1.png",
+                                element_padding=(0, 0), finalize=True)
+    optional_window.hide()
+    optional_window.move(90, 0)
+    path_load_window = sg.Window(title="BIO Heart", layout=layout_path_load_window, size=(1730, 970),
+                                 disable_minimize=True,
+                                 location=(5000, 5000), background_image="back2.png", element_padding=(0, 0),
+                                 finalize=True)
+    path_load_window.hide()
+    path_load_window.move(90, 0)
+    exceptions_values_window = sg.Window(title="Filter Exceptional Values",
+                                         layout=layout_exceptions_values_window,
+                                         size=(1000, 680),
+                                         disable_minimize=True,
+                                         location=(5000, 5000), background_image="backsum.png",
+                                         element_padding=(0, 0),
+                                         finalize=True)
+    exceptions_values_window.hide()
+    exceptions_values_window.move(450, 120)
+    globals.list_of_existing_par = list(range(1, globals.par_num + 1))
+    correct_open_window = False  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
+    correct_path_window = False  # האם כל הפרטים במסך הנתיב מולאו בצורה נכונה
+    newload = True  # האם נבחרה טעינה חדשה או לא - טעינה קיימת
+    correct_optional_window = False
+    exclude_correct = True
+    group_correct = True
+    finish_while_loop = False
+    open_window = sg.Window(title="BIO Heart", layout=layout_open_window, size=(1730, 970), disable_minimize=True,
+                            location=(90, 0), background_image="back1.png", element_padding=(0, 0), finalize=True)
+    return correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, newload, open_window, optional_window, path_load_window
+
+
+def initial_optional(optional_window):
+    globals.list_of_existing_par = list(range(1, globals.par_num + 1))
+    optional_window.element('Ex par LB').update(globals.list_of_existing_par)
+    for i in list(range(1, 6)):
+        optional_window.element('group' + str(i)).update(globals.list_of_existing_par)
+
+
+def check_optional_window(correct_optional_window, exclude_correct, group_correct, values9):
+    if values9['Ex par CB']:
+        if not globals.par_not_existing:
+            sg.popup_quick_message("Choose participants and then click on \"Exclude\" button",
+                                   font=("Century Gothic", 14),
+                                   background_color='red', location=(970, 800), auto_close_duration=5)
+            exclude_correct = False
+        else:
+            exclude_correct = True
+    if values9['groups CB']:
+        list_groups = list(range(1, globals.group_num + 1))
+        list_values = []
+        for i in list_groups:
+            list_values += values9['group' + str(i)]
+        contains_duplicates = any(list_values.count(element) > 1 for element in list_values)
+        if contains_duplicates:
+            sg.popup_quick_message("Select different participants in each group",
+                                   font=("Century Gothic", 14),
+                                   background_color='red', location=(970, 880), auto_close_duration=5)
+            group_correct = False
+        else:
+            if set(list_values) != set(globals.list_of_existing_par):
+                sg.popup_quick_message("Select all the participants in groups",
+                                       font=("Century Gothic", 14),
+                                       background_color='red', location=(970, 880),
+                                       auto_close_duration=5)
+                group_correct = False
+            else:
+                group_correct = True
+    if exclude_correct and group_correct:
+        for i in list(range(1, globals.group_num + 1)):
+            globals.lists_of_groups.append(values9['group' + str(i)])  # index 0=group1, 1=group2....
+        correct_optional_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
+    if not values9['groups CB'] and not values9['Ex par CB']:
+        correct_optional_window = True
+    return correct_optional_window
+
+
+def check_if_can_continue(correct_path_window, newload, values2):
+    if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
+        sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
+                               background_color='red', location=(970, 880))
+    else:  # אם הנתיב לא ריק
+        flag = True  # מסמן האם הכל תקין או שיש תיקיה חסרה
+        message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
+        for ride in range(1, globals.par_ride_num + 1):
+            if not os.path.isdir(
+                    values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(
+                values2["-MAIN FOLDER-"] + "\\" + "base"):
+                flag = False  # יש תיקיה חסרה
+                if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
+                    message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+                if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
+                    message += " \"" + "base" + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+        if not flag:  # אם יש תיקיה חסרה
+            sg.popup_quick_message(message, font=("Century Gothic", 14),
+                                   background_color='red', location=(970, 880), auto_close_duration=5)
+        else:  # הכל תקין, אין תיקיה חסרה
+            if values2["NEW LOAD"]:  # אם מדובר בטעינה חדשה
+                newload = True
+                new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
+                new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
+                if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(
+                        new_load_list_in_base, values2):  # בדיקת תיקיות קיימות
+                    if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(
+                            new_load_list_in_base,
+                            values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
+                        correct_path_window = True  # הכל תקין אפשר להמשיך
+                        globals.main_path = values2["-MAIN FOLDER-"]
+                        pickle_folders()
+            else:  # מדובר בטעינה קיימת
+                newload = False
+                exist_load_list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
+                exist_load_list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
+                if checkFolders_of_rides(exist_load_list_in_ride, values2) and checkFolders_of_base(
+                        exist_load_list_in_base, values2):
+                    if checkFiles_of_rides(exist_load_list_in_ride, values2) and checkFiles_of_base(
+                            exist_load_list_in_base, values2):
+                        correct_path_window = True  # הכל תקין אפשר להמשיך
+                        globals.main_path = values2["-MAIN FOLDER-"]
+    return correct_path_window, newload
+
+
+def windows_initialization_part_2():
+    # ----------------------- Early Summary Table -----------------------
+    summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
+    layout_summary_table_window = summary_table_window_layout(
+        summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
+    dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
+    layout_data_quality_table_window = data_quality_table_window_layout(
+        dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
+    # ----------------------- Data Quality Table Window -----------------------
+    data_quality_table_window = sg.Window(title="Data Quality Table",
+                                          layout=layout_data_quality_table_window,
+                                          size=(1730, 970), resizable=True, finalize=True,
+                                          disable_minimize=True, no_titlebar=True,
+                                          location=(90, 20), background_image="backsum.png",
+                                          element_padding=(0, 0))
+    data_quality_table_window.hide()
+    # -------------------------- Graphs Window -----------------------------
+    layout_graphs_window = graphs_window_layout()
+    graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
+                             size=(1730, 970), resizable=True, finalize=True,
+                             disable_minimize=True,
+                             location=(90, 20), background_image="backsum.png",
+                             element_padding=(0, 0))
+    graph_window.hide()
+    # ----------------------- Summary Table Window -----------------------
+    summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
+                                     size=(1730, 970), resizable=True, finalize=True,
+                                     disable_minimize=True,
+                                     location=(90, 0), background_image="backsum.png",
+                                     element_padding=(0, 0))
+    return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
+
+
 def draw_plot1(participant_num_input, ride_input, table):
     x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
     print(x)
@@ -296,7 +462,10 @@ def save_input_open_window(values):
 def loading_window_update(loading_window, start_time):
     loading_window.element("num of num").update(
         "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
-    loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
+    if globals.percent * 100 < 99.9:
+        loading_window.element("percent").update(str(round(globals.percent * 100, 1)) + " %")
+    else:
+        loading_window.element("percent").update("100 %")
     elapsed_time = time.time() - start_time
     loading_window.element("Time elapsed").update(
         time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))

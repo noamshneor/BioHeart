@@ -10,12 +10,13 @@ class Filter(Enum):
     BOTH = 4
 
 
-scenario_num = 0
-scenario_col_num = 0
-par_num = 0
+scenario_num = 7
+scenario_col_num = 11
+par_num = 10
 par_ride_num = 0
 sim_start = 0.0
 ecg_start = 0.0
+# par_not_existing = [1, 2, 3, 4, 5, 6, 7, 8]
 par_not_existing = []
 current_par = 0
 current_ride = 0
@@ -39,6 +40,8 @@ RR_lower = 0
 RR_upper = 0
 BPM_lower = 0
 BPM_upper = 0
+group_num = 0
+lists_of_groups = []  # 0=group1, 1=group2....
 # path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
 # path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
 main_path = ""
@@ -59,4 +62,3 @@ header_data_quality = ["Participant", "Ride Number", "Scenario", "Start time", "
                        "HRV methods(rr) : Minimum value",
                        "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
 data_quality_table = pandas.DataFrame(columns=header_data_quality)
-

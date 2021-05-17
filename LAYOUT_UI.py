@@ -261,14 +261,16 @@ def exceptions_values_layout():
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
                 sg.Checkbox("No filtering", background_color='transparent', key='no filtering checkbox', default=True,
-                            enable_events=True,text_color='red', font=("Century Gothic", 16,'bold'),size_px=(670, 36)),
+                            enable_events=True, text_color='red', font=("Century Gothic", 16, 'bold'),
+                            size_px=(670, 36)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(0, 40)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
-                sg.Checkbox("Exceptions values - RR intervals", background_color='transparent', key='checkbox exceptions RR', default=False,
+                sg.Checkbox("Exceptions values - RR intervals", background_color='transparent',
+                            key='checkbox exceptions RR', default=False,
                             enable_events=True, text_color='red', font=("Century Gothic", 16, 'bold'),
                             size_px=(670, 35))
             ],
@@ -279,11 +281,13 @@ def exceptions_values_layout():
                         visible=True,
                         key='choose desired RR range',
                         font=("Century Gothic", 14), text_color='black'),
-                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=0.6, key='_SPIN_RR_LOWER', size=(7, 1.2),
+                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=0.6, key='_SPIN_RR_LOWER',
+                        size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True, disabled=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
-                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=1.2, key='_SPIN_RR_UPPER', size=(7, 1.2),
+                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=1.2, key='_SPIN_RR_UPPER',
+                        size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True, disabled=True),
             ],
             [
@@ -304,12 +308,14 @@ def exceptions_values_layout():
                         visible=True,
                         key='choose desired BPM range',
                         font=("Century Gothic", 14), text_color='black'),
-                sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value="40", key='_SPIN_BPM_LOWER', size=(7, 1.2),
+                sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value="40",
+                        key='_SPIN_BPM_LOWER', size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True, disabled=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
                 sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value='140',
-                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True, disabled=True),
+                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary",
+                        enable_events=True, disabled=True),
             ],
 
             [sg.Text(text="", background_color="transparent", size_px=(0, 110), )],
@@ -371,10 +377,12 @@ def path_load_window_layout():
             ],
             [
                 sg.Text("", background_color="transparent", size=(262, 20)),
-                sg.Button("Create empty folders", size=(414, 45), font=("Century Gothic", 18), key="Create empty folders",
-                          enable_events=True, tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"main folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
+                sg.Button("Create empty folders", size=(414, 45), font=("Century Gothic", 18),
+                          key="Create empty folders",
+                          enable_events=True,
+                          tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"main folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
                 sg.Text("", background_color="transparent", size=(500, 20)),
-                sg.Button("EXIT", size=(110, 45), font=("Century Gothic", 18)),
+                sg.Button("BACK", size=(110, 45), font=("Century Gothic", 18), key="BACK_PATH"),
                 sg.Text("", background_color="transparent", size=(50, 35),
                         font=("Century Gothic", 16)),
                 sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_PATH",
@@ -385,6 +393,74 @@ def path_load_window_layout():
             ]
         ]
     return layout_path_load_window
+
+
+def optional_window_layout():
+    layout_optional_window = \
+        [
+            [
+                sg.Text("", background_color="transparent", size=(250, 440))
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(40, 0)),
+                sg.Checkbox("Excluded participants", background_color='transparent', key='Ex par CB', default=False,
+                            enable_events=True, font=("Century Gothic", 18), text_color="black", size_px=(480, 50),
+                            tooltip="Participants were excluded from the experiment?"),
+                sg.Listbox(list(range(1, globals.par_num + 1)), size=(7, 3.5), key='Ex par LB', select_mode='multiple',
+                           disabled=True, enable_events=True, font=("Century Gothic", 11)),
+                sg.Text("", background_color="transparent", size=(5, 0)),
+                sg.Button("Exclude", size=(160, 50), font=("Century Gothic", 16), key="Exclude_OPTIONAL",
+                          enable_events=True, visible=False),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(250, 50))
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(40, 0)),
+                sg.Checkbox("Experimental groups", background_color='transparent', key='groups CB', default=False,
+                            enable_events=True, font=("Century Gothic", 18), text_color="black", size_px=(490, 50),
+                            tooltip="Are the participants in the experiment divided into groups?"),
+                sg.Combo(values=[2, 3, 4, 5], size=[50, 40], key='groups num', enable_events=True,
+                         font=("Century Gothic", 14), readonly=True, disabled=True),
+                sg.Text("", background_color="transparent", size=(6, 0)),
+                sg.Button("Choose", size=(160, 50), font=("Century Gothic", 16), key="Choose_OPTIONAL",
+                          enable_events=True, visible=False),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(0, 20)),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(500, 140)),
+                sg.Listbox(list(range(1, globals.par_num + 1)), size=(7, 4), key='group1', select_mode='multiple',
+                           visible=False, enable_events=True, font=("Century Gothic", 11), tooltip='Group 1'),
+                sg.Text("", background_color="transparent", size=(10, 0)),
+                sg.Listbox(list(range(1, globals.par_num + 1)), size=(7, 4), key='group2', select_mode='multiple',
+                           visible=False, enable_events=True, font=("Century Gothic", 11), tooltip='Group 2'),
+                sg.Text("", background_color="transparent", size=(10, 0)),
+                sg.Listbox(list(range(1, globals.par_num + 1)), size=(7, 4), key='group3', select_mode='multiple',
+                           visible=False, enable_events=True, font=("Century Gothic", 11), tooltip='Group 3'),
+                sg.Text("", background_color="transparent", size=(10, 0)),
+                sg.Listbox(list(range(1, globals.par_num + 1)), size=(7, 4), key='group4', select_mode='multiple',
+                           visible=False, enable_events=True, font=("Century Gothic", 11), tooltip='Group 4'),
+                sg.Text("", background_color="transparent", size=(10, 0)),
+                sg.Listbox(list(range(1, globals.par_num + 1)), size=(7, 4), key='group5', select_mode='multiple',
+                           visible=False, enable_events=True, font=("Century Gothic", 11), tooltip='Group 5'),
+            ],
+            [
+                sg.Text("", background_color="transparent", size=(320, 75)),
+            ],
+            [
+                sg.Text("                                   ", background_color="transparent", size=(670, 35),
+                        font=("Century Gothic", 16)),
+                sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="BACK_OPTIONAL",
+                          enable_events=True),
+                sg.Text("", background_color="transparent", size=(80, 35),
+                        font=("Century Gothic", 16)),
+                sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_OPTIONAL",
+                          enable_events=True)
+            ]
+        ]
+    return layout_optional_window
 
 
 def open_window_layout():
@@ -429,7 +505,8 @@ def open_window_layout():
                         size=(310, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[100, 40], justification="center", key="sim_start", enable_events=True,
                          font=("Century Gothic", 16), default_text="0", disabled=True),
-                sg.Text(" ,   ", background_color="transparent", size=(50, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Text(" ,   ", background_color="transparent", size=(50, 35), font=("Century Gothic", 18),
+                        text_color='black'),
                 sg.Text("ECG start at", background_color="transparent",
                         size=(230, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[100, 40], justification="center", key='ecg_start', enable_events=True,
