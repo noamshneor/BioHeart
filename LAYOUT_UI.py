@@ -7,8 +7,12 @@ import globals
 def graphs_window_layout():
     # global par_num
     # global par_ride_num
-    participants_list = list(range(1, globals.par_num + 1))
-    rides_list = list(range(1, globals.par_ride_num + 1))
+    participants_list = globals.list_of_existing_par
+    globals.scenarios_list = list(range(1, globals.scenario_num + 1))
+    globals.rides_list = list(range(1, globals.par_ride_num + 1))
+    #hrv_methods_list = ["RMSSD", "SDSD", "SDNN", "PNN50"]
+
+
     layout_graphs_window = \
         [
             [
@@ -23,59 +27,76 @@ def graphs_window_layout():
                         sg.Text("", background_color="transparent", size=(0, 20))
                     ],
                     [
-                        sg.Radio(group_id="GRAPH", text="   AVG BPM for specific participant",
+                        sg.Radio(group_id="GRAPH", text="   HRV",
                                  background_color="transparent",
-                                 key='avg bpm 1 par', size_px=(670, 35), font=("Century Gothic", 16, 'bold'),
-                                 enable_events=True, text_color='red'),
-                        # sg.Graph(canvas_size=(400, 400), graph_bottom_left=(-105, -105), graph_top_right=(105, 105),
-                        # background_color='white', key='graph', tooltip='This is a cool graph!')
-                        # sg.Canvas(size=(200,200), background_color='white',key='-CANVAS-')
-                    ],
-                    [
-                        sg.Text('        participants number:', size=(32, 1), background_color="transparent",
-                                visible=False,
-                                key='participant graph1',
-                                font=("Century Gothic", 12), text_color='black'),
-                        sg.Combo(values=participants_list, size=[50, 25], key='combo_par_graph1', visible=False,
-                                 enable_events=True,
-                                 font=("Century Gothic", 12), readonly=True, default_value=""),
-
-                    ],
-                    [
-                        sg.Text('        ride number:', size=(32, 1), background_color="transparent", visible=False,
-                                key='ride graph1',
-                                font=("Century Gothic", 12), text_color='black'),
-                        sg.Combo(values=rides_list, size=[50, 25], key='combo_ride_graph1', visible=False,
-                                 enable_events=True,
-                                 font=("Century Gothic", 12), readonly=True, default_value=""),
-
-                    ],
-                    [
-                        sg.Text("", background_color="transparent", size=(0, 40)),
-                    ],
-                    [
-                        sg.Radio(group_id="GRAPH", text="  RMSSD of participants", background_color="transparent",
-                                 key="rmssd for several par", size=(670, 35), font=("Century Gothic", 16, 'bold'),
+                                 key='HRV', size_px=(200, 35), font=("Century Gothic", 16, 'bold'),
+                                 enable_events=True, text_color='red', default=True),
+                        sg.Text("", background_color="transparent", size=(1, 0)),
+                        sg.Radio(group_id="GRAPH", text="  HV", background_color="transparent",
+                                 key="HV", size=(150, 35), font=("Century Gothic", 16, 'bold'),
                                  enable_events=True,
                                  text_color='red'),
                     ],
                     [
-                        sg.Text('        participants number:', size=(32, 1), background_color="transparent",
-                                visible=False,
-                                key='participant graph2',
-                                font=("Century Gothic", 12), text_color='black'),
-                        # sg.Input(size=[120, 25], key='combo_par_graph2', visible=False, enable_events=True,
-                        # font=("Century Gothic", 12))
-                        sg.Listbox(participants_list, size=(10, 2), key='combo_par_graph2', select_mode='multiple',
-                                   visible=False, enable_events=True, font=("Century Gothic", 12))
+                        sg.Text("", background_color="transparent", size=(0, 3)),
+                        sg.Text('      Y axis:', size=(20, 1), background_color="transparent",
+                                visible=True, key='y axis text', font=("Century Gothic", 16, 'bold'), text_color='red'),
+                        sg.Listbox(values=globals.hrv_methods_list, size=[200, 57], key='y axis', visible=True,
+                                   enable_events=True,
+                                   font=("Century Gothic", 12), select_mode='multiple'),
 
                     ],
                     [
-                        sg.Text('        ride number:', size=(32, 1), background_color="transparent", visible=False,
-                                key='ride graph2', font=("Century Gothic", 12), text_color='black'),
-                        sg.Combo(values=rides_list, size=[50, 25], key='combo_ride_graph2', visible=False,
-                                 enable_events=True,
-                                 font=("Century Gothic", 12), readonly=True),
+                        sg.Text('      X axis:', size=(21, 1), background_color="transparent",
+                                visible=True, key='x axis text', font=("Century Gothic", 16, 'bold'), text_color='red'),
+                        sg.Radio(group_id="X", text="Participants", background_color="transparent",
+                                 key="x axis par", size=(250, 35), font=("Century Gothic", 14, 'bold'),
+                                 enable_events=True, text_color='black', default=True),
+                        sg.Radio(group_id="X", text="Scenarios", background_color="transparent",
+                                 key="x axis scenarios", size=(250, 35), font=("Century Gothic", 14, 'bold'),
+                                 enable_events=True, text_color='black', default=False),
+
+                    ],
+                    [
+                        sg.Text("", background_color="transparent", size=(21, 2)),
+                        sg.Listbox(values=participants_list, size=[150, 57], key='participant listbox', visible=True,
+                                   enable_events=True,
+                                   font=("Century Gothic", 12),
+                                   select_mode=sg.SELECT_MODE_MULTIPLE),
+                        sg.Text("", background_color="transparent", size=(12, 0)),
+                        sg.Listbox(values=globals.scenarios_list, size=[150, 57], key='scenarios listbox', visible=True,
+                                   enable_events=True,
+                                   font=("Century Gothic", 12), select_mode=sg.SELECT_MODE_MULTIPLE),
+                    ],
+                    [
+                        sg.Text("", background_color="transparent", size=(21, 0),
+                                font=("Century Gothic", 16)),
+                        sg.Button("SELECT ALL", size=(70, 30), font=("Century Gothic", 6), key="SELECT ALL par",
+                                  enable_events=True),
+                        sg.Text("", background_color="transparent", size=(1, 0),
+                                font=("Century Gothic", 16)),
+                        sg.Button("CLEAN ALL", size=(70, 30), font=("Century Gothic", 6), key="CLEAN ALL par",
+                                  enable_events=True),
+                        sg.Text("", background_color="transparent", size=(12, 0),
+                                font=("Century Gothic", 16)),
+                        sg.Button("SELECT ALL", size=(70, 30), font=("Century Gothic", 6), key="SELECT ALL sc",
+                                  enable_events=True, disabled=True),
+                        sg.Text("", background_color="transparent", size=(1, 0),
+                                font=("Century Gothic", 16)),
+                        sg.Button("CLEAN ALL", size=(70, 30), font=("Century Gothic", 6), key="CLEAN ALL sc",
+                                  enable_events=True, disabled=True)
+                    ],
+                    [
+                        sg.Text("", background_color="transparent", size=(0, 3)),
+                        sg.Text('      Choose rides:', size=(30, 2), background_color="transparent",
+                                visible=True, font=("Century Gothic", 16, 'bold'), text_color='red'),
+                        sg.Listbox(values=globals.rides_list, size=[200, 57], key='choose rides', visible=True,
+                                   enable_events=True,#לא מצליחה לעשות בחירה דיפולט את נסיעה 1
+                                   font=("Century Gothic", 12), select_mode='multiple'),
+                        sg.Text("", background_color="transparent", size=(3, 0)),
+                        sg.Checkbox("Show baseline?", background_color='transparent', key='baseline checkbox', default=False,
+                                    enable_events=True, font=("Century Gothic", 12), text_color="black",
+                                    tooltip="will present on graph the baseline of each method")
 
                     ],
                     [
@@ -261,14 +282,16 @@ def exceptions_values_layout():
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
                 sg.Checkbox("No filtering", background_color='transparent', key='no filtering checkbox', default=True,
-                            enable_events=True,text_color='red', font=("Century Gothic", 16,'bold'),size_px=(670, 36)),
+                            enable_events=True, text_color='red', font=("Century Gothic", 16, 'bold'),
+                            size_px=(670, 36)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(0, 40)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(5, 0)),
-                sg.Checkbox("Exceptions values - RR intervals", background_color='transparent', key='checkbox exceptions RR', default=False,
+                sg.Checkbox("Exceptions values - RR intervals", background_color='transparent',
+                            key='checkbox exceptions RR', default=False,
                             enable_events=True, text_color='red', font=("Century Gothic", 16, 'bold'),
                             size_px=(670, 35))
             ],
@@ -279,11 +302,13 @@ def exceptions_values_layout():
                         visible=True,
                         key='choose desired RR range',
                         font=("Century Gothic", 14), text_color='black'),
-                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=0.6, key='_SPIN_RR_LOWER', size=(7, 1.2),
+                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=0.6, key='_SPIN_RR_LOWER',
+                        size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
-                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=1.2, key='_SPIN_RR_UPPER', size=(7, 1.2),
+                sg.Spin([round(i, 1) for i in list(linspace(0, 2, 21))], initial_value=1.2, key='_SPIN_RR_UPPER',
+                        size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True),
             ],
             [
@@ -304,12 +329,14 @@ def exceptions_values_layout():
                         visible=True,
                         key='choose desired BPM range',
                         font=("Century Gothic", 14), text_color='black'),
-                sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value="40", key='_SPIN_BPM_LOWER',size=(7, 1.2),
+                sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value="40",
+                        key='_SPIN_BPM_LOWER', size=(7, 1.2),
                         font=("Century Gothic", 14), tooltip="Lower boundary", enable_events=True),
                 sg.Text(' - ', size=(2.5, 1), background_color="transparent",
                         visible=True, font=("Century Gothic", 16), text_color='black'),
                 sg.Spin([str(i) for i in range(0, 201, 1)], change_submits=True, initial_value='140',
-                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary", enable_events=True),
+                        key='_SPIN_BPM_UPPER', size=(7, 1.2), font=("Century Gothic", 14), tooltip="Upper boundary",
+                        enable_events=True),
             ],
 
             [sg.Text(text="", background_color="transparent", size_px=(0, 110), )],
@@ -371,8 +398,10 @@ def path_load_window_layout():
             ],
             [
                 sg.Text("", background_color="transparent", size=(262, 20)),
-                sg.Button("Create empty folders", size=(414, 45), font=("Century Gothic", 18), key="Create empty folders",
-                          enable_events=True, tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"main folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
+                sg.Button("Create empty folders", size=(414, 45), font=("Century Gothic", 18),
+                          key="Create empty folders",
+                          enable_events=True,
+                          tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"main folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
                 sg.Text("", background_color="transparent", size=(500, 20)),
                 sg.Button("EXIT", size=(110, 45), font=("Century Gothic", 18)),
                 sg.Text("", background_color="transparent", size=(50, 35),
@@ -429,7 +458,8 @@ def open_window_layout():
                         size=(310, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[100, 40], justification="center", key="sim_start", enable_events=True,
                          font=("Century Gothic", 16), default_text="0", disabled=True),
-                sg.Text(" ,   ", background_color="transparent", size=(50, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Text(" ,   ", background_color="transparent", size=(50, 35), font=("Century Gothic", 18),
+                        text_color='black'),
                 sg.Text("ECG start at", background_color="transparent",
                         size=(230, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[100, 40], justification="center", key='ecg_start', enable_events=True,

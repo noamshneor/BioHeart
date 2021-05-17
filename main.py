@@ -377,7 +377,7 @@ def ui():
         data_quality_table_window.hide()
         # -------------------------- Graphs Window -----------------------------
         layout_graphs_window = graphs_window_layout()
-        graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
+        graph_window = sg.Window(title="Graphs", no_titlebar=False, layout=layout_graphs_window,
                                  size=(1730, 970), resizable=True, finalize=True,
                                  disable_minimize=True,
                                  location=(90, 20), background_image="backsum.png",
@@ -404,73 +404,150 @@ def ui():
             if event4 == "Graphs button":
                 summary_table_window.hide()
                 graph_window.un_hide()
-                choose_graph_flag = False
-
+               # choose_graph_flag = True
+                graph_window.FindElement('scenarios listbox').Update(disabled=True)
                 while True:
+                    y_axis_choose = True
+                    x_axis_choose = True
+                    rides_choose = True
                     event5, values5 = graph_window.read()
                     graph_window.bring_to_front()
                     # print(event5)
-                    if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
-                        choose_graph_flag = False
-                    else:
-                        choose_graph_flag = True
-                    if event5 == "avg bpm 1 par":
-                        graph_window['participant graph1'].update(visible=True)
-                        graph_window['combo_par_graph1'].update(visible=True)
-                        graph_window['ride graph1'].update(visible=True)
-                        graph_window['combo_ride_graph1'].update(visible=True)
-                        graph_window['participant graph2'].update(visible=False)
-                        graph_window['combo_par_graph2'].update(visible=False)
-                        graph_window['ride graph2'].update(visible=False)
-                        graph_window['combo_ride_graph2'].update(visible=False)
+                    #if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
+                    #    choose_graph_flag = False
+                    #else:
+                    #    choose_graph_flag = True
 
-                    if event5 == "rmssd for several par":
-                        graph_window['participant graph2'].update(visible=True)
-                        graph_window['combo_par_graph2'].update(visible=True)
-                        graph_window['ride graph2'].update(visible=True)
-                        graph_window['combo_ride_graph2'].update(visible=True)
-                        graph_window['participant graph1'].update(visible=False)
-                        graph_window['combo_par_graph1'].update(visible=False)
-                        graph_window['ride graph1'].update(visible=False)
-                        graph_window['combo_ride_graph1'].update(visible=False)
+                    if event5 == "HV":
+                        graph_window.FindElement('y axis').Update(values='Average BPM'.split(','))
+
+                    if event5 == "HRV":
+                        graph_window.FindElement('y axis').Update(values=globals.hrv_methods_list)
+
+                    if event5 == "x axis par":
+                        graph_window.FindElement('scenarios listbox').Update(disabled=True)
+                        graph_window['scenarios listbox'].update("")
+                        graph_window['scenarios listbox'].update(globals.scenarios_list)
+                        graph_window["SELECT ALL par"].update(disabled=False)
+                        graph_window["CLEAN ALL par"].update(disabled=False)
+                        graph_window.FindElement('participant listbox').Update(disabled=False)
+                        graph_window["SELECT ALL sc"].update(disabled=True)
+                        graph_window["CLEAN ALL sc"].update(disabled=True)
+                    if event5 == "x axis scenarios":
+                        graph_window.FindElement('participant listbox').Update(disabled=True)
+                        graph_window['participant listbox'].update("")
+                        graph_window['participant listbox'].update(globals.list_of_existing_par)
+                        graph_window["SELECT ALL par"].update(disabled=True)
+                        graph_window["CLEAN ALL par"].update(disabled=True)
+                        graph_window.FindElement('scenarios listbox').Update(disabled=False)
+                        graph_window["SELECT ALL sc"].update(disabled=False)
+                        graph_window["CLEAN ALL sc"].update(disabled=False)
+
+                    if event5 == "SELECT ALL par":
+                        graph_window['participant listbox'].SetValue(globals.list_of_existing_par)
+                    if event5 == "CLEAN ALL par":
+                        graph_window['participant listbox'].update("")
+                        graph_window['participant listbox'].update(globals.list_of_existing_par)
+
+                    if event5 == "SELECT ALL sc":
+                        graph_window['scenarios listbox'].SetValue(globals.scenarios_list)
+                    if event5 == "CLEAN ALL sc":
+                        graph_window['scenarios listbox'].update("")
+                        graph_window['scenarios listbox'].update(globals.scenarios_list)
 
                     if event5 == "graphs back":
                         graph_window.hide()
                         summary_table_window.un_hide()
-                        graph_window['participant graph1'].update(visible=False)
-                        graph_window['combo_par_graph1'].update(visible=False)
-                        graph_window['ride graph1'].update(visible=False)
-                        graph_window['combo_ride_graph1'].update(visible=False)
-                        graph_window['participant graph2'].update(visible=False)
-                        graph_window['combo_par_graph2'].update(visible=False)
-                        graph_window['ride graph2'].update(visible=False)
-                        graph_window['combo_ride_graph2'].update(visible=False)
-                        choose_graph_flag = False
+      #                  choose_graph_flag = False
                         break
 
                     if event5 == "CONTINUE_GRAPH":
-                        if values5["avg bpm 1 par"] and choose_graph_flag:
-                            # שמירת האינפוטים במשתנים
-                            participant_num_input = int(values5['combo_par_graph1'])
-                            ride_input = int(values5['combo_ride_graph1'])
-                            p1 = Process(target=draw_plot1,
-                                         args=(participant_num_input, ride_input, globals.summary_table))
-                            p1.start()
-                            choose_graph_flag = False
-
-                        elif values5["rmssd for several par"] and choose_graph_flag:
-                            # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
-                            participants_input = values5['combo_par_graph2']
-                            ride_input = int(values5['combo_ride_graph2'])
-                            p2 = Process(target=draw_plot2,
-                                         args=(participants_input, ride_input, globals.summary_table))
-                            p2.start()
-                            choose_graph_flag = False
-
-                        else:
-                            sg.popup_quick_message('Please choose graph before continue',
+                        if not values5['y axis']:  # אם לא נבחר מדד מהרשימת מדדים
+                            sg.popup_quick_message('You have to choose Y axis!',
                                                    font=("Century Gothic", 14), background_color='red',
                                                    location=(970, 880))
+                            y_axis_choose = False
+                        if not values5["choose rides"]:  # לא נבחרו נסיעות בליסטבוקס
+                            sg.popup_quick_message('You have to choose specific rides!',
+                                                   font=("Century Gothic", 14), background_color='red',
+                                                   location=(970, 880))
+                            rides_choose = False
+
+                        if values5["x axis par"]:
+                            if not values5['participant listbox']:  # אבל לא נבחרו בליסטבוקס משתתפים להציג
+                                sg.popup_quick_message('You have to choose specific participants!',
+                                                       font=("Century Gothic", 14), background_color='red',
+                                                       location=(970, 880))
+                                x_axis_choose = False
+                            else: #נבחר משתתפים בליסטבוקס
+                                axis_x_participants_input = values5['participant listbox']
+                                if y_axis_choose and rides_choose and x_axis_choose:#קוד כפול
+                                    axis_y_methods_input = values5['y axis']
+                                    rides_input = values5['choose rides']
+                                    if values5["baseline checkbox"]:
+                                        if values5["HRV"]:
+                                            print("HRV methods: " + str(
+                                                axis_y_methods_input) + "with baseline and axis x of participants: " + str(
+                                                axis_x_participants_input) + " in rides: " + str(rides_input))
+                                        else:#HR
+                                            print("HR methods: " + str(
+                                                axis_y_methods_input) + "with baseline and axis x of participants: " + str(
+                                                axis_x_participants_input) + " in rides: " + str(rides_input))
+                                    else: #לא נבחר בייסלין
+                                       if values5["HRV"]:
+                                           print("HRV method: " + str(
+                                               axis_y_methods_input) + " and axis x of participants: " + str(
+                                               axis_x_participants_input) + " in rides: " + str(rides_input))
+                                       else:
+                                           print("HR method: " + str(
+                                               axis_y_methods_input) + " and axis x of participants: " + str(
+                                               axis_x_participants_input) + " in rides: " + str(rides_input))
+
+
+                        if values5["x axis scenarios"]:  # אם בחרתי תרחישים בציר איקס
+                            if not values5['scenarios listbox']:  # אבל לא נבחרו בליסטבוקס תרחישים להציג
+                                sg.popup_quick_message('You have to choose specific scenarios!',
+                                                       font=("Century Gothic", 14), background_color='red',
+                                                       location=(970, 880))
+                                x_axis_choose = False
+                            else:  # נבחרו בליסטבוקס תרחישים להציג
+                                axis_x_scenarios_input = values5['scenarios listbox']
+                                if y_axis_choose and rides_choose and x_axis_choose:#קוד כפול
+                                    axis_y_methods_input = values5['y axis']
+                                    rides_input = values5['choose rides']
+                                    if values5["baseline checkbox"]:
+                                        if values5["HRV"]:
+                                            print("HRV methods: "+str(axis_y_methods_input)+"with baseline and axis x of scenarios: "+str(axis_x_scenarios_input)+" in rides: "+str(rides_input))
+                                        else:#HV
+                                            print("HR method: "+str(axis_y_methods_input)+"with baseline and axis x of scenarios: "+str(axis_x_scenarios_input)+" in rides: "+str(rides_input))
+                                    else:  # לא נבחר בייסלין
+                                        if values5["HRV"]:
+                                            print("HRV method: " + str(
+                                                axis_y_methods_input) + " and axis x of scenarios: " + str(
+                                                axis_x_scenarios_input) + " in rides: " + str(rides_input))
+                                        else:#HR
+                                            print("HR method: " + str(
+                                                axis_y_methods_input) + " and axis x of scenarios: " + str(
+                                                axis_x_scenarios_input) + " in rides: " + str(rides_input))
+
+
+
+########################################################################################
+
+                        # elif values5["rmssd for several par"] and choose_graph_flag:
+                        #     # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
+                        #     participants_input = values5['combo_par_graph2']
+                        #     ride_input = int(values5['combo_ride_graph2'])
+                        #     p2 = Process(target=draw_plot2,
+                        #                  args=(participants_input, ride_input, globals.summary_table))
+                        #     p2.start()
+                        #     choose_graph_flag = False
+                        #
+                        # else:
+                        #     sg.popup_quick_message('Please choose graph before continue',
+                        #                            font=("Century Gothic", 14), background_color='red',
+                        #                            location=(970, 880))
+
             if event4 == "dq button":
                 summary_table_window.hide()
                 data_quality_table_window.un_hide()
@@ -507,17 +584,32 @@ def ui():
 
 
 if __name__ == '__main__':
-    #RR_hara = pandas.read_pickle("pickle_parRR1")
-    #hara2 = RR_hara.to_csv('RR_with_time_and_scenario.csv')
-
     restart = ui()
     if restart:
         os.system('main.py')
         exit()
     else:
         sys.exit(0)
-
     """
+    # -------------------------- Graphs Window -----------------------------
+    layout_graphs_window = graphs_window_layout()
+    graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
+                             size=(1730, 970), resizable=True, finalize=True,
+                             disable_minimize=True,
+                             location=(90, 20), background_image="backsum.png",
+                             element_padding=(0, 0))
+    while True:
+        event5, values5 = graph_window.read()
+        if event5 == "HV":
+            graph_window.FindElement('y axis').Update(values='Average BPM'.split(','))
+
+    graph_window.close()
+
+    #RR_hara = pandas.read_pickle("pickle_parRR1")
+    #hara2 = RR_hara.to_csv('RR_with_time_and_scenario.csv')
+
+
+
     
     layout_exceptions_values_window = exceptions_values_layout()
     # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------

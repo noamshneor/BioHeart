@@ -33,7 +33,17 @@ def draw_plot2(participants_input, ride_input, table):
     plt.style.use('fivethirtyeight')
     plt.show()
 
-
+def draw_plot_HR(participant_num_input, ride_input, table):
+    x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
+    print(x)
+    y = table.loc[
+        (table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Average BPM']]
+    print(y)
+    plt.plot(x, y, marker='.')
+    plt.title('AVG BPM of participant ' + str(participant_num_input) + ' in ride ' + str(ride_input) + ', by scenario')
+    plt.xlabel('Scenario')
+    plt.ylabel('AVG BPM')
+    plt.show()
 def early_table(filename):
     if filename == "summary_table":
         for i in range(len(globals.summary_table.index)):

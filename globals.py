@@ -3,19 +3,22 @@ from enum import Enum
 import pandas
 import PySimpleGUIQt as sg
 
-class Filter(Enum):
-    NONE=1
-    BPM=2
-    RR=3
-    BOTH=4
 
+class Filter(Enum):
+    NONE = 1
+    BPM = 2
+    RR = 3
+    BOTH = 4
+
+
+scenarios_list = []
 scenario_num = 0
 scenario_col_num = 0
 par_num = 0
 par_ride_num = 0
 sim_start = 0.0
 ecg_start = 0.0
-par_not_existing = [1,2]
+par_not_existing = [1, 2]
 current_par = 0
 current_ride = 0
 percent = 0
@@ -59,6 +62,9 @@ header_data_quality = ["Participant", "Ride Number", "Scenario", "Start time", "
                        "HRV methods(rr) : Minimum value",
                        "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
 data_quality_table = pandas.DataFrame(columns=header_data_quality)
+
+hrv_methods_list = ["RMSSD", "SDSD", "SDNN", "PNN50"]
+rides_list = []
 
 """
 def initialize():
