@@ -57,6 +57,8 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
                 i += 1  # move to the next ECG/RR row to match
             else:
                 j += 1
+        else:
+            break
         # else:  # צריך להסיר שורות מהקובץ בגלל טווח חריגים
         #     # exception_count += 1
         #     # exceptions.append(i)
