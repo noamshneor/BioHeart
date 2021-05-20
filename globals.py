@@ -10,9 +10,10 @@ class Filter(Enum):
     BOTH = 4
 
 
-scenario_num = 7
-scenario_col_num = 11
-par_num = 10
+scenarios_list = []
+scenario_num = 0
+scenario_col_num = 0
+par_num = 0
 par_ride_num = 0
 sim_start = 0.0
 ecg_start = 0.0
@@ -62,3 +63,6 @@ header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start
                        "HRV methods(rr) : Minimum value",
                        "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
 data_quality_table = pandas.DataFrame(columns=header_data_quality)
+
+hrv_methods_list = ["RMSSD", "SDSD", "SDNN", "PNN50"]
+rides_list = []
