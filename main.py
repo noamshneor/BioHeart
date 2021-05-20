@@ -16,7 +16,7 @@ from LAYOUT_UI import graphs_window_layout, data_quality_table_window_layout, su
 from UI_FUNCTIONS import draw_plot1, draw_plot2, early_table, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
-    exceptions_checkbox_handle, create_empty_folders
+    exceptions_checkbox_handle, create_empty_folders, draw_plot_HR
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -529,6 +529,11 @@ def ui():
                                             print("HR method: " + str(
                                                 axis_y_methods_input) + " and axis x of scenarios: " + str(
                                                 axis_x_scenarios_input) + " in rides: " + str(rides_input))
+                                            p2 = Process(target=draw_plot_HR, args=(
+                                            axis_x_scenarios_input, globals.list_of_existing_par, rides_input, globals.summary_table))
+                                            p2.start()
+                                            # choose_graph_flag = False
+
 
 
 

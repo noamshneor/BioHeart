@@ -2,6 +2,7 @@ import os
 import shutil
 import time
 import PySimpleGUIQt as sg
+import numpy as np
 from matplotlib import pyplot as plt
 import globals
 
@@ -33,7 +34,24 @@ def draw_plot2(participants_input, ride_input, table):
     plt.style.use('fivethirtyeight')
     plt.show()
 
-def draw_plot_HR(participant_num_input, ride_input, table):
+def draw_plot_HR(axis_x_scenarios_input, participant_num_input, ride_input, table):
+    list_scenarios = [[] for i in range(7)]
+    print(list_scenarios)
+    for line_sc in axis_x_scenarios_input:
+        for line_par in participant_num_input:
+            list_scenarios[line_sc].append(table.loc[(table['Ride Number'] == ride_input) and (table['Participant'] == line_par) and (table['Scenario'] == line_sc), ['Average BPM']])
+    X = np.arange(4)
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.bar(X + 0.00, list_scenarios[1], color='b', width=0.25)
+    ax.bar(X + 0.25, list_scenarios[2], color='g', width=0.25)
+    ax.bar(X + 0.50, list_scenarios[2], color='r', width=0.25)
+    ax.bar(X + 0.75, list_scenarios[4], color='r', width=0.25)
+    ax.bar(X + 1, list_scenarios[5], color='r', width=0.25)
+    ax.bar(X + 1.25, list_scenarios[6], color='r', width=0.25)
+
+
+
     x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
     print(x)
     y = table.loc[
@@ -44,6 +62,7 @@ def draw_plot_HR(participant_num_input, ride_input, table):
     plt.xlabel('Scenario')
     plt.ylabel('AVG BPM')
     plt.show()
+
 def early_table(filename):
     if filename == "summary_table":
         for i in range(len(globals.summary_table.index)):
