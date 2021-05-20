@@ -110,10 +110,12 @@ def data_quality_table_window_layout(dq_table_list):
                     [
                         sg.Text(text="", background_color="transparent", size_px=(600, 50)),
                         sg.Button(button_text="BACK", size_px=(150, 60), key="dq back", enable_events=True,
-                                  font=("Century Gothic", 16)),
+                                  font=("Century Gothic", 16),
+                                  tooltip="Back to summary table"),
                         sg.Text(text="", background_color="transparent", size_px=(100, 0)),
                         sg.Button(button_text="Export to CSV", size_px=(250, 60), key="dq export",
-                                  enable_events=True, font=("Century Gothic", 16))
+                                  enable_events=True, font=("Century Gothic", 16),
+                                  tooltip="Select a folder to export the table to a CSV file")
 
                     ],
                 ], background_color="transparent"
@@ -155,14 +157,14 @@ def summary_table_window_layout(summary_table_list):
                                     tooltip="The percentage of adjacent NN intervals that differ from each other by more than 50 ms (pNN50).")
                     ],
                     [
-                        sg.Checkbox("Baseline BPM", background_color='transparent', key='Baseline BPM', default=True,
+                        sg.Checkbox("Baseline", background_color='transparent', key='Baseline', default=True,
                                     enable_events=True, font=("Century Gothic", 13), text_color="black",
-                                    tooltip="Resting average beats per minute (BPM).")
+                                    tooltip="Resting column for each selected HRV method.")
                     ],
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
                     [sg.Button(button_text="Export to CSV", size_px=(250, 60), key="Export to CSV",
-                               enable_events=True,
-                               font=("Century Gothic", 16))]
+                               enable_events=True, font=("Century Gothic", 16),
+                               tooltip="Select a folder to export the table to a CSV file")]
                 ], background_color="transparent"),
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
@@ -183,7 +185,8 @@ def summary_table_window_layout(summary_table_list):
                                font=("Century Gothic", 16))],
                     [sg.Text(text="", background_color="transparent", size_px=(200, 50))],
                     [sg.Button(button_text="Restart", size_px=(220, 60), key="Restart button", enable_events=True,
-                               font=("Century Gothic", 16))],
+                               font=("Century Gothic", 16),
+                               tooltip="Reboot the program and insert a new experiment")],
                     [sg.Text(text="", background_color="transparent", size_px=(200, 50))],
                     [sg.Button(button_text="EXIT", size_px=(220, 60), key="summary exit", enable_events=True,
                                font=("Century Gothic", 16))],
@@ -239,7 +242,8 @@ def loading_window_layout():
             [
                 sg.Text(text="", background_color="transparent", size_px=(165, 50)),
                 sg.Button(button_text="CANCEL", size_px=(150, 60), key="p bar cancel", enable_events=True,
-                          font=("Century Gothic", 16))
+                          font=("Century Gothic", 16),
+                          tooltip="Clicking this button will forcibly stop the program from running. Please note that nothing will be saved!")
             ],
 
         ]
@@ -373,7 +377,8 @@ def path_load_window_layout():
                         text_color='black',
                         background_color='white',
                         show_expanded=False,
-                        enable_events=True),
+                        enable_events=True,
+                        tooltip="The contents of the selected \"main folder\""),
             ],
             [
                 sg.Text("", background_color="transparent", size=(262, 20)),
@@ -382,7 +387,8 @@ def path_load_window_layout():
                           enable_events=True,
                           tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"main folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
                 sg.Text("", background_color="transparent", size=(500, 20)),
-                sg.Button("BACK", size=(110, 45), font=("Century Gothic", 18), key="BACK_PATH"),
+                sg.Button("BACK", size=(110, 45), font=("Century Gothic", 18), key="BACK_PATH",
+                          tooltip="Return to the experiment data entry screen"),
                 sg.Text("", background_color="transparent", size=(50, 35),
                         font=("Century Gothic", 16)),
                 sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_PATH",
@@ -410,7 +416,8 @@ def optional_window_layout():
                            disabled=True, enable_events=True, font=("Century Gothic", 11)),
                 sg.Text("", background_color="transparent", size=(5, 0)),
                 sg.Button("Exclude", size=(160, 50), font=("Century Gothic", 16), key="Exclude_OPTIONAL",
-                          enable_events=True, visible=False),
+                          enable_events=True, visible=False,
+                          tooltip="Clicking this button will remove the selected participants from the list of experiment participants."),
             ],
             [
                 sg.Text("", background_color="transparent", size=(250, 50))
@@ -424,7 +431,8 @@ def optional_window_layout():
                          font=("Century Gothic", 14), readonly=True, disabled=True),
                 sg.Text("", background_color="transparent", size=(6, 0)),
                 sg.Button("Choose", size=(160, 50), font=("Century Gothic", 16), key="Choose_OPTIONAL",
-                          enable_events=True, visible=False),
+                          enable_events=True, visible=False,
+                          tooltip="Clicking on this button will create groups and allow you to select participants belonging to each group"),
             ],
             [
                 sg.Text("", background_color="transparent", size=(0, 20)),
@@ -453,7 +461,7 @@ def optional_window_layout():
                 sg.Text("                                   ", background_color="transparent", size=(670, 35),
                         font=("Century Gothic", 16)),
                 sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="BACK_OPTIONAL",
-                          enable_events=True),
+                          enable_events=True, tooltip="Return to the experiment data entry screen"),
                 sg.Text("", background_color="transparent", size=(80, 35),
                         font=("Century Gothic", 16)),
                 sg.Button("CONTINUE", size=(220, 45), font=("Century Gothic", 18), key="CONTINUE_OPTIONAL",
@@ -473,7 +481,7 @@ def open_window_layout():
                 sg.Text("                             Participant’s number", background_color="transparent",
                         size=(670, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key="par_num", enable_events=True,
-                         font=("Century Gothic", 16)),
+                         font=("Century Gothic", 16), tooltip="Enter only digits 0-9"),
                 sg.Text("          Number of participant’s rides", background_color="transparent",
                         size=(630, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Combo(values=[1, 2, 3, 4, 5], size=[50, 40], key='par_ride_num', enable_events=True,
@@ -487,11 +495,11 @@ def open_window_layout():
                 sg.Text("                             Scenario’s number", background_color="transparent",
                         size=(670, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_num', enable_events=True,
-                         font=("Century Gothic", 16)),
+                         font=("Century Gothic", 16), tooltip="Enter only digits 0-9"),
                 sg.Text("          Scenario’s column number", background_color="transparent",
                         size=(630, 35), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_col_num', enable_events=True,
-                         font=("Century Gothic", 16))
+                         font=("Century Gothic", 16), tooltip="Enter only digits 0-9")
             ],
             [
                 sg.Text("", background_color="transparent", size=(250, 70)),

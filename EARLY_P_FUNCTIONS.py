@@ -185,13 +185,14 @@ def list_hrv_methods(avg_base, baseRR, list_of_rr_flag):
     return listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD
 
 
-def filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride):
+def filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride, group_list):
     listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD = list_hrv_methods(
         avg_base, baseRR, list_of_rr_flag)
     globals.summary_table = globals.summary_table.append(
         pandas.DataFrame({'Participant': [par] * globals.scenario_num,
                           'Ride Number': [ride] * globals.scenario_num,
                           'Scenario': list(range(1, globals.scenario_num + 1)),
+                          'Group': group_list,
                           'Average BPM': listBPM, 'RMSSD': listRMSSD, 'SDSD': listSDSD,
                           'SDNN': listSDNN, 'PNN50': listPNN50, 'Baseline BPM': listBaseBPM,
                           'Baseline RMSSD': listBaseRMSSD, 'Baseline SDNN': listBaseSDNN,
@@ -210,6 +211,18 @@ def filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride)
     globals.summary_table.reset_index(drop=True, inplace=True)
 
 
+def make_par_group_list(par):
+    group_list = []
+    if globals.group_num == 0:
+        group_list = [0] * globals.scenario_num
+    else:
+        for group in range(globals.group_num):
+            if par in globals.lists_of_groups[group]:
+                group_list = [group + 1] * globals.scenario_num
+                break
+    return group_list
+
+
 def calc_rr_num_of_rows_per_flag():
     list_count_rr_flag = []  # rr values count per flag - number of rows in RR file per flag
     for i in range(1, len(globals.list_count_rr_intervals_flag)):
@@ -221,7 +234,7 @@ def calc_rr_num_of_rows_per_flag():
     return list_count_rr_flag
 
 
-def filling_dq_table(listBPM_per_scenario, par, ride):
+def filling_dq_table(listBPM_per_scenario, par, ride, group_list):
     list_count_rr_flag = calc_rr_num_of_rows_per_flag()
 
     globals.data_quality_table = \
@@ -230,6 +243,7 @@ def filling_dq_table(listBPM_per_scenario, par, ride):
                                                                                ride] * globals.scenario_num,
                                                             'Scenario': list(
                                                                 range(1, globals.scenario_num + 1)),
+                                                            'Group': group_list,
                                                             "Start time": globals.list_start_time,
                                                             "End time": globals.list_end_time,
                                                             "Duration": [round(x - y, 4) for x, y in

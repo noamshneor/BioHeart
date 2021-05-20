@@ -10,7 +10,8 @@ import HRV_METHODS
 import globals
 from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
-    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm
+    initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm, \
+    make_par_group_list
 from UI_FUNCTIONS import draw_plot1, draw_plot2, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
@@ -31,6 +32,7 @@ def early_process():
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
+        group_list = make_par_group_list(par)
         print("par in list_of_existing_par:" + str(par))
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
             print("the filename in ecg:" + filename)
@@ -63,11 +65,11 @@ def early_process():
                     # convert to pickle the "clean files"
                     save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
                     # ------------------------------------- filling summary table ------------------------------------
-                    filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride)
+                    filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride, group_list)
                     # ----------------------------------- filling data quality table ---------------------------------
                     med_rr(list_of_rr_flag)
                     dq_completeness_rr()
-                    filling_dq_table(listBPM_per_scenario, par, ride)
+                    filling_dq_table(listBPM_per_scenario, par, ride, group_list)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
                     globals.current_ride += 1

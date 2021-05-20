@@ -212,6 +212,7 @@ def early_table(filename):
             summary_table_list[i][0] = summary_table_int[i][0]
             summary_table_list[i][1] = summary_table_int[i][1]
             summary_table_list[i][2] = summary_table_int[i][2]
+            summary_table_list[i][3] = summary_table_int[i][3]
         summary_table_list = [list(map(str, x)) for x in summary_table_list]  # make str list
         return summary_table_list
     else:
@@ -223,8 +224,9 @@ def early_table(filename):
             dq_table_list[i][0] = dq_table_int[i][0]
             dq_table_list[i][1] = dq_table_int[i][1]
             dq_table_list[i][2] = dq_table_int[i][2]
-            dq_table_list[i][8] = str(dq_table_list[i][8]) + ' %'
-            dq_table_list[i][14] = str(dq_table_list[i][14]) + ' %'
+            dq_table_list[i][3] = dq_table_int[i][3]
+            dq_table_list[i][9] = str(dq_table_list[i][9]) + ' %'
+            dq_table_list[i][15] = str(dq_table_list[i][15]) + ' %'
         dq_table_list = [list(map(str, x)) for x in dq_table_list]  # make str list
         return dq_table_list
 
@@ -321,10 +323,13 @@ def checkFiles_of_base(load_list, values):
 
 def exportCSV_summary(values):
     path = sg.popup_get_folder(no_window=True, message="choose folder")
-    headerlist = [True, True, True, values['Average BPM'], values['RMSSD'],
-                  values['SDSD'], values['SDNN'], values['pNN50'], values['Baseline BPM'],
-                  values['Baseline BPM'], values['RMSSD'], values['RMSSD'], values['SDNN'], values['SDNN'],
-                  values['SDSD'], values['SDSD'], values['pNN50'], values['pNN50']]
+    headerlist = [True, True, True, globals.group_num != 0, values['Average BPM'], values['RMSSD'],
+                  values['SDSD'], values['SDNN'], values['pNN50'],
+                  values['Average BPM'] and values['Baseline'], values['Average BPM'] and values['Baseline'],
+                  values['RMSSD'] and values['Baseline'], values['RMSSD'] and values['Baseline'],
+                  values['SDNN'] and values['Baseline'], values['SDNN'] and values['Baseline'],
+                  values['SDSD'] and values['Baseline'], values['SDSD'] and values['Baseline'],
+                  values['pNN50'] and values['Baseline'], values['pNN50'] and values['Baseline']]
     if path:
         globals.summary_table.to_csv(path + '\\summary_table.csv', index=False, header=True,
                                      columns=headerlist)
@@ -335,9 +340,11 @@ def exportCSV_summary(values):
 
 def exportCSV_dq():
     path = sg.popup_get_folder(no_window=True, message="choose folder")
-
+    headerlist = [True, True, True, globals.group_num != 0, True, True, True, True, True, True,
+                  True, True, True, True, True, True, True, True, True]
     if path:
-        globals.data_quality_table.to_csv(path + '\\data_quality_table.csv', index=False, header=True)
+        globals.data_quality_table.to_csv(path + '\\data_quality_table.csv', index=False, header=True,
+                                          columns=headerlist)
         sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 12),
                                background_color='white', text_color='black',
                                location=(1280, 880))
@@ -449,6 +456,7 @@ def exceptions_checkbox_handle(event8, exceptions_values_window, values8):
     else:
         exceptions_values_window.element('_SPIN_BPM_LOWER').update(disabled=True)
         exceptions_values_window.element('_SPIN_BPM_UPPER').update(disabled=True)
+
 
 def save_input_open_window(values):
     globals.par_num = int(values['par_num'])

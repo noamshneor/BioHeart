@@ -45,14 +45,14 @@ lists_of_groups = []  # 0=group1, 1=group2....
 # path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
 # path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
 main_path = ""
-header_summary_table = ["Participant", "Ride Number", "Scenario", "Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50",
+header_summary_table = ["Participant", "Ride Number", "Scenario", "Group", "Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50",
                         "Baseline BPM",
                         "Subtraction BPM", "Baseline RMSSD", "Subtraction RMSSD", "Baseline SDNN",
                         "Subtraction SDNN",
                         "Baseline SDSD", "Subtraction SDSD", "Baseline PNN50",
                         "Subtraction PNN50"]
 summary_table = pandas.DataFrame(columns=header_summary_table)  # create empty table,only with columns names
-header_data_quality = ["Participant", "Ride Number", "Scenario", "Start time", "End time", "Duration",
+header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start time", "End time", "Duration",
                        "BPM(ecg) : Total number of rows", "BPM(ecg) : Number of empty rows",
                        "BPM(ecg) : % Completeness", "BPM(ecg) : Minimum value",
                        "BPM(ecg) : Maximum value", "BPM(ecg) : Median",
