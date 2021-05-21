@@ -47,7 +47,7 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG/RR between time range in SIM
                 if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
-                    scenario = parSIM.at[j, 'Scenario']
+                    scenario = int(parSIM.at[j, 'Scenario'])
                     par.at[i, 'Scenario'] = scenario  # match the flag
                     lst[scenario].append(par.at[i, col_name])  # מכניס לרשימה של הרשימות- bpm לכל flag
                     if col_name == "BPM":
