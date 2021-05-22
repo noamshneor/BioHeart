@@ -12,11 +12,12 @@ from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filli
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm, \
     make_par_group_list
-from UI_FUNCTIONS import draw_plot1, draw_plot2, checkFolders_of_rides, checkFolders_of_base, \
+from UI_FUNCTIONS import checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
     exceptions_checkbox_handle, create_empty_folders, pickle_folders, windows_initialization_part_1, \
-    windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, draw_plot_HR
+    windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, plot_HR_with_scenarios, \
+    plot_HR_rides, plot_HR_groups_rides, plot_HR_groups_scenarios
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -394,7 +395,7 @@ def ui():
                         if event5 == "HRV":
                             graph_window.FindElement('y axis').Update(values=globals.hrv_methods_list)
 
-                        if event5 == "x axis par":
+                        if event5 == "x axis rides":
                             graph_window.FindElement('scenarios listbox').Update(disabled=True)
                             graph_window['scenarios listbox'].update("")
                             graph_window['scenarios listbox'].update(globals.scenarios_list)
@@ -405,19 +406,19 @@ def ui():
                             graph_window["CLEAN ALL sc"].update(disabled=True)
                         if event5 == "x axis scenarios":
                             graph_window.FindElement('participant listbox').Update(disabled=True)
-                            graph_window['participant listbox'].update("")
-                            graph_window['participant listbox'].update(globals.list_of_existing_par)
-                            graph_window["SELECT ALL par"].update(disabled=True)
-                            graph_window["CLEAN ALL par"].update(disabled=True)
+                            graph_window['rides listbox'].update("")
+                            graph_window['rides listbox'].update(globals.list_of_existing_par)
+                            graph_window["SELECT ALL rides"].update(disabled=True)
+                            graph_window["CLEAN ALL rides"].update(disabled=True)
                             graph_window.FindElement('scenarios listbox').Update(disabled=False)
                             graph_window["SELECT ALL sc"].update(disabled=False)
                             graph_window["CLEAN ALL sc"].update(disabled=False)
 
-                        if event5 == "SELECT ALL par":
-                            graph_window['participant listbox'].SetValue(globals.list_of_existing_par)
-                        if event5 == "CLEAN ALL par":
-                            graph_window['participant listbox'].update("")
-                            graph_window['participant listbox'].update(globals.list_of_existing_par)
+                        if event5 == "SELECT ALL rides":
+                            graph_window['rides listbox'].SetValue(globals.rides_list)
+                        if event5 == "CLEAN ALL rides":
+                            graph_window['rides listbox'].update("")
+                            graph_window['rides listbox'].update(globals.rides_list)
 
                         if event5 == "SELECT ALL sc":
                             graph_window['scenarios listbox'].SetValue(globals.scenarios_list)
@@ -463,6 +464,7 @@ def ui():
                                                 print("HR methods: " + str(
                                                     axis_y_methods_input) + "with baseline and axis x of participants: " + str(
                                                     axis_x_participants_input) + " in rides: " + str(rides_input))
+
                                         else:  # לא נבחר בייסלין
                                             if values5["HRV"]:
                                                 print("HRV method: " + str(
@@ -472,6 +474,9 @@ def ui():
                                                 print("HR method: " + str(
                                                     axis_y_methods_input) + " and axis x of participants: " + str(
                                                     axis_x_participants_input) + " in rides: " + str(rides_input))
+                                                p4 = Process(target=plot_HR_rides, args=(
+                                                    globals.list_of_existing_par, rides_input, globals.summary_table))
+                                                p4.start()
 
                             if values5["x axis scenarios"]:  # אם בחרתי תרחישים בציר איקס
                                 if not values5['scenarios listbox']:  # אבל לא נבחרו בליסטבוקס תרחישים להציג
@@ -493,20 +498,28 @@ def ui():
                                                 print("HR method: " + str(
                                                     axis_y_methods_input) + "with baseline and axis x of scenarios: " + str(
                                                     axis_x_scenarios_input) + " in rides: " + str(rides_input))
+                                                p5 = Process(target=plot_HR_groups_scenarios, args=(axis_x_scenarios_input,
+                                                                                               globals.group_num, 1,
+                                                                                               globals.summary_table))
+                                                p5.start()
                                         else:  # לא נבחר בייסלין
                                             if values5["HRV"]:
                                                 print("HRV method: " + str(
                                                     axis_y_methods_input) + " and axis x of scenarios: " + str(
                                                     axis_x_scenarios_input) + " in rides: " + str(rides_input))
+
                                             else:  # HR
                                                 print("HR method: " + str(
                                                     axis_y_methods_input) + " and axis x of scenarios: " + str(
                                                     axis_x_scenarios_input) + " in rides: " + str(rides_input))
-                                                p2 = Process(target=draw_plot_HR, args=(
-                                                    axis_x_scenarios_input, globals.list_of_existing_par, rides_input,
-                                                    globals.summary_table))
-                                                p2.start()
-                                                # choose_graph_flag = False
+                                                # p3 = Process(target=plot_HR_with_scenarios, args=(
+                                                #     axis_x_scenarios_input, globals.list_of_existing_par, 1,
+                                                #     globals.summary_table))
+                                                # p3.start()
+                                                # p6 = Process(target=plot_HR_groups_rides, args=(
+                                                # axis_x_scenarios_input, globals.group_num, rides_input, globals.summary_table))
+                                                # p6.start()
+                                                #choose_graph_flag = False
 
             ########################################################################################
 
