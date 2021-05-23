@@ -203,7 +203,7 @@ def windows_initialization_part_2():
 #     plt.show()
 
 
-def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, ride_input, table):#רק על נסיעה מסויימת
+def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, table):#בלי נסיעות (כלומר כולן נבחרות)
     print("starting draw_plot_HR")
     list_participants = [[] for i in range(len(participant_num_input))] # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
     #example: [**particpant 1: [ scenario 1 value, scenario 2 value .....] **participant 2: [ scenario 1 value, .....]]
@@ -212,8 +212,7 @@ def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, ride_i
         print("current line_par is: " + str(participant_num_input[i]))
         for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
             print("current line_sc is: " + str(line_sc))
-            list_participants[i].append(table.loc[(table['Ride Number'] == ride_input) & (
-                        table['Participant'] == participant_num_input[i]) & (table['Scenario'] == line_sc), [
+            list_participants[i].append(table.loc[ (table['Participant'] == participant_num_input[i]) & (table['Scenario'] == line_sc), [
                                                                 'Average BPM']].get('Average BPM').values[0])  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
             # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
             # print("current y value is: " + str(y))
@@ -300,7 +299,7 @@ def plot_HR_rides(participant_num_input, ride_input, table):#מראה עבור �
     # plt.legend()
     # plt.show()
 
-def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, ride_input, table):
+def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, table):
     print("starting draw_plot_HR_groups_scenarios")
     list_groups = [[] for i in range((group_num))] # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
     #example: [**group 1: [ scenario 1 value, scenario 2 value .....] **group 2: [ scenario 1 value, .....]]
@@ -309,7 +308,7 @@ def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, ride_input, tabl
         print("current line_group is: " + str(i+1))
         for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
             print("current line_sc is: " + str(line_sc))
-            list_groups[i].append(np.average(table.loc[(table['Ride Number'] == ride_input) & (table['Scenario'] == line_sc) & (table['Average BPM'] != 0) & (table['Group'] == i+1) , [
+            list_groups[i].append(np.average(table.loc[(table['Scenario'] == line_sc) & (table['Average BPM'] != 0) & (table['Group'] == i+1) , [
                                                                 'Average BPM']].get('Average BPM')))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
     print(list_groups)
     groups_values_input = list(range(1, group_num + 1))

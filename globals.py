@@ -64,5 +64,5 @@ header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start
                        "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
 data_quality_table = pandas.DataFrame(columns=header_data_quality)
 
-hrv_methods_list = ["RMSSD", "SDSD", "SDNN", "PNN50"]
+methods_list = ["Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50"]
 rides_list = []
