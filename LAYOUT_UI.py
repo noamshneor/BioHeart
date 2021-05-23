@@ -227,7 +227,7 @@ def loading_window_layout():
             [
                 sg.Text(text="              0 of " + str(globals.par_num), background_color="transparent",
                         text_color='black',
-                        size_px=(430, 50), font=("Century Gothic", 20), key="num of num", enable_events=True)
+                        size_px=(450, 50), font=("Century Gothic", 20), key="num of num", enable_events=True)
             ],
             [
                 sg.Text(text="              ", background_color="transparent", size_px=(100, 45)),

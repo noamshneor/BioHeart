@@ -46,7 +46,7 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
         if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG/RR between time range in SIM
-                if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
+                if int(parSIM.at[j - 1, 'Scenario']) != 0 and int(parSIM.at[j, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
                     scenario = int(parSIM.at[j, 'Scenario'])
                     par.at[i, 'Scenario'] = scenario  # match the flag
                     lst[scenario].append(par.at[i, col_name])  # מכניס לרשימה של הרשימות- bpm לכל flag
@@ -113,11 +113,9 @@ def check_filter_type(col_name):
 
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
-    globals.list_end_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(parSIM.at[j - 1, 'Time'],
-                                                                         4)  # insert end time - all the time till the end
+    globals.list_end_time[int(parSIM.at[j, 'Scenario']) - 1] = parSIM.at[j, 'Time']  # insert end time - all the time till the end
     if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
-        globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(
-            parSIM.at[j - 1, 'Time'], 4)  # insert start time for the specific scenario
+        globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = parSIM.at[j - 1, 'Time']  # insert start time for the specific scenario
     if par.at[i, 'BPM'] < globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
         globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
     if par.at[i, 'BPM'] > globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
@@ -363,7 +361,9 @@ def early_process_ecg_sim(index_in_folder, ride):
                              usecols=[0, globals.scenario_col_num - 1],
                              names=['Time', 'Scenario'])
     if globals.sim_start > 0:  # Sync sim time
-        parSIM['Time'] = [x - globals.sim_start for x in parSIM['Time']]
+        parSIM['Time'] = [round(x - globals.sim_start, 4) for x in parSIM['Time']]
+    else:
+        parSIM['Time'] = [round(x, 4) for x in parSIM['Time']]
     parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                   True)  # adding scenario column and filling with 0
     return list_of_bpm_flag, parECG, parSIM
