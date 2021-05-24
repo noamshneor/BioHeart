@@ -44,12 +44,22 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
                 i += 1
                 continue  # move to the next value
         if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
+            """print(parSIM.at[j - 1, 'Time'])
+            print(par.at[i, 'Time'])
+            print(parSIM.at[j, 'Time'])"""
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG/RR between time range in SIM
-                if int(parSIM.at[j - 1, 'Scenario']) != 0 and int(parSIM.at[j, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
-                    scenario = int(parSIM.at[j, 'Scenario'])
+                if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
+                    if int(parSIM.at[j, 'Scenario']) == 0 and par.at[i, 'Time'] == parSIM.at[j - 1, 'Time']:
+                        scenario = int(parSIM.at[j - 1, 'Scenario'])
+                    else:
+                        scenario = int(parSIM.at[j, 'Scenario'])
                     par.at[i, 'Scenario'] = scenario  # match the flag
                     lst[scenario].append(par.at[i, col_name])  # מכניס לרשימה של הרשימות- bpm לכל flag
+                    """print(i)
+                    print(j)
+                    print(scenario)
+                    print("len scenario: " + str(len(lst[scenario])))"""
                     if col_name == "BPM":
                         dq_bpm_start_end_min_max_null(i, j, par, parSIM)
                     if col_name == "RRIntervals":
@@ -113,7 +123,8 @@ def check_filter_type(col_name):
 
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
-    globals.list_end_time[int(parSIM.at[j, 'Scenario']) - 1] = parSIM.at[j, 'Time']  # insert end time - all the time till the end
+    if int(parSIM.at[j, 'Scenario']) != 0:
+        globals.list_end_time[int(parSIM.at[j, 'Scenario']) - 1] = parSIM.at[j, 'Time']  # insert end time - all the time till the end
     if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
         globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = parSIM.at[j - 1, 'Time']  # insert start time for the specific scenario
     if par.at[i, 'BPM'] < globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
@@ -152,7 +163,7 @@ def rr_time_match(parRR):
     """
     i = 1
     while i < len(parRR):
-        parRR.at[i, 'Time'] = parRR.at[i - 1, 'Time'] + parRR.at[i - 1, 'RRIntervals']
+        parRR.at[i, 'Time'] = round(parRR.at[i - 1, 'Time'] + parRR.at[i - 1, 'RRIntervals'], 4)
         i += 1
 
 
@@ -271,6 +282,7 @@ def early_process_rr(index_in_folder, ride):
                                                index_in_folder]),
                               names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                               engine='openpyxl')
+    parRR['RRIntervals'] = [round(x, 3) for x in parRR['RRIntervals']]
     parRR.insert(1, 'Time', [0.00 for x in range(0, (len(parRR)))],
                  True)  # insert Time column with zero
     parRR.insert(2, 'Scenario', [0 for x in range(0, (len(parRR)))],
