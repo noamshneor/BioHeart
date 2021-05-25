@@ -220,13 +220,21 @@ def ui():
                     initial_list_of_existing_par()
                     optional_window.element('Ex par LB').update(globals.list_of_existing_par)
                     for i in list(range(1, 6)):
+                        optional_window.element('group' + str(i)).update(visible=False)
                         optional_window.element('group' + str(i)).update(globals.list_of_existing_par)
 
                 if event9 == 'Choose_OPTIONAL':
                     globals.group_num = int(values9['groups num'])
                     list_groups = list(range(1, globals.group_num + 1))
-                    for i in list_groups:
-                        optional_window.element('group' + str(i)).update(visible=True)
+                    for i in list(range(1, 6)):
+                        optional_window.element('group' + str(i)).update(visible=False)
+                    if len(globals.list_of_existing_par) >= globals.group_num:
+                        for i in list_groups:
+                            optional_window.element('group' + str(i)).update(visible=True)
+                    else:
+                        sg.popup_quick_message("Select a number of groups that is less than or equal to the number of participants",
+                                               font=("Century Gothic", 14),
+                                               background_color='red', location=(970, 800), auto_close_duration=5)
 
                 if event9 == 'CONTINUE_OPTIONAL':
                     correct_optional_window = check_optional_window(correct_optional_window, exclude_correct,

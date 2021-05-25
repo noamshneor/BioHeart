@@ -61,9 +61,9 @@ def initial_optional(optional_window):
 def check_optional_window(correct_optional_window, exclude_correct, group_correct, values9):
     if values9['Ex par CB']:
         if not globals.par_not_existing:
-            sg.popup_quick_message("Choose participants and then click on \"Exclude\" button",
+            sg.popup_quick_message("Choose participants and then click on \"Exclude\" OR deselect the checkbox \"Excluded participants\".",
                                    font=("Century Gothic", 14),
-                                   background_color='red', location=(970, 800), auto_close_duration=5)
+                                   background_color='red', location=(970, 780), auto_close_duration=6)
             exclude_correct = False
         else:
             exclude_correct = True
@@ -73,20 +73,26 @@ def check_optional_window(correct_optional_window, exclude_correct, group_correc
         for i in list_groups:
             list_values += values9['group' + str(i)]
         contains_duplicates = any(list_values.count(element) > 1 for element in list_values)
-        if contains_duplicates:
-            sg.popup_quick_message("Select different participants in each group",
+        if len(globals.list_of_existing_par) < globals.group_num or len(list_values) == 0:
+            sg.popup_quick_message("No group is selected! Click \"Choose\" and select all the participants OR deselect the checkbox \"Experimental groups\".",
                                    font=("Century Gothic", 14),
-                                   background_color='red', location=(970, 880), auto_close_duration=5)
+                                   background_color='red', location=(970, 880), auto_close_duration=6)
             group_correct = False
         else:
-            if set(list_values) != set(globals.list_of_existing_par):
-                sg.popup_quick_message("Select all the participants in groups",
+            if contains_duplicates:
+                sg.popup_quick_message("Select different participants in each group",
                                        font=("Century Gothic", 14),
-                                       background_color='red', location=(970, 880),
-                                       auto_close_duration=5)
+                                       background_color='red', location=(970, 880), auto_close_duration=5)
                 group_correct = False
             else:
-                group_correct = True
+                if set(list_values) != set(globals.list_of_existing_par):
+                    sg.popup_quick_message("Select all the participants in groups",
+                                           font=("Century Gothic", 14),
+                                           background_color='red', location=(970, 880),
+                                           auto_close_duration=5)
+                    group_correct = False
+                else:
+                    group_correct = True
     if exclude_correct and group_correct:
         for i in list(range(1, globals.group_num + 1)):
             globals.lists_of_groups.append(values9['group' + str(i)])  # index 0=group1, 1=group2....
