@@ -11,7 +11,7 @@ import globals
 from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm, \
-    make_par_group_list
+    make_par_group_list, sync_RR
 from UI_FUNCTIONS import draw_plot1, draw_plot2, checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
@@ -55,6 +55,8 @@ def early_process():
                     # ------------------------------------------------ RR --------------------------------------------
                     parRR, list_of_rr_flag = early_process_rr(index_in_folder, ride)
                     rr_time_match(parRR)  # function that fill the time column in parRR
+                    if globals.biopac_sync_time > 0:
+                        parRR = sync_RR(parRR)
                     # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
                     print("flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')")
                     flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
@@ -170,12 +172,12 @@ def ui():
             # ----------------------------------------- SAVE INPUT -----------------------------------------
             if (not values['par_num']) or (not values['scenario_num']) or (
                     not values['scenario_col_num']) or (
-                    not values['Sync'] and (not values['sim_start']) or (not values['ecg_start'])):
+                    not values['Sync'] and (not values['sim_sync_time']) or (not values['biopac_sync_time'])):
                 # בדיקה האם אחד מ3 השדות לפחות לא מלא
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
             else:  # כולם מלאים
-                if not values['Sync'] and ((values['sim_start'] != "0") and (values['ecg_start'] != "0")):
+                if not values['Sync'] and ((values['sim_sync_time'] != "0") and (values['biopac_sync_time'] != "0")):
                     sg.popup_quick_message('At least one of the simulator/ECG fields must start from 0',
                                            font=("Century Gothic", 14), background_color='red', location=(970, 880),
                                            auto_close_duration=5)

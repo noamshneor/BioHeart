@@ -292,6 +292,14 @@ def early_process_rr(index_in_folder, ride):
     return parRR, list_of_rr_flag
 
 
+def sync_RR(parRR):
+    pandas.options.mode.chained_assignment = None  # כדי שלא יתן אזהרה שאני עולה על הקובץ המקורי
+    parRR = parRR[parRR['Time'] >= globals.biopac_sync_time]
+    parRR.reset_index(drop=True, inplace=True)
+    parRR['Time'] = [round(x - globals.biopac_sync_time, 3) for x in parRR['Time']]
+    return parRR
+
+
 def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
     parECG.to_pickle(
         globals.main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
@@ -362,18 +370,18 @@ def early_process_ecg_sim(index_in_folder, ride):
                                                   ride) + "\\" + "ecg")[
                                               index_in_folder]),
                              sep="\t", usecols=[2], names=['BPM'],
-                             skiprows=11 + int(globals.ecg_start * 1000), header=None)
+                             skiprows=11 + int(globals.biopac_sync_time * 1000), header=None)
     parECG.insert(1, 'Time', [x / 1000 for x in range(0, (len(parECG)))], True)  # filling a time column
     parSIM = pandas.read_csv(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
                                           os.listdir(
                                               globals.main_path + "\\" + "ride " + str(
                                                   ride) + "\\" + "sim")[
                                               index_in_folder]),
-                             sep=",", skiprows=1 + int(globals.sim_start * 60),
+                             sep=",", skiprows=1 + int(globals.sim_sync_time * 60),
                              usecols=[0, globals.scenario_col_num - 1],
                              names=['Time', 'Scenario'])
-    if globals.sim_start > 0:  # Sync sim time
-        parSIM['Time'] = [round(x - globals.sim_start, 4) for x in parSIM['Time']]
+    if globals.sim_sync_time > 0:  # Sync sim time
+        parSIM['Time'] = [round(x - globals.sim_sync_time, 4) for x in parSIM['Time']]
     else:
         parSIM['Time'] = [round(x, 4) for x in parSIM['Time']]
     parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
