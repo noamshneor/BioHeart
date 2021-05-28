@@ -33,10 +33,16 @@ def early_process():
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
         group_list = make_par_group_list(par)
+        globals.current_ride = 0
         print("par in list_of_existing_par:" + str(par))
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
+            if globals.current_ride == globals.par_ride_num:
+                time.sleep(1)
+                break
             print("the filename in ecg:" + filename)
-            if str(par) in filename:  # אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ בecg
+            par_num_in_file = ''.join([i for i in filename if i.isdigit()])  # לוקח רק את הספרות בשם הקובץ
+            print(par_num_in_file)
+            if str(par) == par_num_in_file or '0' + str(par) == par_num_in_file:  # אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ או עם 0 בהתחלה
                 index_in_folder = os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg").index(
                     filename)  # באיזה אינדקס מבין הרשימה של הקבצים בecg מופיע הקובץ filename
                 print(index_in_folder)  # checked
