@@ -4,6 +4,7 @@ import threading
 import time
 import PySimpleGUIQt as sg
 import numpy as np
+import pandas
 from matplotlib import pyplot as plt
 import globals
 from LAYOUT_UI import open_window_layout, loading_window_layout, path_load_window_layout, exceptions_values_layout, \
@@ -61,9 +62,10 @@ def initial_optional(optional_window):
 def check_optional_window(correct_optional_window, exclude_correct, group_correct, values9):
     if values9['Ex par CB']:
         if not globals.par_not_existing:
-            sg.popup_quick_message("Choose participants and then click on \"Exclude\" OR deselect the checkbox \"Excluded participants\".",
-                                   font=("Century Gothic", 14),
-                                   background_color='red', location=(970, 780), auto_close_duration=6)
+            sg.popup_quick_message(
+                "Choose participants and then click on \"Exclude\" OR deselect the checkbox \"Excluded participants\".",
+                font=("Century Gothic", 14),
+                background_color='red', location=(970, 780), auto_close_duration=6)
             exclude_correct = False
         else:
             exclude_correct = True
@@ -74,9 +76,10 @@ def check_optional_window(correct_optional_window, exclude_correct, group_correc
             list_values += values9['group' + str(i)]
         contains_duplicates = any(list_values.count(element) > 1 for element in list_values)
         if len(globals.list_of_existing_par) < globals.group_num or len(list_values) == 0:
-            sg.popup_quick_message("No group is selected! Click \"Choose\" and select all the participants OR deselect the checkbox \"Experimental groups\".",
-                                   font=("Century Gothic", 14),
-                                   background_color='red', location=(970, 880), auto_close_duration=6)
+            sg.popup_quick_message(
+                "No group is selected! Click \"Choose\" and select all the participants OR deselect the checkbox \"Experimental groups\".",
+                font=("Century Gothic", 14),
+                background_color='red', location=(970, 880), auto_close_duration=6)
             group_correct = False
         else:
             if contains_duplicates:
@@ -206,12 +209,14 @@ def draw_plot2(participants_input, ride_input, table):
     plt.style.use('fivethirtyeight')
     plt.show()
 
+
 def draw_plot_HR(axis_x_scenarios_input, participant_num_input, ride_input, table):
     list_scenarios = [[] for i in range(7)]
     print(list_scenarios)
     for line_sc in axis_x_scenarios_input:
         for line_par in participant_num_input:
-            list_scenarios[line_sc].append(table.loc[(table['Ride Number'] == ride_input) and (table['Participant'] == line_par) and (table['Scenario'] == line_sc), ['Average BPM']])
+            list_scenarios[line_sc].append(table.loc[(table['Ride Number'] == ride_input) and (
+                    table['Participant'] == line_par) and (table['Scenario'] == line_sc), ['Average BPM']])
     X = np.arange(4)
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1])
@@ -221,8 +226,6 @@ def draw_plot_HR(axis_x_scenarios_input, participant_num_input, ride_input, tabl
     ax.bar(X + 0.75, list_scenarios[4], color='r', width=0.25)
     ax.bar(X + 1, list_scenarios[5], color='r', width=0.25)
     ax.bar(X + 1.25, list_scenarios[6], color='r', width=0.25)
-
-
 
     x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
     print(x)
@@ -234,6 +237,7 @@ def draw_plot_HR(axis_x_scenarios_input, participant_num_input, ride_input, tabl
     plt.xlabel('Scenario')
     plt.ylabel('AVG BPM')
     plt.show()
+
 
 def early_table(filename):
     if filename == "summary_table":
@@ -356,7 +360,7 @@ def checkFiles_of_base(load_list, values):
     return True
 
 
-def exportCSV_summary(values):
+def exportEXCEL_summary(values):
     path = sg.popup_get_folder(no_window=True, message="choose folder")
     headerlist = [True, True, True, globals.group_num != 0, values['Average BPM'], values['RMSSD'],
                   values['SDSD'], values['SDNN'], values['pNN50'],
@@ -368,18 +372,24 @@ def exportCSV_summary(values):
     if path:
         globals.summary_table.to_csv(path + '\\summary_table.csv', index=False, header=True,
                                      columns=headerlist)
+        table = pandas.read_csv(path + '\\summary_table.csv')
+        os.remove(path + '\\summary_table.csv')
+        table.to_excel(path + '\\summary_table.xlsx', index=False)
         sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 10),
                                background_color='white', text_color='black',
                                location=(120, 540))
 
 
-def exportCSV_dq():
+def exportEXCEL_dq():
     path = sg.popup_get_folder(no_window=True, message="choose folder")
     headerlist = [True, True, True, globals.group_num != 0, True, True, True, True, True, True,
                   True, True, True, True, True, True, True, True, True]
     if path:
         globals.data_quality_table.to_csv(path + '\\data_quality_table.csv', index=False, header=True,
                                           columns=headerlist)
+        table = pandas.read_csv(path + '\\data_quality_table.csv')
+        os.remove(path + '\\data_quality_table.csv')
+        table.to_excel(path + '\\data_quality_table.xlsx', index=False)
         sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 12),
                                background_color='white', text_color='black',
                                location=(1280, 880))
@@ -421,7 +431,8 @@ def all_input_0_9(event, open_window, values):
         open_window['scenario_col_num'].update(values['scenario_col_num'][:-1])
     if event == 'sim_sync_time' and values['sim_sync_time'] and values['sim_sync_time'][-1] not in '0123456789.':
         open_window['sim_sync_time'].update(values['sim_sync_time'][:-1])
-    if event == 'biopac_sync_time' and values['biopac_sync_time'] and values['biopac_sync_time'][-1] not in '0123456789.':
+    if event == 'biopac_sync_time' and values['biopac_sync_time'] and values['biopac_sync_time'][
+        -1] not in '0123456789.':
         open_window['biopac_sync_time'].update(values['biopac_sync_time'][:-1])
 
 
@@ -516,6 +527,3 @@ def loading_window_update(loading_window, start_time):
         time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
     loading_window.element("current_ride").update(
         "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
-
-
-

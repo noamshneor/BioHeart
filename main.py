@@ -13,8 +13,8 @@ from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filli
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm, \
     make_par_group_list, sync_RR
 from UI_FUNCTIONS import draw_plot1, draw_plot2, checkFolders_of_rides, checkFolders_of_base, \
-    exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
-    exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
+    exportEXCEL_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
+    exportEXCEL_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
     exceptions_checkbox_handle, create_empty_folders, pickle_folders, windows_initialization_part_1, \
     windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, draw_plot_HR
 
@@ -386,7 +386,7 @@ def ui():
                     do_restart = True
                     break
                 if event4 == 'Export to CSV':
-                    exportCSV_summary(values4)
+                    exportEXCEL_summary(values4)
                 if event4 == "Graphs button":
                     summary_table_window.hide()
                     graph_window.un_hide()
@@ -554,7 +554,7 @@ def ui():
                             summary_table_window.un_hide()
                             break
                         if event6 == "dq export":
-                            exportCSV_dq()
+                            exportEXCEL_dq()
                 if event4 == "SumTable":
                     if values4["SumTable"]:
                         line = [dq_table_list[values4["SumTable"][0]]]

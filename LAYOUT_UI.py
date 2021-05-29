@@ -134,9 +134,9 @@ def data_quality_table_window_layout(dq_table_list):
                                   font=("Century Gothic", 16),
                                   tooltip="Back to summary table"),
                         sg.Text(text="", background_color="transparent", size_px=(100, 0)),
-                        sg.Button(button_text="Export to CSV", size_px=(250, 60), key="dq export",
+                        sg.Button(button_text="Export to EXCEL", size_px=(260, 60), key="dq export",
                                   enable_events=True, font=("Century Gothic", 16),
-                                  tooltip="Select a folder to export the table to a CSV file")
+                                  tooltip="Select a folder to export the table to a XLSX file")
 
                     ],
                 ], background_color="transparent"
@@ -183,9 +183,9 @@ def summary_table_window_layout(summary_table_list):
                                     tooltip="Resting column for each selected HRV method.")
                     ],
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
-                    [sg.Button(button_text="Export to CSV", size_px=(250, 60), key="Export to CSV",
+                    [sg.Button(button_text="Export to EXCEL", size_px=(260, 60), key="Export to CSV",
                                enable_events=True, font=("Century Gothic", 16),
-                               tooltip="Select a folder to export the table to a CSV file")]
+                               tooltip="Select a folder to export the table to a XLSX file")]
                 ], background_color="transparent"),
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],

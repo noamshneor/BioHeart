@@ -253,9 +253,9 @@ def filling_dq_table(listBPM_per_scenario, par, ride, group_list):
                                                             'Scenario': list(
                                                                 range(1, globals.scenario_num + 1)),
                                                             'Group': group_list,
-                                                            "Start time": globals.list_start_time,
-                                                            "End time": globals.list_end_time,
-                                                            "Duration": [round(x - y, 4) for x, y in
+                                                            "Start time (sec)": globals.list_start_time,
+                                                            "End time (sec)": globals.list_end_time,
+                                                            "Duration (sec)": [round(x - y, 4) for x, y in
                                                                          zip(globals.list_end_time,
                                                                              globals.list_start_time)],
                                                             "BPM(ecg) : Total number of rows": listBPM_per_scenario,
