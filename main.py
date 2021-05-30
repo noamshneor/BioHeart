@@ -16,8 +16,9 @@ from UI_FUNCTIONS import checkFolders_of_rides, checkFolders_of_base, \
     exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
     exceptions_checkbox_handle, create_empty_folders, pickle_folders, windows_initialization_part_1, \
-    windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, plot_HR_with_scenarios, \
-    plot_HR_rides, plot_HR_groups_rides, plot_HR_groups_scenarios
+    windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, \
+    plot_HR_with_scenarios, \
+    plot_HR_rides, plot_HR_groups_rides, plot_HR_groups_scenarios, general_graph_avg
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -310,8 +311,9 @@ def ui():
                                             globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
                                             globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
                                             globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
-                                            if checks_boundaries(globals.BPM_lower, globals.BPM_upper) and checks_boundaries(
-                                                    globals.RR_lower, globals.RR_upper):
+                                            if checks_boundaries(globals.BPM_lower,
+                                                                 globals.BPM_upper) and checks_boundaries(
+                                                globals.RR_lower, globals.RR_upper):
                                                 globals.filter_type = globals.Filter.BOTH
                                                 finish_while_loop = True
                                                 break
@@ -390,10 +392,13 @@ def ui():
                         # else:
                         #    choose_graph_flag = True
 
-                        if event5 == "custom graph":#WORKS
-                            #graph_window.FindElement('y axis').Update(values=globals.hrv_methods_list)
-                            graph_window.FindElement('scenarios listbox').Update(disabled=False)
+                        if event5 == "custom graph":  # WORKS
+                            # graph_window.FindElement('y axis').Update(values=globals.hrv_methods_list)
+                            graph_window.FindElement("x axis rides").Update(True)
+                            graph_window.FindElement("bar pars").Update(True)
+                            graph_window.FindElement('scenarios listbox').Update(disabled=True)
                             graph_window.FindElement('rides listbox').Update(disabled=False)
+                            graph_window.FindElement('participant listbox').Update(disabled=False)
                             graph_window.FindElement('y axis').Update(disabled=False)
                             graph_window.FindElement('x axis scenarios').Update(disabled=False)
                             graph_window.FindElement('x axis rides').Update(disabled=False)
@@ -401,15 +406,15 @@ def ui():
                             graph_window.FindElement('bar groups').Update(disabled=False)
                             graph_window["SELECT ALL rides"].update(disabled=False)
                             graph_window["CLEAN ALL rides"].update(disabled=False)
-                            graph_window["SELECT ALL sc"].update(disabled=False)
-                            graph_window["CLEAN ALL sc"].update(disabled=False)
+                            graph_window["SELECT ALL sc"].update(disabled=True)
+                            graph_window["CLEAN ALL sc"].update(disabled=True)
 
-                        if event5 == "general graph":#WORKS
-                            #graph_window.FindElement('y axis').Update(values='Average BPM'.split(','))
+                        if event5 == "general graph":  # WORKS
+                            # graph_window.FindElement('y axis').Update(values='Average BPM'.split(','))
                             graph_window.FindElement('scenarios listbox').Update(disabled=True)
                             graph_window.FindElement('rides listbox').Update(disabled=True)
                             graph_window.FindElement('participant listbox').Update(disabled=True)
-                            graph_window.FindElement('y axis').Update(disabled=True)
+                            graph_window.FindElement('y axis').Update(disabled=False)
                             graph_window.FindElement('x axis scenarios').Update(disabled=True)
                             graph_window.FindElement('x axis rides').Update(disabled=True)
                             graph_window.FindElement('bar pars').Update(disabled=True)
@@ -419,7 +424,7 @@ def ui():
                             graph_window["SELECT ALL sc"].update(disabled=True)
                             graph_window["CLEAN ALL sc"].update(disabled=True)
 
-                        if event5 == "x axis rides":#WORKS
+                        if event5 == "x axis rides":  # WORKS
                             graph_window.FindElement('rides listbox').Update(disabled=False)
                             graph_window.FindElement('scenarios listbox').Update(disabled=True)
                             graph_window['scenarios listbox'].update("")
@@ -429,15 +434,24 @@ def ui():
                             graph_window["SELECT ALL sc"].update(disabled=True)
                             graph_window["CLEAN ALL sc"].update(disabled=True)
 
-                        if event5 == "x axis scenarios":#WORKS
-                            graph_window.FindElement('rides listbox').Update(disabled=True)#להפוך את הנסיעות לבחירה של אחד
+                        if event5 == "x axis scenarios":  # WORKS
+                            graph_window.FindElement('rides listbox').Update(
+                                disabled=True)  # להפוך את הנסיעות לבחירה של אחד
                             graph_window["SELECT ALL rides"].update(disabled=True)
                             graph_window["CLEAN ALL rides"].update(disabled=True)
                             graph_window.FindElement('scenarios listbox').Update(disabled=False)
                             graph_window["SELECT ALL sc"].update(disabled=False)
                             graph_window["CLEAN ALL sc"].update(disabled=False)
                             graph_window['rides listbox'].update("")
-                            graph_window['rides listbox'].update(globals.scenarios_list)
+                            graph_window['rides listbox'].update(globals.rides_list)
+
+                        if event5 == "bar groups":
+                            graph_window['participant listbox'].update("")
+                            graph_window['participant listbox'].update(globals.rides_list)
+                            graph_window['participant listbox'].update(disabled=True)
+
+                        if event5 == "bar pars":
+                            graph_window['participant listbox'].update(disabled=False)
 
                         if event5 == "SELECT ALL rides":
                             graph_window['rides listbox'].SetValue(globals.rides_list)
@@ -464,81 +478,19 @@ def ui():
                                                            font=("Century Gothic", 14), background_color='red',
                                                            location=(970, 880))
                                     y_axis_choose = False
-                                if not values5["scenarios listbox"]:  # לא נבחרו תרחישים
-                                    sg.popup_quick_message('You have to choose specific scenarios!',
-                                                           font=("Century Gothic", 14), background_color='red',
-                                                           location=(970, 880))
-                                    scenarios_choose = False
 
-
-
-                                if values5["x axis rides"]:#נסיעות
-                                    if not values5['rides listbox']:  # אבל לא נבחרו בליסטבוקס משתתפים להציג
+                                if values5["x axis rides"]:  # נסיעות
+                                    if not values5['rides listbox']:  # אבל לא נבחרו בליסטבוקס נסיעות
                                         sg.popup_quick_message('You have to choose specific rides!',
                                                                font=("Century Gothic", 14), background_color='red',
                                                                location=(970, 880))
                                         rides_choose = False
                                     else:  # נבחרו נסיעות מסוימות בליסטבוקס
-                                        if y_axis_choose and scenarios_choose and rides_choose:  # קוד כפול
-                                            axis_y_methods_input = values5['y axis']
-                                            axis_x_scenarios_input = values5['scenarios listbox']
+                                        if y_axis_choose and rides_choose:
+                                            axis_y_input = values5['y axis']
+                                            # axis_x_scenarios_input = values5['scenarios listbox']
                                             rides_input = values5['rides listbox']
 
-                                            if values5["bar pars"]:
-                                                if not values5['participant listbox']:  # לא נבחרו משתתפים
-                                                    sg.popup_quick_message('You have to choose specific participants!',
-                                                                           font=("Century Gothic", 14),
-                                                                           background_color='red',
-                                                                           location=(970, 880))
-                                                    participants_choose = False
-                                                else:#נבחרו משתתפים
-                                                    if len(values5['participant listbox']) > 5:
-                                                        sg.popup_quick_message(
-                                                            'You have to choose up to 5 participants!',
-                                                            font=("Century Gothic", 14),
-                                                            background_color='red',
-                                                            location=(970, 880))
-                                                    else:#נבחרו עד 5 משתתפים
-                                                        bar_participants_input = values5['participant listbox']
-                                                        if values5["baseline checkbox"]:
-                                                            print("axis y:" + str(
-                                                                axis_y_methods_input) + " ,axis x of rides: " + str(
-                                                                rides_input) + " and baseline, in scenarios: " + str(
-                                                                axis_x_scenarios_input))
-                                                            print("תוציא את גרף p4 עם נסיעות בציר איקס ובעמודות משתתפים ובייסלין")
-                                                            p4 = Process(target=plot_HR_rides, args=(
-                                                                globals.list_of_existing_par, rides_input,
-                                                                globals.summary_table))
-                                                            p4.start()
-                                                        else:#בלי בייסלין
-                                                                print( "axis y:"+str(axis_y_methods_input) + " ,axis x of rides: " + str(
-                                                                    rides_input) + " in scenarios: " + str(axis_x_scenarios_input))
-                                                                print("תוציא את גרף p4 עם נסיעות בציר איקס ובעמודות משתתפים")
-
-                                            else: #נבחרו קבוצות
-                                                if values5["baseline checkbox"]:
-                                                    print("axis y:" + str(
-                                                        axis_y_methods_input) + " ,axis x of rides: " + str(
-                                                        rides_input) + " and baseline, in scenarios: " + str(
-                                                        axis_x_scenarios_input)+" with groups")
-                                                    print(
-                                                        "תוציא את גרף p6 עם נסיעות בציר איקס ובעמודות קבוצות ובייסלין")
-
-                                                else:  # בלי בייסלין
-                                                    print("axis y:" + str(
-                                                        axis_y_methods_input) + " ,axis x of rides: " + str(
-                                                        rides_input) + " and baseline, in scenarios: " + str(
-                                                        axis_x_scenarios_input) + " with groups")
-                                                    print(
-                                                        "תוציא את גרף p6 עם נסיעות בציר איקס ובעמודות קבוצות ובייסלין")
-                                                    p6 = Process(target=plot_HR_groups_rides, args=(
-                                                        axis_x_scenarios_input, globals.group_num, rides_input,
-                                                        globals.summary_table))
-                                                    p6.start()
-                                if values5["x axis scenarios"]:  # אם בחרתי תרחישים בציר איקס
-                                        if y_axis_choose and scenarios_choose:  # קוד כפול
-                                            axis_y_methods_input = values5['y axis']
-                                            axis_x_scenarios_input = values5['scenarios listbox']
                                             if values5["bar pars"]:
                                                 if not values5['participant listbox']:  # לא נבחרו משתתפים
                                                     sg.popup_quick_message('You have to choose specific participants!',
@@ -555,62 +507,102 @@ def ui():
                                                             location=(970, 880))
                                                     else:  # נבחרו עד 5 משתתפים
                                                         bar_participants_input = values5['participant listbox']
-                                                        if values5["baseline checkbox"]:
-                                                            print("axis y:" + str(
-                                                                axis_y_methods_input) + " ,axis x scenarios: " + str(
-                                                                axis_x_scenarios_input))
-                                                            print(
-                                                                "תוציא את גרף p3 עם תרחישים בציר איקס ובעמודות משתתפים ובייסלין")
-                                                            p3 = Process(target=plot_HR_with_scenarios, args=(
-                                                                 axis_x_scenarios_input, globals.list_of_existing_par,
-                                                                 globals.summary_table))
-                                                            p3.start()
+                                                        print("תוציא את גרף p4 עם נסיעות בציר איקס ובעמודות משתתפים")
+                                                        axis_y_input = values5['y axis']
+                                                        p4 = Process(target=plot_HR_rides, args=(
+                                                            bar_participants_input, rides_input, axis_y_input,
+                                                            globals.summary_table))
+                                                        p4.start()
 
-                                                        else:  # בלי בייסלין
-                                                            print("axis y:" + str(
-                                                                axis_y_methods_input) + " ,axis x scenarios: " + str(
-                                                                axis_x_scenarios_input) + " in scenarios: ")
-                                                            print(
-                                                                "תוציא את גרף p4 עם נסיעות בציר איקס ובעמודות משתתפים")
-
-                                            else:#בחרתי קבוצות ותרחישים
-                                                if values5["baseline checkbox"]:
-                                                    print("axis y:" + str(
-                                                        axis_y_methods_input) + " ,axis x of scenarios: " + str(
-                                                        axis_x_scenarios_input) + " and baseline, with groups")
+                                            else:  # נבחרו קבוצות
+                                                print("y axis:" +
+                                                      axis_y_input + " ,axis x of rides: " + str(
+                                                      rides_input) + " with groups" + globals.group_num)
+                                                print(
+                                                    "תוציא את גרף p6 עם נסיעות בציר איקס ובעמודות קבוצות ")
+                                                axis_y_input = values5['y axis']
+                                                p6 = Process(target=plot_HR_groups_rides, args=(
+                                                    globals.group_num, rides_input, axis_y_input,
+                                                    globals.summary_table))
+                                                p6.start()
+                                if values5["x axis scenarios"]:  # אם בחרתי תרחישים בציר איקס
+                                    if not values5["scenarios listbox"]:  # לא נבחרו תרחישים
+                                        sg.popup_quick_message('You have to choose specific scenarios!',
+                                                               font=("Century Gothic", 14), background_color='red',
+                                                               location=(970, 880))
+                                        scenarios_choose = False
+                                    if y_axis_choose and scenarios_choose:
+                                        axis_y_input = values5['y axis']
+                                        axis_x_scenarios_input = values5['scenarios listbox']
+                                        if values5["bar pars"]:
+                                            if not values5['participant listbox']:  # לא נבחרו משתתפים
+                                                sg.popup_quick_message('You have to choose specific participants!',
+                                                                       font=("Century Gothic", 14),
+                                                                       background_color='red',
+                                                                       location=(970, 880))
+                                                participants_choose = False
+                                            else:  # נבחרו משתתפים
+                                                if len(values5['participant listbox']) > 5:
+                                                    sg.popup_quick_message(
+                                                        'You have to choose up to 5 participants!',
+                                                        font=("Century Gothic", 14),
+                                                        background_color='red',
+                                                        location=(970, 880))
+                                                else:  # נבחרו עד 5 משתתפים
+                                                    bar_participants_input = values5['participant listbox']
+                                                    print("y axis:" + str(
+                                                        axis_y_input) + " ,axis x scenarios: " + str(
+                                                        axis_x_scenarios_input) + " participants: " + str(bar_participants_input))
                                                     print(
-                                                        "תוציא את גרף p5 עם תרחישים בציר איקס ובעמודות קבוצות ובייסלין")
+                                                        "תוציא את גרף p3 עם תרחישים בציר איקס ובעמודות משתתפים ")
+                                                    axis_y_input = values5['y axis']
+                                                    p3 = Process(target=plot_HR_with_scenarios, args=(
+                                                        axis_x_scenarios_input, bar_participants_input,
+                                                        axis_y_input, globals.summary_table))
+                                                    p3.start()
 
-                                                else:  # בלי בייסלין
-                                                    print("axis y:" + str(
-                                                        axis_y_methods_input) + " ,axis x of rides: " + str(
-                                                        rides_input) + " and baseline, in scenarios: " + str(
-                                                        axis_x_scenarios_input) + " with groups")
-                                                    print(
-                                                        "תוציא את גרף p5 עם תרחישים בציר איקס ובעמודות קבוצות")
-                                                    p5 = Process(target=plot_HR_groups_scenarios,
-                                                                 args=(axis_x_scenarios_input,
-                                                                       globals.group_num,
-                                                                       globals.summary_table))
-                                                    p5.start()
+                                        else:  # בחרתי קבוצות ותרחישים
+                                            print("y axis:" + str(
+                                                axis_y_input) + " ,axis x of scenarios: " + str(
+                                                axis_x_scenarios_input) + "with groups " + str(globals.group_num))
+                                            print(
+                                                "תוציא את גרף p5 עם תרחישים בציר איקס ובעמודות קבוצות ")
+                                            axis_y_input = values5['y axis']
+                                            p5 = Process(target=plot_HR_groups_scenarios,
+                                                         args=(axis_x_scenarios_input,
+                                                               globals.group_num, axis_y_input,
+                                                               globals.summary_table))
+                                            p5.start()
 
-                            else: #choose general graphs
+                            else:  # choose general graphs
                                 print("לצייר גרף אחרון")
-            ########################################################################################
+                                if not values5['y axis']:  # אם לא נבחר מדד מהרשימת מדדים
+                                    sg.popup_quick_message('You have to choose Y axis!',
+                                                           font=("Century Gothic", 14), background_color='red',
+                                                           location=(970, 880))
+                                else:  # נבחר מדד
+                                    axis_y_input = values5['y axis']
+                                    p7 = Process(target=general_graph_avg,
+                                                 args=(globals.scenarios_list,
+                                                       globals.rides_list,
+                                                       axis_y_input,
+                                                       globals.summary_table))
+                                    p7.start()
+                ########################################################################################
 
-            # elif values5["rmssd for several par"] and choose_graph_flag:
-            #     # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
-            #     participants_input = values5['combo_par_graph2']
-            #     ride_input = int(values5['combo_ride_graph2'])
-            #     p2 = Process(target=draw_plot2,
-            #                  args=(participants_input, ride_input, globals.summary_table))
-            #     p2.start()
-            #     choose_graph_flag = False
-            #
-            # else:
-            #     sg.popup_quick_message('Please choose graph before continue',
-            #                            font=("Century Gothic", 14), background_color='red',
-            #                            location=(970, 880))
+                # elif values5["rmssd for several par"] and choose_graph_flag:
+                #     # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
+                #     participants_input = values5['combo_par_graph2']
+                #     ride_input = int(values5['combo_ride_graph2'])
+                #     p2 = Process(target=draw_plot2,
+                #                  args=(participants_input, ride_input, globals.summary_table))
+                #     p2.start()
+                #     choose_graph_flag = False
+                #
+                # else:
+                #     sg.popup_quick_message('Please choose graph before continue',
+                #                            font=("Century Gothic", 14), background_color='red',
+                #                            location=(970, 880))
 
                 if event4 == "dq button":
                     summary_table_window.hide()

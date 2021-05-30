@@ -41,7 +41,7 @@ def graphs_window_layout():
                         sg.Text("", background_color="transparent", size=(0, 3)),
                         sg.Text('      Y axis:', size=(20, 1), background_color="transparent",
                                 visible=True, key='y axis text', font=("Century Gothic", 16, 'bold'), text_color='red'),
-                        sg.Combo(values=globals.methods_list, size=[200, 37], key='y axis', visible=True,
+                        sg.Combo(values=globals.methods_list, size=[300, 37], key='y axis', visible=True,
                                    enable_events=True, readonly=True,
                                    font=("Century Gothic", 12)),
                     ],
@@ -55,10 +55,6 @@ def graphs_window_layout():
                                  key="x axis scenarios", size=(250, 35), font=("Century Gothic", 14, 'bold'),
                                  enable_events=True, text_color='black', default=False),
                         sg.Text("", background_color="transparent", size=(3, 0)),
-                        sg.Checkbox("Add baseline?", background_color='transparent', key='baseline checkbox',
-                                    default=False,
-                                    enable_events=True, font=("Century Gothic", 12), text_color="black",
-                                    tooltip="will present on graph the baseline of each method")
 
                     ],
                     [

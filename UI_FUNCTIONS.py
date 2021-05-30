@@ -173,6 +173,7 @@ def windows_initialization_part_2():
                                      element_padding=(0, 0))
     return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
 
+
 # def plot1(participant_num_input, ride_input, table):
 #     x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
 #     print(x)
@@ -203,21 +204,24 @@ def windows_initialization_part_2():
 #     plt.show()
 
 
-def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, table):#בלי נסיעות (כלומר כולן נבחרות)
+def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parameter,
+                           table):  # בלי נסיעות (כלומר כולן נבחרות)
     print("starting draw_plot_HR")
-    list_participants = [[] for i in range(len(participant_num_input))] # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
-    #example: [**particpant 1: [ scenario 1 value, scenario 2 value .....] **participant 2: [ scenario 1 value, .....]]
+    list_participants = [[] for i in range(
+        len(participant_num_input))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
+    # example: [**particpant 1: [ scenario 1 value, scenario 2 value .....] **participant 2: [ scenario 1 value, .....]]
     print(list_participants)
     for i in range(len(participant_num_input)):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
         print("current line_par is: " + str(participant_num_input[i]))
         for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
             print("current line_sc is: " + str(line_sc))
-            list_participants[i].append(table.loc[ (table['Participant'] == participant_num_input[i]) & (table['Scenario'] == line_sc), [
-                                                                'Average BPM']].get('Average BPM').values[0])  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
+            list_participants[i].append(
+                table.loc[(table['Participant'] == participant_num_input[i]) & (table['Scenario'] == line_sc), [
+                    parameter]].get(parameter).values[0])  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
             # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
             # print("current y value is: " + str(y))
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    #------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
+    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
     bar_width = 1 / (len(participant_num_input) + 1)
     x_chart_width = 1 / len(participant_num_input)
     fig = plt.subplots(figsize=(12, 8))
@@ -228,12 +232,12 @@ def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, table)
         br_list.append(br1)
     print("br: " + str(br_list))
     print("par: " + str(list_participants))
-    colors = ['r','b','g','y','p']
+    colors = ['r', 'b', 'g', 'y', 'p']
     for i in range(len(list_participants)):
         plt.bar(br_list[i], list_participants[i], color=colors[i], width=bar_width,
                 edgecolor='grey', label='PAR' + str(participant_num_input[i]))
     plt.xlabel('Scenario', fontweight='bold', fontsize=15)
-    plt.ylabel('Average BPM', fontweight='bold', fontsize=15)
+    plt.ylabel(parameter, fontweight='bold', fontsize=15)
     plt.xticks([r + x_chart_width for r in range(len(axis_x_scenarios_input))],
                axis_x_scenarios_input)
     plt.legend()
@@ -261,23 +265,27 @@ def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, table)
     # plt.ylabel('AVG BPM')
     # plt.show()
 
-def plot_HR_rides(participant_num_input, ride_input, table):#מראה עבור כל נסיעה את המשתתפים בעמודות ואקג ממוצע
+
+def plot_HR_rides(participant_num_input, ride_input, parameter,
+                  table):  # מראה עבור כל נסיעה את המשתתפים בעמודות ואקג ממוצע
     print("starting draw_plot_HR_rides")
-    list_participants = [[] for i in range(len(participant_num_input))] # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
-    #example: [**participant 1: [ ride 1 avg value, ride 2 avg value .....] **participant 2: [ ride 1 avg value, .....]]
+    list_participants = [[] for i in range(
+        len(participant_num_input))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
+    # example: [**participant 1: [ ride 1 avg value, ride 2 avg value .....] **participant 2: [ ride 1 avg value, .....]]
     print(list_participants)
     for i in range(len(participant_num_input)):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
         print("current line_par is: " + str(participant_num_input[i]))
         for line_r in ride_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
             print("current line_r is: " + str(line_r))
             list_participants[i].append(np.average(table.loc[(table['Ride Number'] == line_r) & (
-                        table['Participant'] == participant_num_input[i]) & (table['Average BPM'] != 0), ['Average BPM']].get('Average BPM')))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
-        #list_participants[i].append((table.loc[(table['Participant'] == participant_num_input[i]), ['Baseline BPM']].get('Baseline BPM').values[0]))#הוספת הבייסלין לרשימה
+                    table['Participant'] == participant_num_input[i]) & (table[parameter] != 0), [parameter]].get(
+                parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
+        # list_participants[i].append((table.loc[(table['Participant'] == participant_num_input[i]), ['Baseline BPM']].get('Baseline BPM').values[0]))#הוספת הבייסלין לרשימה
         print("list_participants:")
         print(list_participants)
-    draw_all_graphs(participant_num_input, list_participants, ride_input, 'Rides', 'Average BPM', 'Participant')
+    draw_all_graphs(participant_num_input, list_participants, ride_input, 'Rides', parameter, 'Participant')
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    #------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
+    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
     # bar_width = 1 / (len(participant_num_input) + 1)
     # x_chart_width = 1 / len(participant_num_input)
     # fig = plt.subplots(figsize=(12, 8))
@@ -299,24 +307,27 @@ def plot_HR_rides(participant_num_input, ride_input, table):#מראה עבור �
     # plt.legend()
     # plt.show()
 
-def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, table):
+
+def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, parameter, table):
     print("starting draw_plot_HR_groups_scenarios")
-    list_groups = [[] for i in range((group_num))] # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
-    #example: [**group 1: [ scenario 1 value, scenario 2 value .....] **group 2: [ scenario 1 value, .....]]
+    list_groups = [[] for i in range(
+        (group_num))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
+    # example: [**group 1: [ scenario 1 value, scenario 2 value .....] **group 2: [ scenario 1 value, .....]]
     print(list_groups)
     for i in range(group_num):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
-        print("current line_group is: " + str(i+1))
+        print("current line_group is: " + str(i + 1))
         for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
             print("current line_sc is: " + str(line_sc))
-            list_groups[i].append(np.average(table.loc[(table['Scenario'] == line_sc) & (table['Average BPM'] != 0) & (table['Group'] == i+1) , [
-                                                                'Average BPM']].get('Average BPM')))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
+            list_groups[i].append(np.average(
+                table.loc[(table['Scenario'] == line_sc) & (table[parameter] != 0) & (table['Group'] == i + 1), [
+                    parameter]].get(parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
     print(list_groups)
     groups_values_input = list(range(1, group_num + 1))
-            # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
-            # print("current y value is: " + str(y))
-    draw_all_graphs(groups_values_input, list_groups, axis_x_scenarios_input, 'Scenario', 'Average BPM', 'Group')
+    # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
+    # print("current y value is: " + str(y))
+    draw_all_graphs(groups_values_input, list_groups, axis_x_scenarios_input, 'Scenario', parameter, 'Group')
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    #------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
+    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
     # bar_width = 1 / (len(list_groups) + 1)
     # x_chart_width = 1 / len(list_groups)
     # fig = plt.subplots(figsize=(12, 8))
@@ -338,25 +349,28 @@ def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, table):
     # plt.legend()
     # plt.show()
 
-def plot_HR_groups_rides(axis_x_scenarios_input, group_num, ride_input, table):
+
+def plot_HR_groups_rides(group_num, ride_input, parameter, table):
     print("starting draw_plot_HR_groups_rides")
-    list_groups = [[] for i in range((group_num))] # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
-    #example: [**group 1: [ ride 1 value, ride 2 value .....] **group 2: [ ride 1 value, .....]]
+    list_groups = [[] for i in range(
+        (group_num))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
+    # example: [**group 1: [ ride 1 value, ride 2 value .....] **group 2: [ ride 1 value, .....]]
     print(list_groups)
     for i in range(group_num):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
-        print("current line_group is: " + str(i+1))
+        print("current line_group is: " + str(i + 1))
         for line_r in ride_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
             print("current line_sc is: " + str(line_r))
-            list_groups[i].append(np.average(table.loc[(table['Ride Number'] == line_r) & (table['Group'] == i+1) & (table['Average BPM'] != 0), [
-                                                                'Average BPM']].get('Average BPM')))  # מכניס לרשימה1 את כל האקג של קבוצה 1 עבור נסיעה 1
+            list_groups[i].append(np.average(
+                table.loc[(table['Ride Number'] == line_r) & (table['Group'] == i + 1) & (table[parameter] != 0), [
+                    parameter]].get(parameter)))  # מכניס לרשימה1 את כל האקג של קבוצה 1 עבור נסיעה 1
     print(list_groups)
-    groups_values_input = list(range(1, group_num+1))
+    groups_values_input = list(range(1, group_num + 1))
     print(groups_values_input)
-    draw_all_graphs(groups_values_input, list_groups, ride_input, 'Rides', 'Average BPM', 'Group')
-            # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
-            # print("current y value is: " + str(y))
+    draw_all_graphs(groups_values_input, list_groups, ride_input, 'Rides', parameter, 'Group')
+    # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
+    # print("current y value is: " + str(y))
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    #------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
+    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
     # bar_width = 1 / (len(list_groups) + 1)
     # x_chart_width = 1 / len(list_groups)
     # fig = plt.subplots(figsize=(12, 8))
@@ -378,19 +392,25 @@ def plot_HR_groups_rides(axis_x_scenarios_input, group_num, ride_input, table):
     # plt.legend()
     # plt.show()
 
-def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, table):#על כל הנסיעות וכל המשתתפים
+
+def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, parameter,
+                                     table):  # על כל הנסיעות וכל המשתתפים
     ###############לא מוכן###############
     print("starting draw_plot_HR_all_par$rides_with_scenarios")
-    list_scenarios_all_par = [[] for i in range(len(axis_x_scenarios_input))] # רשימה של רשימות כמספר התרחישים שנבחרו - כל תא מכיל רשימה שמייצגת את הערכים של כל המשתתפים עבור כל תרחיש בציר האיקס
-    #example: [**scenario 1: [ par 1 value, par 2 value .....] **scenario 2: [ par 1 value, .....]]
+    list_scenarios_all_par = [[] for i in range(
+        len(axis_x_scenarios_input))]  # רשימה של רשימות כמספר התרחישים שנבחרו - כל תא מכיל רשימה שמייצגת את הערכים של כל המשתתפים עבור כל תרחיש בציר האיקס
+    # example: [**scenario 1: [ par 1 value, par 2 value .....] **scenario 2: [ par 1 value, .....]]
     print(list_scenarios_all_par)
     i = 0
     for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
         print("current line_sc is: " + str(line_sc))
-        list_scenarios_all_par[i].append(np.average(table.loc[(table['Scenario'] == line_sc) & (table['Average BPM'] != 0), ['Average BPM']].get('Average BPM')))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
+        list_scenarios_all_par[i].append(np.average(
+            table.loc[(table['Scenario'] == line_sc) & (table[parameter] != 0), [parameter]].get(
+                parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
     print(list_scenarios_all_par)
+
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    #------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
+    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
     bar_width = 1 / 2
     x_chart_width = 1
     fig = plt.subplots(figsize=(12, 8))
@@ -401,12 +421,12 @@ def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, table):
         br_list.append(br1)
     print("br: " + str(br_list))
     print("par: " + str(list_scenarios_all_par))
-    colors = ['r','b','g','y','p']
+    colors = ['r', 'b', 'g', 'y', 'p']
     for i in range(len(list_scenarios_all_par)):
         plt.bar(br_list[i], list_scenarios_all_par[i], color=colors[i], width=bar_width,
-                edgecolor='grey', label='All Participants' )
+                edgecolor='grey', label='All Participants')
     plt.xlabel('Scenario', fontweight='bold', fontsize=15)
-    plt.ylabel('Average BPM', fontweight='bold', fontsize=15)
+    plt.ylabel(parameter, fontweight='bold', fontsize=15)
     plt.xticks([r + x_chart_width for r in range(len(axis_x_scenarios_input))],
                axis_x_scenarios_input)
     plt.legend()
@@ -437,12 +457,32 @@ def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, table):
 #     plt.legend()
 #     plt.show()
 
+def general_graph_avg(scenarios, rides, parameter, table):
+    rides_values = [[] for i in range(
+        len(rides))]  # רשימה של רשימות כמספר התרחישים שנבחרו - כל תא מכיל רשימה שמייצגת את הערכים של כל המשתתפים עבור כל תרחיש בציר האיקס
+    # example: [**scenario 1: [ par 1 value, par 2 value .....] **scenario 2: [ par 1 value, .....]]
+    # print(list_scenarios_all_par)
+
+    i = 0
+    for ride in rides:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
+        for line_sc in scenarios:
+            print("current line_sc is: " + str(line_sc))
+            rides_values[i].append(np.average(
+                table.loc[(table['Scenario'] == line_sc) & (table[parameter] != 0) & (table['Ride Number'] == ride), [
+                    parameter]].get(
+                    parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
+        i += 1
+    draw_all_graphs(rides, rides_values, scenarios, "Scenarios", parameter, "Ride ")
+
 
 def draw_all_graphs(list_of_columns_input, list_of_list_columns, list_axis_x, name_axis_x, name_axis_y, name_column):
-# -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-# ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
-    bar_width = 1 / (len(list_of_columns_input) + 1)
-    x_chart_width = 1 / len(list_of_columns_input)
+    # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
+    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
+    bar_width= 1
+    x_chart_width = 1
+    if len(list_of_columns_input) > 1:
+        bar_width = 1 / (len(list_of_columns_input) + 1)
+        x_chart_width = 1 / len(list_of_columns_input)
     fig = plt.subplots(figsize=(12, 8))
     br_list = []
     br1 = np.arange((len(list_axis_x)))
