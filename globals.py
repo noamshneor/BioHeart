@@ -15,8 +15,8 @@ scenario_num = 0
 scenario_col_num = 0
 par_num = 0
 par_ride_num = 0
-sim_start = 0.0
-ecg_start = 0.0
+sim_sync_time = 0.0
+biopac_sync_time = 0.0
 # par_not_existing = [1, 2, 3, 4, 5, 6, 7, 8]
 par_not_existing = []
 current_par = 0
@@ -53,7 +53,7 @@ header_summary_table = ["Participant", "Ride Number", "Scenario", "Group", "Aver
                         "Baseline SDSD", "Subtraction SDSD", "Baseline PNN50",
                         "Subtraction PNN50"]
 summary_table = pandas.DataFrame(columns=header_summary_table)  # create empty table,only with columns names
-header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start time", "End time", "Duration",
+header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start time (sec)", "End time (sec)", "Duration (sec)",
                        "BPM(ecg) : Total number of rows", "BPM(ecg) : Number of empty rows",
                        "BPM(ecg) : % Completeness", "BPM(ecg) : Minimum value",
                        "BPM(ecg) : Maximum value", "BPM(ecg) : Median",

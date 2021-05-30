@@ -44,12 +44,22 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
                 i += 1
                 continue  # move to the next value
         if j < len(parSIM):  # while there are still rows to match in ECG/RR-1
+            """print(parSIM.at[j - 1, 'Time'])
+            print(par.at[i, 'Time'])
+            print(parSIM.at[j, 'Time'])"""
             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
                 # if time in ECG/RR between time range in SIM
                 if int(parSIM.at[j - 1, 'Scenario']) != 0:  # אם אנחנו לא בתרחיש 0 כלומר תרחיש אמיתי
-                    scenario = int(parSIM.at[j, 'Scenario'])
+                    if int(parSIM.at[j, 'Scenario']) == 0 and par.at[i, 'Time'] == parSIM.at[j - 1, 'Time']:
+                        scenario = int(parSIM.at[j - 1, 'Scenario'])
+                    else:
+                        scenario = int(parSIM.at[j, 'Scenario'])
                     par.at[i, 'Scenario'] = scenario  # match the flag
                     lst[scenario].append(par.at[i, col_name])  # מכניס לרשימה של הרשימות- bpm לכל flag
+                    """print(i)
+                    print(j)
+                    print(scenario)
+                    print("len scenario: " + str(len(lst[scenario])))"""
                     if col_name == "BPM":
                         dq_bpm_start_end_min_max_null(i, j, par, parSIM)
                     if col_name == "RRIntervals":
@@ -113,11 +123,10 @@ def check_filter_type(col_name):
 
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
-    globals.list_end_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(parSIM.at[j - 1, 'Time'],
-                                                                         4)  # insert end time - all the time till the end
+    if int(parSIM.at[j, 'Scenario']) != 0:
+        globals.list_end_time[int(parSIM.at[j, 'Scenario']) - 1] = parSIM.at[j, 'Time']  # insert end time - all the time till the end
     if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
-        globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = round(
-            parSIM.at[j - 1, 'Time'], 4)  # insert start time for the specific scenario
+        globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] = parSIM.at[j - 1, 'Time']  # insert start time for the specific scenario
     if par.at[i, 'BPM'] < globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
         globals.list_min_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'BPM']
     if par.at[i, 'BPM'] > globals.list_max_bpm[int(parSIM.at[j - 1, 'Scenario']) - 1]:
@@ -154,7 +163,7 @@ def rr_time_match(parRR):
     """
     i = 1
     while i < len(parRR):
-        parRR.at[i, 'Time'] = parRR.at[i - 1, 'Time'] + parRR.at[i - 1, 'RRIntervals']
+        parRR.at[i, 'Time'] = round(parRR.at[i - 1, 'Time'] + parRR.at[i - 1, 'RRIntervals'], 4)
         i += 1
 
 
@@ -244,9 +253,9 @@ def filling_dq_table(listBPM_per_scenario, par, ride, group_list):
                                                             'Scenario': list(
                                                                 range(1, globals.scenario_num + 1)),
                                                             'Group': group_list,
-                                                            "Start time": globals.list_start_time,
-                                                            "End time": globals.list_end_time,
-                                                            "Duration": [round(x - y, 4) for x, y in
+                                                            "Start time (sec)": globals.list_start_time,
+                                                            "End time (sec)": globals.list_end_time,
+                                                            "Duration (sec)": [round(x - y, 4) for x, y in
                                                                          zip(globals.list_end_time,
                                                                              globals.list_start_time)],
                                                             "BPM(ecg) : Total number of rows": listBPM_per_scenario,
@@ -273,6 +282,7 @@ def early_process_rr(index_in_folder, ride):
                                                index_in_folder]),
                               names=['RRIntervals'], skiprows=4, skipfooter=8, header=None,
                               engine='openpyxl')
+    parRR['RRIntervals'] = [round(x, 3) for x in parRR['RRIntervals']]
     parRR.insert(1, 'Time', [0.00 for x in range(0, (len(parRR)))],
                  True)  # insert Time column with zero
     parRR.insert(2, 'Scenario', [0 for x in range(0, (len(parRR)))],
@@ -280,6 +290,14 @@ def early_process_rr(index_in_folder, ride):
     # Creates a list of lists as the number of scenarios
     list_of_rr_flag = [[] for i in range(globals.scenario_num + 1)]
     return parRR, list_of_rr_flag
+
+
+def sync_RR(parRR):
+    pandas.options.mode.chained_assignment = None  # כדי שלא יתן אזהרה שאני עולה על הקובץ המקורי
+    parRR = parRR[parRR['Time'] >= globals.biopac_sync_time]
+    parRR.reset_index(drop=True, inplace=True)
+    parRR['Time'] = [round(x - globals.biopac_sync_time, 3) for x in parRR['Time']]
+    return parRR
 
 
 def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
@@ -352,18 +370,20 @@ def early_process_ecg_sim(index_in_folder, ride):
                                                   ride) + "\\" + "ecg")[
                                               index_in_folder]),
                              sep="\t", usecols=[2], names=['BPM'],
-                             skiprows=11 + int(globals.ecg_start * 1000), header=None)
+                             skiprows=11 + int(globals.biopac_sync_time * 1000), header=None)
     parECG.insert(1, 'Time', [x / 1000 for x in range(0, (len(parECG)))], True)  # filling a time column
     parSIM = pandas.read_csv(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim",
                                           os.listdir(
                                               globals.main_path + "\\" + "ride " + str(
                                                   ride) + "\\" + "sim")[
                                               index_in_folder]),
-                             sep=",", skiprows=1 + int(globals.sim_start * 60),
+                             sep=",", skiprows=1 + int(globals.sim_sync_time * 60),
                              usecols=[0, globals.scenario_col_num - 1],
                              names=['Time', 'Scenario'])
-    if globals.sim_start > 0:  # Sync sim time
-        parSIM['Time'] = [x - globals.sim_start for x in parSIM['Time']]
+    if globals.sim_sync_time > 0:  # Sync sim time
+        parSIM['Time'] = [round(x - globals.sim_sync_time, 4) for x in parSIM['Time']]
+    else:
+        parSIM['Time'] = [round(x, 4) for x in parSIM['Time']]
     parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                   True)  # adding scenario column and filling with 0
     return list_of_bpm_flag, parECG, parSIM

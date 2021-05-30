@@ -141,9 +141,9 @@ def data_quality_table_window_layout(dq_table_list):
                                   font=("Century Gothic", 16),
                                   tooltip="Back to summary table"),
                         sg.Text(text="", background_color="transparent", size_px=(100, 0)),
-                        sg.Button(button_text="Export to CSV", size_px=(250, 60), key="dq export",
+                        sg.Button(button_text="Export to EXCEL", size_px=(275, 60), key="dq export",
                                   enable_events=True, font=("Century Gothic", 16),
-                                  tooltip="Select a folder to export the table to a CSV file")
+                                  tooltip="Select a folder to export the table to a XLSX file")
 
                     ],
                 ], background_color="transparent"
@@ -190,9 +190,9 @@ def summary_table_window_layout(summary_table_list):
                                     tooltip="Resting column for each selected HRV method.")
                     ],
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
-                    [sg.Button(button_text="Export to CSV", size_px=(250, 60), key="Export to CSV",
+                    [sg.Button(button_text="Export to EXCEL", size_px=(275, 60), key="Export to CSV",
                                enable_events=True, font=("Century Gothic", 16),
-                               tooltip="Select a folder to export the table to a CSV file")]
+                               tooltip="Select a folder to export the table to a XLSX file")]
                 ], background_color="transparent"),
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
@@ -232,9 +232,9 @@ def loading_window_layout():
                 sg.Text(text="", background_color="transparent", size_px=(100, 70))
             ],
             [
-                sg.Text(text="              0 of " + str(globals.par_num), background_color="transparent",
+                sg.Text(text="              1 of " + str(globals.par_num), background_color="transparent",
                         text_color='black',
-                        size_px=(430, 50), font=("Century Gothic", 20), key="num of num", enable_events=True)
+                        size_px=(450, 50), font=("Century Gothic", 20), key="num of num", enable_events=True)
             ],
             [
                 sg.Text(text="              ", background_color="transparent", size_px=(100, 45)),
@@ -381,9 +381,9 @@ def path_load_window_layout():
             [
                 sg.Text("", background_color="transparent", size=(1100, 20)),
                 sg.Radio(group_id="LOAD", text="New Load", background_color='transparent', key='NEW LOAD', default=True,
-                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(200, 30)),
-                sg.Radio(group_id="LOAD", text="Existing PKL Load", background_color='transparent', key='EXIST LOAD',
-                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(300, 30)),
+                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(230, 30)),
+                sg.Radio(group_id="LOAD", text="Existing Load", background_color='transparent', key='EXIST LOAD',
+                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(250, 30)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(970, 20)),
@@ -414,8 +414,8 @@ def path_load_window_layout():
                           key="Create empty folders",
                           enable_events=True,
                           tooltip="Clicking this button will create in the selected path: \"main folder\" and all subfolders by the format. If there is a folder named \"main folder\" in the selected path - the contents of the folder will be replaced. Fill in the folders and then go back to the software and choose the main folder on the right side of this window"),
-                sg.Text("", background_color="transparent", size=(500, 20)),
-                sg.Button("BACK", size=(110, 45), font=("Century Gothic", 18), key="BACK_PATH",
+                sg.Text("", background_color="transparent", size=(480, 20)),
+                sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="BACK_PATH",
                           tooltip="Return to the experiment data entry screen"),
                 sg.Text("", background_color="transparent", size=(50, 35),
                         font=("Century Gothic", 16)),
@@ -536,19 +536,19 @@ def open_window_layout():
                 sg.Text("", background_color="transparent", size=(30, 0)),
                 sg.Checkbox("Synchronized", background_color='transparent', key='Sync', default=True,
                             enable_events=True, font=("Century Gothic", 18), text_color="black", size_px=(400, 40),
-                            tooltip="Did you run the simulator and the ECG measurement at the same time?"),
+                            tooltip="Did you run the simulator and the BIOPAC at the same time?"),
                 sg.Text("Simulator", background_color="transparent",
                         size=(190, 35), font=("Century Gothic", 18), text_color='black'),
-                sg.Input(size=[100, 40], justification="center", key="sim_start", enable_events=True,
+                sg.Input(size=[100, 40], justification="center", key="sim_sync_time", enable_events=True,
                          font=("Century Gothic", 16), default_text="0", disabled=True,
                          tooltip="Insert SEC to remove from simulator files"),
                 sg.Text("  ,    ", background_color="transparent", size=(100, 35), font=("Century Gothic", 18),
                         text_color='black'),
-                sg.Text("ECG", background_color="transparent",
-                        size=(100, 35), font=("Century Gothic", 18), text_color='black'),
-                sg.Input(size=[100, 40], justification="center", key='ecg_start', enable_events=True,
+                sg.Text("BIOPAC", background_color="transparent",
+                        size=(140, 35), font=("Century Gothic", 16), text_color='black'),
+                sg.Input(size=[100, 40], justification="center", key='biopac_sync_time', enable_events=True,
                          font=("Century Gothic", 16), default_text="0", disabled=True,
-                         tooltip="Insert SEC to remove from ECG files"),
+                         tooltip="Insert SEC to remove from ECG & RR files"),
             ],
             [
                 sg.Text("", background_color="transparent", size=(320, 240)),

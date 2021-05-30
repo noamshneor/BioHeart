@@ -63,19 +63,16 @@ def SDSD(list_of_rr_flag):
     for i in range(1, len(list_of_rr_flag)):
         if len(list_of_rr_flag[i]) != 0:
             for j in range(len(list_of_rr_flag[i])-1):
-                listSumSDSD[i] += list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j]
-
+                listSumSDSD[i] += abs(list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j])
     for i in range(1, len(list_AVG_SDSD)):
         if globals.list_count_rr_intervals_flag[i] != 0:
             list_AVG_SDSD[i] = (listSumSDSD[i] / globals.list_count_rr_intervals_flag[i])
         else:
             list_AVG_SDSD[i] = 0
-
     for i in range(1, len(list_of_rr_flag)):
         if len(list_of_rr_flag[i]) != 0:
             for j in range(len(list_of_rr_flag[i])-1):
-                listSDSD[i] += (list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j] - list_AVG_SDSD[i]) ** 2
-
+                listSDSD[i] += (abs(list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j]) - list_AVG_SDSD[i]) ** 2
     for i in range(1, len(listSDSD)):
         if globals.list_count_rr_intervals_flag[i] != 0:
             listSDSD[i] = math.sqrt(listSDSD[i] / globals.list_count_rr_intervals_flag[i])
@@ -94,7 +91,7 @@ def PNN50(list_of_rr_flag):
     for i in range(1, len(list_of_rr_flag)):
         if len(list_of_rr_flag[i]) != 0:
             for j in range(len(list_of_rr_flag[i])-1):
-                if list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j] > 0.05:
+                if round(abs(list_of_rr_flag[i][j+1] - list_of_rr_flag[i][j]), 3) > 0.05:
                     list_count_above50[i] += 1
 
     for i in range(1, len(listPNN50)):
@@ -159,13 +156,12 @@ def Baseline_SDSD(file_RR):
     SDSD_baseline_sum_DIFF_RR = 0
     SDSD_baseline_sum = 0
     while line < len(file_RR) - 1:
-        SDSD_baseline_sum_DIFF_RR = SDSD_baseline_sum_DIFF_RR + (
-                file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'])
+        SDSD_baseline_sum_DIFF_RR += abs(file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals'])
         line = line + 1
     SDSD_baseline_avg_D = SDSD_baseline_sum_DIFF_RR / (len(file_RR) - 1)
     line2 = 0
-    while line2 < len(file_RR):
-        SDSD_baseline_sum += (file_RR.at[line2, 'RRIntervals'] - SDSD_baseline_avg_D) ** 2
+    while line2 < len(file_RR) - 1:
+        SDSD_baseline_sum += (abs(file_RR.at[line2 + 1, 'RRIntervals'] - file_RR.at[line2, 'RRIntervals']) - SDSD_baseline_avg_D) ** 2
         line2 = line2 + 1
     SDSD_baseline = math.sqrt(SDSD_baseline_sum / (len(file_RR) - 1))
     # print("SDSD_baseline")
@@ -183,12 +179,12 @@ def Baseline_PNN50(file_RR):
     line = 0
     count_D_above50ms = 0
     while line < len(file_RR) - 1:
-        if (file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals']) > 0.05:
+        if round(abs(file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals']), 3) > 0.05:
             # בגלל הדיוק יוצאים יותר ערכים מבאקסל
             count_D_above50ms += 1
         line = line + 1
     # print(count_D_above50ms)
-    PNN50_baseline = (count_D_above50ms / (len(file_RR) - 1))
+    PNN50_baseline = (count_D_above50ms / (len(file_RR) - 1)) * 100
     # print("PNN50_baseline")
     # print(PNN50_baseline)
     return PNN50_baseline

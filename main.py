@@ -11,10 +11,10 @@ import globals
 from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filling_summary_table, \
     early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm, \
-    make_par_group_list
+    make_par_group_list, sync_RR
 from UI_FUNCTIONS import checkFolders_of_rides, checkFolders_of_base, \
-    exportCSV_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
-    exportCSV_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
+    exportEXCEL_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
+    exportEXCEL_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
     exceptions_checkbox_handle, create_empty_folders, pickle_folders, windows_initialization_part_1, \
     windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, \
     plot_HR_with_scenarios, \
@@ -29,25 +29,31 @@ def early_process():
     and performs the processing of the files. The output is a summary table with the avg heart rate
      and the heart rate variance
     """
-    globals.current_par = 0
-    globals.current_ride = 0
+    globals.current_par = 1
+    globals.current_ride = 1
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
         group_list = make_par_group_list(par)
+        """globals.current_ride = 1"""
         print("par in list_of_existing_par:" + str(par))
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
+            """if globals.current_ride == globals.par_ride_num:
+                time.sleep(1)
+                break"""
             print("the filename in ecg:" + filename)
-            if str(par) in filename:  # אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ בecg
+            par_num_in_file = ''.join([i for i in filename if i.isdigit()])  # לוקח רק את הספרות בשם הקובץ
+            print(par_num_in_file)
+            if str(par) == par_num_in_file or '0' + str(par) == par_num_in_file:  # אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ או עם 0 בהתחלה
                 index_in_folder = os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg").index(
                     filename)  # באיזה אינדקס מבין הרשימה של הקבצים בecg מופיע הקובץ filename
                 print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
+                    globals.current_ride = ride
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
                     # -------------------------------------------- ECG & SIM -----------------------------------------
                     list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
                     initial_data_quality()
-                    globals.current_ride = ride - 1
                     # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
                     print("flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')")
                     flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')
@@ -57,6 +63,8 @@ def early_process():
                     # ------------------------------------------------ RR --------------------------------------------
                     parRR, list_of_rr_flag = early_process_rr(index_in_folder, ride)
                     rr_time_match(parRR)  # function that fill the time column in parRR
+                    if globals.biopac_sync_time > 0:
+                        parRR = sync_RR(parRR)
                     # filling column 'flag' in parRR, and filling list_of_rr_flag by scenario.
                     print("flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')")
                     flag_match_exec(parRR, parSIM, list_of_rr_flag, 'RRIntervals')
@@ -74,8 +82,9 @@ def early_process():
                     filling_dq_table(listBPM_per_scenario, par, ride, group_list)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
-                    globals.current_ride += 1
-                globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
+                    # globals.current_ride += 1
+                if globals.current_par < len(globals.list_of_existing_par):
+                    globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
         print(globals.percent * 100)
 
 
@@ -172,12 +181,12 @@ def ui():
             # ----------------------------------------- SAVE INPUT -----------------------------------------
             if (not values['par_num']) or (not values['scenario_num']) or (
                     not values['scenario_col_num']) or (
-                    not values['Sync'] and (not values['sim_start']) or (not values['ecg_start'])):
+                    not values['Sync'] and (not values['sim_sync_time']) or (not values['biopac_sync_time'])):
                 # בדיקה האם אחד מ3 השדות לפחות לא מלא
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
             else:  # כולם מלאים
-                if not values['Sync'] and ((values['sim_start'] != "0") and (values['ecg_start'] != "0")):
+                if not values['Sync'] and ((values['sim_sync_time'] != "0") and (values['biopac_sync_time'] != "0")):
                     sg.popup_quick_message('At least one of the simulator/ECG fields must start from 0',
                                            font=("Century Gothic", 14), background_color='red', location=(970, 880),
                                            auto_close_duration=5)
@@ -222,13 +231,21 @@ def ui():
                     initial_list_of_existing_par()
                     optional_window.element('Ex par LB').update(globals.list_of_existing_par)
                     for i in list(range(1, 6)):
+                        optional_window.element('group' + str(i)).update(visible=False)
                         optional_window.element('group' + str(i)).update(globals.list_of_existing_par)
 
                 if event9 == 'Choose_OPTIONAL':
                     globals.group_num = int(values9['groups num'])
                     list_groups = list(range(1, globals.group_num + 1))
-                    for i in list_groups:
-                        optional_window.element('group' + str(i)).update(visible=True)
+                    for i in list(range(1, 6)):
+                        optional_window.element('group' + str(i)).update(visible=False)
+                    if len(globals.list_of_existing_par) >= globals.group_num:
+                        for i in list_groups:
+                            optional_window.element('group' + str(i)).update(visible=True)
+                    else:
+                        sg.popup_quick_message("Select a number of groups that is less than or equal to the number of participants",
+                                               font=("Century Gothic", 14),
+                                               background_color='red', location=(970, 800), auto_close_duration=5)
 
                 if event9 == 'CONTINUE_OPTIONAL':
                     correct_optional_window = check_optional_window(correct_optional_window, exclude_correct,
@@ -373,7 +390,7 @@ def ui():
                     do_restart = True
                     break
                 if event4 == 'Export to CSV':
-                    exportCSV_summary(values4)
+                    exportEXCEL_summary(values4)
                 if event4 == "Graphs button":
                     summary_table_window.hide()
                     graph_window.un_hide()
@@ -618,7 +635,7 @@ def ui():
                             summary_table_window.un_hide()
                             break
                         if event6 == "dq export":
-                            exportCSV_dq()
+                            exportEXCEL_dq()
                 if event4 == "SumTable":
                     if values4["SumTable"]:
                         line = [dq_table_list[values4["SumTable"][0]]]
