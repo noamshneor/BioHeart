@@ -176,9 +176,9 @@ def windows_initialization_part_2():
     # -------------------------- Graphs Window -----------------------------
     layout_graphs_window = graphs_window_layout()
     graph_window = sg.Window(title="Graphs", no_titlebar=False, layout=layout_graphs_window,
-                             size=(1730, 970), resizable=True, finalize=True,
+                             size=(865, 970), resizable=True, finalize=True,
                              disable_minimize=True,
-                             location=(90, 20), background_image="backsum.png",
+                             location=(523, 20), background_image="backsum.png",
                              element_padding=(0, 0))
     graph_window.hide()
     # ----------------------- Summary Table Window -----------------------

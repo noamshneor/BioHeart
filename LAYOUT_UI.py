@@ -19,8 +19,8 @@ def graphs_window_layout():
                 sg.Column(layout=[
                     [sg.Text(text="", background_color="transparent", size_px=(0, 90), )],  # first row
                     [  # second row
-                        sg.Text(text="", background_color="transparent", size_px=(550, 50), justification="center"),
-                        sg.Text(text="choose graph", background_color="transparent", text_color='black',
+                        sg.Text(text="", background_color="transparent", size_px=(110, 50), justification="center"),
+                        sg.Text(text="Choose Graph", background_color="transparent", text_color='black',
                                 size_px=(600, 100), font=("Century Gothic", 42, 'bold')),
                     ],
                     [  # third row
@@ -59,12 +59,12 @@ def graphs_window_layout():
                     ],
                     [
                         sg.Text("", background_color="transparent", size=(21, 2)),
-                        sg.Listbox(values=globals.rides_list, size=[150, 67], key='rides listbox', visible=True,
+                        sg.Listbox(values=globals.rides_list, size=[150, 100], key='rides listbox', visible=True,
                                    enable_events=True,
                                    font=("Century Gothic", 12),
                                    select_mode=sg.SELECT_MODE_MULTIPLE),
                         sg.Text("", background_color="transparent", size=(12, 0)),
-                        sg.Listbox(values=globals.scenarios_list, size=[150, 67], key='scenarios listbox', visible=True,
+                        sg.Listbox(values=globals.scenarios_list, size=[150, 100], key='scenarios listbox', visible=True,
                                    enable_events=True,disabled=True,
                                    font=("Century Gothic", 12), select_mode=sg.SELECT_MODE_MULTIPLE),
                     ],
@@ -101,15 +101,16 @@ def graphs_window_layout():
                     [
 
                         sg.Text("", background_color="transparent", size=(30, 2)),
-                        sg.Listbox(values=participants_list, size=[150, 77], key='participant listbox', visible=True,
+                        sg.Listbox(values=participants_list, size=[150, 150], key='participant listbox', visible=True,
                                    enable_events=True,
                                    font=("Century Gothic", 12),
                                    select_mode=sg.SELECT_MODE_MULTIPLE),
                     ],
                     [
-                        sg.Text("", background_color="transparent", size=(0, 200)),
+                        sg.Text("", background_color="transparent", size=(0, 100)),
                     ],
                     [
+                        sg.Text("", background_color="transparent", size=(20, 0)),
                         sg.Button("BACK", size=(150, 45), font=("Century Gothic", 18), key="graphs back",
                                   enable_events=True),
                         sg.Text("", background_color="transparent", size=(80, 35),
