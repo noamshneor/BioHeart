@@ -134,7 +134,7 @@ def data_quality_table_window_layout(dq_table_list):
                                   font=("Century Gothic", 16),
                                   tooltip="Back to summary table"),
                         sg.Text(text="", background_color="transparent", size_px=(100, 0)),
-                        sg.Button(button_text="Export to EXCEL", size_px=(260, 60), key="dq export",
+                        sg.Button(button_text="Export to EXCEL", size_px=(275, 60), key="dq export",
                                   enable_events=True, font=("Century Gothic", 16),
                                   tooltip="Select a folder to export the table to a XLSX file")
 
@@ -183,7 +183,7 @@ def summary_table_window_layout(summary_table_list):
                                     tooltip="Resting column for each selected HRV method.")
                     ],
                     [sg.Text(text="", background_color="transparent", size_px=(0, 60))],
-                    [sg.Button(button_text="Export to EXCEL", size_px=(260, 60), key="Export to CSV",
+                    [sg.Button(button_text="Export to EXCEL", size_px=(275, 60), key="Export to CSV",
                                enable_events=True, font=("Century Gothic", 16),
                                tooltip="Select a folder to export the table to a XLSX file")]
                 ], background_color="transparent"),
@@ -225,7 +225,7 @@ def loading_window_layout():
                 sg.Text(text="", background_color="transparent", size_px=(100, 70))
             ],
             [
-                sg.Text(text="              0 of " + str(globals.par_num), background_color="transparent",
+                sg.Text(text="              1 of " + str(globals.par_num), background_color="transparent",
                         text_color='black',
                         size_px=(450, 50), font=("Century Gothic", 20), key="num of num", enable_events=True)
             ],
@@ -374,9 +374,9 @@ def path_load_window_layout():
             [
                 sg.Text("", background_color="transparent", size=(1100, 20)),
                 sg.Radio(group_id="LOAD", text="New Load", background_color='transparent', key='NEW LOAD', default=True,
-                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(200, 30)),
-                sg.Radio(group_id="LOAD", text="Existing PKL Load", background_color='transparent', key='EXIST LOAD',
-                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(300, 30)),
+                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(230, 30)),
+                sg.Radio(group_id="LOAD", text="Existing Load", background_color='transparent', key='EXIST LOAD',
+                         font=("Century Gothic", 13, 'bold'), text_color='red', size_px=(250, 30)),
             ],
             [
                 sg.Text("", background_color="transparent", size=(970, 20)),

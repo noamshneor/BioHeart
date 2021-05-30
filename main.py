@@ -27,18 +27,18 @@ def early_process():
     and performs the processing of the files. The output is a summary table with the avg heart rate
      and the heart rate variance
     """
-    globals.current_par = 0
-    globals.current_ride = 0
+    globals.current_par = 1
+    globals.current_ride = 1
     globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
 
     for par in globals.list_of_existing_par:  # loop for participants that exist
         group_list = make_par_group_list(par)
-        globals.current_ride = 0
+        """globals.current_ride = 1"""
         print("par in list_of_existing_par:" + str(par))
         for filename in os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg"):
-            if globals.current_ride == globals.par_ride_num:
+            """if globals.current_ride == globals.par_ride_num:
                 time.sleep(1)
-                break
+                break"""
             print("the filename in ecg:" + filename)
             par_num_in_file = ''.join([i for i in filename if i.isdigit()])  # לוקח רק את הספרות בשם הקובץ
             print(par_num_in_file)
@@ -47,11 +47,11 @@ def early_process():
                     filename)  # באיזה אינדקס מבין הרשימה של הקבצים בecg מופיע הקובץ filename
                 print(index_in_folder)  # checked
                 for ride in range(1, globals.par_ride_num + 1):  # loop for rides
+                    globals.current_ride = ride
                     print("Start early process for ride: " + str(ride) + " for par: " + str(par))
                     # -------------------------------------------- ECG & SIM -----------------------------------------
                     list_of_bpm_flag, parECG, parSIM = early_process_ecg_sim(index_in_folder, ride)
                     initial_data_quality()
-                    globals.current_ride = ride - 1
                     # filling column 'flag' in parECG, and filling list_of_bpm_flag by scenario.
                     print("flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')")
                     flag_match_exec(parECG, parSIM, list_of_bpm_flag, 'BPM')
@@ -80,8 +80,9 @@ def early_process():
                     filling_dq_table(listBPM_per_scenario, par, ride, group_list)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
-                    globals.current_ride += 1
-                globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
+                    # globals.current_ride += 1
+                if globals.current_par < len(globals.list_of_existing_par):
+                    globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
         print(globals.percent * 100)
 
 
