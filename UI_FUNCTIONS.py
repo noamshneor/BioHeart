@@ -73,8 +73,15 @@ def check_optional_window(correct_optional_window, exclude_correct, group_correc
         list_groups = list(range(1, globals.group_num + 1))
         list_values = []
         for i in list_groups:
-            list_values += values9['group' + str(i)]
+            if not values9['group' + str(i)]:
+                sg.popup_quick_message("One or more of the groups was left empty",
+                                       font=("Century Gothic", 14),
+                                       background_color='red', location=(970, 880), auto_close_duration=5)
+                return False
+            else:
+                list_values += values9['group' + str(i)]
         contains_duplicates = any(list_values.count(element) > 1 for element in list_values)
+
         if len(globals.list_of_existing_par) < globals.group_num or len(list_values) == 0:
             sg.popup_quick_message(
                 "No group is selected! Click \"Choose\" and select all the participants OR deselect the checkbox \"Experimental groups\".",
