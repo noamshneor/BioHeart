@@ -464,7 +464,7 @@ def ui():
 
                         if event5 == "bar groups":
                             graph_window['participant listbox'].update("")
-                            graph_window['participant listbox'].update(globals.rides_list)
+                            graph_window['participant listbox'].update(globals.list_of_existing_par)
                             graph_window['participant listbox'].update(disabled=True)
 
                         if event5 == "bar pars":
