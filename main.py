@@ -534,7 +534,7 @@ def ui():
                                             else:  # נבחרו קבוצות
                                                 print("y axis:" +
                                                       axis_y_input + " ,axis x of rides: " + str(
-                                                      rides_input) + " with groups" + globals.group_num)
+                                                      rides_input) + " with groups" + str(globals.group_num))
                                                 print(
                                                     "תוציא את גרף p6 עם נסיעות בציר איקס ובעמודות קבוצות ")
                                                 axis_y_input = values5['y axis']
