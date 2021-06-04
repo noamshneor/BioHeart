@@ -90,82 +90,19 @@ def early_process():
 
 def pickle_early_process():
     """
-    A function that arranges the "clean" pickles files and performs the processing of the files.
-    The output is a summary table with the avg heart rate and the heart rate variance
+    A function that loads the files: summary table (pickle) and data quality (pickle)
     """
-    globals.current_par = 0
-    globals.percent = 0  # Displays in percentages for how many participants the final table data has been processed
+    #מאתחלים את המשתנים של מסך הטעינה ל100 אחוז
+    globals.current_ride = globals.par_ride_num
+    globals.current_par = globals.par_num
+    globals.percent = 100  # Displays in percentages for how many participants the final table data has been processed
 
-    for par in range(1, globals.par_num + 1):  # loop for participants
-        for ride in range(1, globals.par_ride_num + 1):  # loop for rides
-            print("Start early process for ride: " + str(ride) + " for par: " + str(par))
-            list_count_rmssd = [0] * (globals.scenario_num + 1)  # Initialize the list to zero for each scenario
-            list_of_bpm_flag = [[] for i in
-                                range(globals.scenario_num + 1)]  # רשימה של רשימות של כל ערכי הBPM לתרחיש מסוים
-            parECG_pickle = pandas.read_pickle(
-                globals.main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
-            parRR_pickle = pandas.read_pickle(
-                globals.main_path + "\\" + "ride " + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
-
-            line = 0
-            while line < len(parECG_pickle):  # while there are still rows in ECG
-                list_of_bpm_flag[parECG_pickle.at[line, 'Scenario']].append(
-                    parECG_pickle.at[line, 'BPM'])  # create list of list-> BPM by scenario
-                line += 1  # move to the next ECG row
-
-            listBPM = []
-            for i in range(1, globals.scenario_num + 1):
-                listBPM.append(
-                    sum(list_of_bpm_flag[i]) / len(list_of_bpm_flag[i]))  # list with Average BPM for each scenario
-
-            list_of_rr_flag = [[] for i in range(globals.scenario_num + 1)]
-            line = 0
-            while line < len(parRR_pickle):  # while there are still rows in RR file
-                list_of_rr_flag[parRR_pickle.at[line, 'Scenario']].append(
-                    parRR_pickle.at[line, 'RRIntervals'])  # create list of list-> RR by scenario
-                line += 1  # move to the next ECG row
-
-            # ------------------------------------------ BASE ---------------------------------------
-            baseECG_pickle = pandas.read_pickle(
-                globals.main_path + "\\" + "base" + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
-            avg_base = np.average(baseECG_pickle)
-            baseRR_pickle = pandas.read_pickle(
-                globals.main_path + "\\" + "base" + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
-            # ----------------------------------------------------------------------------------------------------------
-            globals.summary_table = globals.summary_table.append(
-                pandas.DataFrame({'Participant': [par] * globals.scenario_num,
-                                  'Ride Number': [ride] * globals.scenario_num,
-                                  'Scenario': list(range(1, globals.scenario_num + 1)),
-                                  'Average BPM': listBPM, 'RMSSD': HRV_METHODS.RMSSD(parRR_pickle),
-                                  'SDSD': HRV_METHODS.SDSD(parRR_pickle),
-                                  'SDNN': HRV_METHODS.SDNN(parRR_pickle),
-                                  'PNN50': HRV_METHODS.PNN50(parRR_pickle),
-                                  'Baseline BPM': [avg_base] * globals.scenario_num,
-                                  'Baseline RMSSD': HRV_METHODS.Baseline_RMSSD(
-                                      baseRR_pickle) * globals.scenario_num,
-                                  'Baseline SDNN': HRV_METHODS.Baseline_SDNN(
-                                      baseRR_pickle) * globals.scenario_num,
-                                  'Baseline SDSD': HRV_METHODS.Baseline_SDSD(
-                                      baseRR_pickle) * globals.scenario_num,
-                                  'Baseline PNN50': HRV_METHODS.Baseline_PNN50(
-                                      baseRR_pickle) * globals.scenario_num}))
-
-            globals.summary_table.reset_index(drop=True, inplace=True)
-            # print(summary_table_par[['Participant', 'Ride Number', 'Subtraction BPM','Subtraction RMSSD','Subtraction SDNN','Subtraction SDSD','Subtraction PNN50']])
-            # summary_table_par.to_pickle("summary_table_par" + str(par))#אם היינו רוצות לשמור טבלה לכל ניבדק בנפרד
-            globals.percent += (1 / globals.par_num) / globals.par_ride_num
-        globals.current_par = par
-        print(globals.percent * 100)
-    # print(summary_table)
-    # summary_table.to_pickle("summary_table") # שמרתי בפיקל בפונקציה שמכינה את הטבלה המסכמת
-    # print(summary_table_par)#checked
-    # summary_table_par.to_csv('summary_table_par.csv', index=False, header=True)#checked
 
 
 # --------------------------------------------- UI ---------------------------------------------
 def ui():
     # -------------------------------------------- Windows Layout --------------------------------------------
-    correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, newload, open_window, optional_window, path_load_window = windows_initialization_part_1()
+    correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, is_newload, open_window, optional_window, path_load_window = windows_initialization_part_1()
     # -------------------------------------------- Open Windows --------------------------------------------
     while True:  # Create an event loop
         event, values = open_window.read()
@@ -270,7 +207,13 @@ def ui():
                         if event2 == "-MAIN FOLDER-":
                             tree_handle(path_load_window, values2)
                         if event2 == "CONTINUE_PATH":
-                            correct_path_window, newload = check_if_can_continue(correct_path_window, newload, values2)
+                            # if values2['NEW LOAD']:
+                            #     is_newload = True
+                            # if values2['EXIST LOAD']:
+                            #     is_newload = False  # טעינה קיימת
+
+                            correct_path_window, is_newload = check_if_can_continue(correct_path_window, is_newload, values2)
+
                         if event2 == "BACK_PATH":
                             optional_window.un_hide()
                             path_load_window.hide()
@@ -278,83 +221,90 @@ def ui():
                             correct_path_window = False
                             break
                         if correct_path_window:
-                            exceptions_values_window.un_hide()
                             path_load_window.hide()
-                            # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
-                            # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
-                            while True:
-                                event8, values8 = exceptions_values_window.read()
-                                if event8 == sg.WIN_CLOSED:
-                                    return False
+                            if is_newload:
+                                exceptions_values_window.un_hide()
+                                # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
+                                # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
+                                while True:
+                                    event8, values8 = exceptions_values_window.read()
+                                    if event8 == sg.WIN_CLOSED:
+                                        return False
 
-                                exceptions_checkbox_handle(event8, exceptions_values_window, values8)
+                                    exceptions_checkbox_handle(event8, exceptions_values_window, values8)
 
-                                if event8 == "CONTINUE_EXCEPTIONS":
-                                    if values8["no filtering checkbox"]:
-                                        # שמירת האינפוטים במשתנים
-                                        globals.filter_type = globals.Filter.NONE
-                                        finish_while_loop = True
-                                        exceptions_values_window.close()
+                                    if event8 == "CONTINUE_EXCEPTIONS":
+                                        if values8["no filtering checkbox"]:
+                                            # שמירת האינפוטים במשתנים
+                                            globals.filter_type = globals.Filter.NONE
+                                            finish_while_loop = True
+                                            exceptions_values_window.close()
+                                            break
+                                        else:
+                                            if values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
+                                                globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
+                                                globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
+                                                if checks_boundaries(globals.RR_lower, globals.RR_upper):
+                                                    globals.filter_type = globals.Filter.RR
+                                                    finish_while_loop = True
+                                                    break
+                                                else:
+                                                    sg.popup_quick_message(
+                                                        'Error! Notice that the lower RR limit must be smaller than the upper RR limit',
+                                                        font=("Century Gothic", 10),
+                                                        background_color='white', text_color='red', location=(670, 655))
+
+                                            if values8["checkbox exceptions BPM"] and not values8["checkbox exceptions RR"]:
+                                                globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
+                                                globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
+                                                if checks_boundaries(globals.BPM_lower, globals.BPM_upper):
+                                                    globals.filter_type = globals.Filter.BPM
+                                                    finish_while_loop = True
+                                                    break
+                                                else:
+                                                    sg.popup_quick_message(
+                                                        'Error! Notice that the lower BPM limit must be smaller than the upper BPM limit',
+                                                        font=("Century Gothic", 10),
+                                                        background_color='white', text_color='red', location=(670, 655))
+
+                                            if values8["checkbox exceptions BPM"] and values8["checkbox exceptions RR"]:
+                                                globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
+                                                globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
+                                                globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
+                                                globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
+                                                if checks_boundaries(globals.BPM_lower,
+                                                                     globals.BPM_upper) and checks_boundaries(
+                                                    globals.RR_lower, globals.RR_upper):
+                                                    globals.filter_type = globals.Filter.BOTH
+                                                    finish_while_loop = True
+                                                    break
+                                                else:
+                                                    sg.popup_quick_message(
+                                                        'Error! Notice that the lower limits must be smaller than the upper limits',
+                                                        font=("Century Gothic", 10),
+                                                        background_color='white', text_color='red', location=(670, 655))
+                                    if event8 == "BACK_EXCEPTIONS":
+                                        exceptions_values_window.hide()
+                                        path_load_window.un_hide()
+                                        correct_path_window = False  # בשביל שתתבצע שוב בדיקה על התיקייה אם בוחרים שוב
+                                        finish_while_loop = False
                                         break
-                                    else:
-                                        if values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
-                                            globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
-                                            globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
-                                            if checks_boundaries(globals.RR_lower, globals.RR_upper):
-                                                globals.filter_type = globals.Filter.RR
-                                                finish_while_loop = True
-                                                break
-                                            else:
-                                                sg.popup_quick_message(
-                                                    'Error! Notice that the lower RR limit must be smaller than the upper RR limit',
-                                                    font=("Century Gothic", 10),
-                                                    background_color='white', text_color='red', location=(670, 655))
 
-                                        if values8["checkbox exceptions BPM"] and not values8["checkbox exceptions RR"]:
-                                            globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
-                                            globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
-                                            if checks_boundaries(globals.BPM_lower, globals.BPM_upper):
-                                                globals.filter_type = globals.Filter.BPM
-                                                finish_while_loop = True
-                                                break
-                                            else:
-                                                sg.popup_quick_message(
-                                                    'Error! Notice that the lower BPM limit must be smaller than the upper BPM limit',
-                                                    font=("Century Gothic", 10),
-                                                    background_color='white', text_color='red', location=(670, 655))
+                                print(globals.filter_type)
+                                print(globals.RR_lower, globals.RR_upper, globals.BPM_lower, globals.BPM_upper)
+                            else:
+                                finish_while_loop = True
+                                globals.percent = 1
+                            if finish_while_loop:
+                                exceptions_values_window.close()
+                                path_load_window.close()
+                                break
+                    if finish_while_loop:
+                        break
+        if finish_while_loop and is_newload:
+            #--------------------------------------------CHECK_IF_NEWLOAD_OR_EXIST----------------------------------
 
-                                        if values8["checkbox exceptions BPM"] and values8["checkbox exceptions RR"]:
-                                            globals.RR_lower = float(values8['_SPIN_RR_LOWER'])
-                                            globals.RR_upper = float(values8['_SPIN_RR_UPPER'])
-                                            globals.BPM_lower = int(values8['_SPIN_BPM_LOWER'])
-                                            globals.BPM_upper = int(values8['_SPIN_BPM_UPPER'])
-                                            if checks_boundaries(globals.BPM_lower,
-                                                                 globals.BPM_upper) and checks_boundaries(
-                                                globals.RR_lower, globals.RR_upper):
-                                                globals.filter_type = globals.Filter.BOTH
-                                                finish_while_loop = True
-                                                break
-                                            else:
-                                                sg.popup_quick_message(
-                                                    'Error! Notice that the lower limits must be smaller than the upper limits',
-                                                    font=("Century Gothic", 10),
-                                                    background_color='white', text_color='red', location=(670, 655))
-                                if event8 == "BACK_EXCEPTIONS":
-                                    exceptions_values_window.hide()
-                                    path_load_window.un_hide()
-                                    correct_path_window = False  # בשביל שתתבצע שוב בדיקה על התיקייה אם בוחרים שוב
-                                    finish_while_loop = False
-                                    break
 
-                            print(globals.filter_type)
-                            print(globals.RR_lower, globals.RR_upper, globals.BPM_lower, globals.BPM_upper)
-                        if finish_while_loop:
-                            exceptions_values_window.close()
-                            path_load_window.close()
-                            break
-                if finish_while_loop:
-                    break
-        if finish_while_loop:
             # ------------------------------------------- LOADING Window -------------------------------------------
             loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
                                        disable_minimize=True,
@@ -362,7 +312,7 @@ def ui():
                                        finalize=True)
             start_time = time.time()  # קביעת זמן התחלת ריצת החלון
             t = threading.Thread(
-                target=early_process if newload else pickle_early_process)  # הרצת טרד במקביל על הפונקציה המתאימה שרצה ברקע של המסך
+                target=early_process if is_newload else pickle_early_process)  # הרצת טרד במקביל על הפונקציה המתאימה שרצה ברקע של המסך
             t.setDaemon(True)  # גורם לטרד למות כשנרצה שהוא ימות
             t.start()  # התחלת ריצת הטרד
             while True:
@@ -378,7 +328,7 @@ def ui():
             loading_window.close()
 
         if globals.percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
-            data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window = windows_initialization_part_2()
+            data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window = windows_initialization_part_2(is_newload)
             do_restart = False
             while True:
                 summary_table_window.element("SumTable").update(

@@ -42,14 +42,14 @@ def windows_initialization_part_1():
     globals.list_of_existing_par = list(range(1, globals.par_num + 1))
     correct_open_window = False  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
     correct_path_window = False  # האם כל הפרטים במסך הנתיב מולאו בצורה נכונה
-    newload = True  # האם נבחרה טעינה חדשה או לא - טעינה קיימת
+    is_newload = True  # האם נבחרה טעינה חדשה או לא - טעינה קיימת
     correct_optional_window = False
     exclude_correct = True
     group_correct = True
     finish_while_loop = False
     open_window = sg.Window(title="BIO Heart", layout=layout_open_window, size=(1730, 970), disable_minimize=True,
                             location=(90, 0), background_image="back1.png", element_padding=(0, 0), finalize=True)
-    return correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, newload, open_window, optional_window, path_load_window
+    return correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, is_newload, open_window, optional_window, path_load_window
 
 
 def initial_optional(optional_window):
@@ -112,7 +112,7 @@ def check_optional_window(correct_optional_window, exclude_correct, group_correc
     return correct_optional_window
 
 
-def check_if_can_continue(correct_path_window, newload, values2):
+def check_if_can_continue(correct_path_window, is_newload, values2):
     if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
         sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
                                background_color='red', location=(970, 880))
@@ -133,7 +133,7 @@ def check_if_can_continue(correct_path_window, newload, values2):
                                    background_color='red', location=(970, 880), auto_close_duration=5)
         else:  # הכל תקין, אין תיקיה חסרה
             if values2["NEW LOAD"]:  # אם מדובר בטעינה חדשה
-                newload = True
+                is_newload = True
                 new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
                 new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
                 if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(
@@ -145,7 +145,7 @@ def check_if_can_continue(correct_path_window, newload, values2):
                         globals.main_path = values2["-MAIN FOLDER-"]
                         pickle_folders()
             else:  # מדובר בטעינה קיימת
-                newload = False
+                is_newload = False
                 exist_load_list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
                 exist_load_list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
                 if checkFolders_of_rides(exist_load_list_in_ride, values2) and checkFolders_of_base(
@@ -154,15 +154,21 @@ def check_if_can_continue(correct_path_window, newload, values2):
                             exist_load_list_in_base, values2):
                         correct_path_window = True  # הכל תקין אפשר להמשיך
                         globals.main_path = values2["-MAIN FOLDER-"]
-    return correct_path_window, newload
+    return correct_path_window, is_newload
 
 
-def windows_initialization_part_2():
+def windows_initialization_part_2(is_newload):
     # ----------------------- Early Summary Table -----------------------
-    summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
+    if is_newload:
+        summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
+        dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
+    else:
+        summary_table_list = pandas.read_pickle("summary_table")
+        dq_table_list = pandas.read_pickle("data_quality_table")
+
     layout_summary_table_window = summary_table_window_layout(
         summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
-    dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
+
     layout_data_quality_table_window = data_quality_table_window_layout(
         dq_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
     # ----------------------- Data Quality Table Window -----------------------
@@ -189,35 +195,10 @@ def windows_initialization_part_2():
                                      element_padding=(0, 0))
     return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
 
-
-# def plot1(participant_num_input, ride_input, table):
-#     x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
-#     print(x)
-#     y = table.loc[
-#         (table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Average BPM']]
-#     print(y)
-#     plt.plot(x, y, marker='.')
-#     plt.title('AVG BPM of participant ' + str(participant_num_input) + ' in ride ' + str(ride_input) + ', by scenario')
-#     plt.xlabel('Scenario')
-#     plt.ylabel('AVG BPM')
-#     plt.show()
+#def load_pickle_tables():
 
 
-# def plot2(participants_input, ride_input, table):
-#     print("starting draw_plot2")
-#     for line_par in participants_input:
-#         x2 = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par), ['Scenario']]
-#         print("x2 =" + str(x2))
-#         y2 = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par), ['RMSSD']]
-#         print("y2 =" + str(y2))
-#         # plt.plot(x2, y2, color='k', marker='.', label='participant'+str(line_par))
-#         plt.plot(x2, y2, label='participant' + str(line_par))
-#     plt.title('RMSSD of participants ' + str(participants_input) + ' in ride ' + str(ride_input) + ', by scenario')
-#     plt.xlabel('Scenario')
-#     plt.ylabel('RMSSD')
-#     plt.legend()  # מקרא
-#     plt.style.use('fivethirtyeight')
-#     plt.show()
+
 
 
 def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parameter,
