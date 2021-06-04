@@ -300,19 +300,6 @@ def sync_RR(parRR):
     return parRR
 
 
-def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
-    parECG.to_pickle(
-        globals.main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
-    parSIM.to_pickle(
-        globals.main_path + "\\" + "ride " + str(ride) + "\\" + "sim pkl" + "\pickle_parSIM" + str(par))
-    parRR.to_pickle(
-        globals.main_path + "\\" + "ride " + str(ride) + "\\" + "rr pkl" + "\pickle_parRR" + str(par))
-    baseECG.to_pickle(
-        globals.main_path + "\\" + "base" + "\\" + "base ecg pkl" + "\pickle_baseECG" + str(par))
-    baseRR.to_pickle(
-        globals.main_path + "\\" + "base" + "\\" + "base rr pkl" + "\pickle_baseRR" + str(par))
-
-
 def dq_completeness_bpm(listBPM_per_scenario):
     for i in range(globals.scenario_num):
         if listBPM_per_scenario[i] == 0:

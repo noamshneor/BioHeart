@@ -506,6 +506,7 @@ def early_table(filename):
             for j in globals.header_summary_table[3:len(globals.header_summary_table)]:
                 globals.summary_table.at[i, j] = round(globals.summary_table.at[i, j], 4)  # 4 ספרות אחרי הנקודה
         globals.summary_table.to_pickle(filename)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #################לשמור פה גם אקסל או csv
         summary_table_list = globals.summary_table.values.tolist()
         summary_table_int = [list(map(int, x)) for x in summary_table_list]
         for i in range(len(summary_table_list)):
