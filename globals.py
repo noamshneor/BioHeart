@@ -17,7 +17,6 @@ par_num = 0
 par_ride_num = 0
 sim_sync_time = 0.0
 biopac_sync_time = 0.0
-# par_not_existing = [1, 2, 3, 4, 5, 6, 7, 8]
 par_not_existing = []
 current_par = 0
 current_ride = 0
@@ -43,9 +42,8 @@ BPM_lower = 0
 BPM_upper = 0
 group_num = 0
 lists_of_groups = []  # 0=group1, 1=group2....
-# path_noam = r"C:\Users\user\PycharmProjects\ProjectGmar\main folder"
-# path_sapir = r"C:\Users\sapir\Desktop\project_gmar_path"
 main_path = ""
+
 header_summary_table = ["Participant", "Ride Number", "Scenario", "Group", "Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50",
                         "Baseline BPM",
                         "Subtraction BPM", "Baseline RMSSD", "Subtraction RMSSD", "Baseline SDNN",
@@ -53,6 +51,7 @@ header_summary_table = ["Participant", "Ride Number", "Scenario", "Group", "Aver
                         "Baseline SDSD", "Subtraction SDSD", "Baseline PNN50",
                         "Subtraction PNN50"]
 summary_table = pandas.DataFrame(columns=header_summary_table)  # create empty table,only with columns names
+
 header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start time (sec)", "End time (sec)", "Duration (sec)",
                        "BPM(ecg) : Total number of rows", "BPM(ecg) : Number of empty rows",
                        "BPM(ecg) : % Completeness", "BPM(ecg) : Minimum value",
@@ -64,7 +63,7 @@ header_data_quality = ["Participant", "Ride Number", "Scenario", "Group", "Start
                        "HRV methods(rr) : Maximum value", "HRV methods(rr) : Median"]
 data_quality_table = pandas.DataFrame(columns=header_data_quality)
 
-methods_list = ["Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50", "Subtraction BPM", "Subtraction RMSSD", "Subtraction "
-                                                                                                         "SDNN",
-                "Subtraction SDSD","Subtraction PNN50"]
+methods_list = ["Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50", "Subtraction BPM",
+                "Subtraction RMSSD", "Subtraction SDNN",
+                "Subtraction SDSD", "Subtraction PNN50"]
 rides_list = []

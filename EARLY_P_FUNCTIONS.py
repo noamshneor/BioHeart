@@ -6,10 +6,10 @@ import globals
 import openpyxl
 
 
-def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, list_of_bpm_flag, 'BPM')
+def flag_match_exec(par, parSIM, lst, col_name):
     """ Match the scenario flag
-    from:simulation data
-    to:ecg data
+    from: simulation data
+    to: ecg data OR rr data
     --> by time
 
     :param par: DataFrame of par data
@@ -69,15 +69,6 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
                 j += 1
         else:
             break
-        # else:  # צריך להסיר שורות מהקובץ בגלל טווח חריגים
-        #     # exception_count += 1
-        #     # exceptions.append(i)
-        #     i += 1
-        # print("i is: " + str(i))
-        # while i < len(exceptions):
-        #     par.drop(exceptions[i])
-        #     print("dropped line "+ str(i))
-        #     i += 1
 
 
 def check_filter_type(col_name):
@@ -123,6 +114,10 @@ def check_filter_type(col_name):
 
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
+    """
+        A function that calculates the following values for BPM (ECG):
+        start time, end time, min val, max val, null val.
+    """
     if int(parSIM.at[j, 'Scenario']) != 0:
         globals.list_end_time[int(parSIM.at[j, 'Scenario']) - 1] = parSIM.at[j, 'Time']  # insert end time - all the time till the end
     if globals.list_start_time[int(parSIM.at[j - 1, 'Scenario']) - 1] == 0:
@@ -136,6 +131,10 @@ def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
 
 
 def dq_rr_min_max_null(i, j, par, parSIM):
+    """
+        A function that calculates the following values for RR:
+        min val, max val, null val.
+    """
     if par.at[i, 'RRIntervals'] < globals.list_min_rr[int(parSIM.at[j - 1, 'Scenario']) - 1]:
         globals.list_min_rr[int(parSIM.at[j - 1, 'Scenario']) - 1] = par.at[i, 'RRIntervals']
     if par.at[i, 'RRIntervals'] > globals.list_max_rr[int(parSIM.at[j - 1, 'Scenario']) - 1]:
@@ -145,12 +144,20 @@ def dq_rr_min_max_null(i, j, par, parSIM):
 
 
 def fix_min_bpm():
+    """
+        Fixing the minimum value, if the value remains as it is initialized (1000) and it has not changed -
+        it becomes 0.
+    """
     for x in range(globals.scenario_num):
         if globals.list_min_bpm[x] == 1000:
             globals.list_min_bpm[x] = 0
 
 
 def fix_min_rr():
+    """
+        Fixing the minimum value, if the value remains as it is initialized (100) and it has not changed -
+        it becomes 0.
+    """
     for x in range(globals.scenario_num):
         if globals.list_min_rr[x] == 100:
             globals.list_min_rr[x] = 0
@@ -158,8 +165,8 @@ def fix_min_rr():
 
 def rr_time_match(parRR):
     """
-    filling Time coloumn in RR file
-    :param parRR: DataFrame of RR data
+        Filling Time column in RR file.
+        :param parRR: DataFrame of RR data.
     """
     i = 1
     while i < len(parRR):
@@ -182,6 +189,9 @@ def initial_list_of_existing_par():
 
 
 def list_hrv_methods(avg_base, baseRR, list_of_rr_flag):
+    """
+        A function that uses functions that calculate HRV methods and return lists of each HRV method.
+    """
     listRMSSD = HRV_METHODS.RMSSD(list_of_rr_flag)
     listSDSD = HRV_METHODS.SDSD(list_of_rr_flag)
     listSDNN = HRV_METHODS.SDNN(list_of_rr_flag)
@@ -195,6 +205,9 @@ def list_hrv_methods(avg_base, baseRR, list_of_rr_flag):
 
 
 def filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride, group_list):
+    """
+        A function that fills in the summary table and uses lists of each method for calculating HRV.
+    """
     listBaseBPM, listBasePNN50, listBaseRMSSD, listBaseSDNN, listBaseSDSD, listPNN50, listRMSSD, listSDNN, listSDSD = list_hrv_methods(
         avg_base, baseRR, list_of_rr_flag)
     globals.summary_table = globals.summary_table.append(
@@ -221,6 +234,10 @@ def filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride,
 
 
 def make_par_group_list(par):
+    """
+        Create a list for the group column for each participant.
+        If there are no groups it will be a list of zeros.
+    """
     group_list = []
     if globals.group_num == 0:
         group_list = [0] * globals.scenario_num
@@ -233,6 +250,10 @@ def make_par_group_list(par):
 
 
 def calc_rr_num_of_rows_per_flag():
+    """
+        Calculate the number of rows in the RR file for the purpose of calculating HRV methods.
+        Return list of rows per flag.
+    """
     list_count_rr_flag = []  # rr values count per flag - number of rows in RR file per flag
     for i in range(1, len(globals.list_count_rr_intervals_flag)):
         # add 1 to the interval to get the count of rr values - not rr intervals
@@ -244,8 +265,10 @@ def calc_rr_num_of_rows_per_flag():
 
 
 def filling_dq_table(listBPM_per_scenario, par, ride, group_list):
+    """
+        A function that fills in the DQ table and uses lists.
+    """
     list_count_rr_flag = calc_rr_num_of_rows_per_flag()
-
     globals.data_quality_table = \
         globals.data_quality_table.append(pandas.DataFrame({'Participant': [par] * globals.scenario_num,
                                                             'Ride Number': [
@@ -275,6 +298,9 @@ def filling_dq_table(listBPM_per_scenario, par, ride, group_list):
 
 
 def early_process_rr(index_in_folder, ride):
+    """
+        A function that loads the RR files, adds a time column and a scenario column.
+    """
     parRR = pandas.read_excel(os.path.join(globals.main_path + "\\" + "ride " + str(ride) + "\\" + "rr",
                                            os.listdir(
                                                globals.main_path + "\\" + "ride " + str(
@@ -293,6 +319,10 @@ def early_process_rr(index_in_folder, ride):
 
 
 def sync_RR(parRR):
+    """
+        A function that leaves the measured RR intervals that beyond the time set for removal from the biopac files.
+        The function returns the updated RR file by synchronization.
+    """
     pandas.options.mode.chained_assignment = None  # כדי שלא יתן אזהרה שאני עולה על הקובץ המקורי
     parRR = parRR[parRR['Time'] >= globals.biopac_sync_time]
     parRR.reset_index(drop=True, inplace=True)
@@ -300,7 +330,10 @@ def sync_RR(parRR):
     return parRR
 
 
-def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
+def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):  # מיותר צריך למחוק!!!
+    """
+        A function that saves the pickle files of the participant.
+    """
     parECG.to_pickle(
         globals.main_path + "\\" + "ride " + str(ride) + "\\" + "ecg pkl" + "\pickle_parECG" + str(par))
     parSIM.to_pickle(
@@ -314,6 +347,10 @@ def save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride):
 
 
 def dq_completeness_bpm(listBPM_per_scenario):
+    """
+        A function that calculates the percentage of completeness in the ECG files -
+        a number of complete rows out of the total rows.
+    """
     for i in range(globals.scenario_num):
         if listBPM_per_scenario[i] == 0:
             globals.list_completeness_bpm[i] = 0
@@ -323,6 +360,10 @@ def dq_completeness_bpm(listBPM_per_scenario):
 
 
 def dq_completeness_rr():
+    """
+        A function that calculates the percentage of completeness in the RR files -
+        a number of complete rows out of the total rows.
+    """
     for i in range(globals.scenario_num):
         if globals.list_count_rr_intervals_flag[i + 1] == 0:
             globals.list_completeness_rr[i] = 0
@@ -335,6 +376,9 @@ def dq_completeness_rr():
 
 
 def avg_med_bpm(list_of_bpm_flag):
+    """
+        A function that calculates the mean and median BPM.
+    """
     listBPM = []  # list of Average BPM by scenario
     listBPM_per_scenario = []
     for i in range(1, globals.scenario_num + 1):
@@ -351,6 +395,9 @@ def avg_med_bpm(list_of_bpm_flag):
 
 
 def med_rr(list_of_rr_flag):
+    """
+        A function that calculates the median RR.
+    """
     for i in range(1, globals.scenario_num + 1):
         if len(list_of_rr_flag[i]) != 0:
             globals.list_median_rr[i - 1] = round(np.median(list_of_rr_flag[i]), 4)
@@ -359,6 +406,10 @@ def med_rr(list_of_rr_flag):
 
 
 def early_process_ecg_sim(index_in_folder, ride):
+    """
+        A function that loads the ECG and SIM files according to the time synchronization.
+        The function inserts relevant columns into the tables.
+    """
     globals.list_count_rr_intervals_flag = [0] * (
             globals.scenario_num + 1)  # Initialize the list to zero for each scenario
     list_of_bpm_flag = [[] for i in
@@ -382,7 +433,7 @@ def early_process_ecg_sim(index_in_folder, ride):
                              names=['Time', 'Scenario'])
     if globals.sim_sync_time > 0:  # Sync sim time
         parSIM['Time'] = [round(x - globals.sim_sync_time, 4) for x in parSIM['Time']]
-    else:
+    else:  # no need to Sync
         parSIM['Time'] = [round(x, 4) for x in parSIM['Time']]
     parECG.insert(2, 'Scenario', [0 for x in range(0, (len(parECG)))],
                   True)  # adding scenario column and filling with 0
@@ -390,6 +441,9 @@ def early_process_ecg_sim(index_in_folder, ride):
 
 
 def early_process_base(index_in_folder):
+    """
+        A function that loads the baseline files ECG & RR.
+    """
     baseECG = pandas.read_csv(os.path.join(globals.main_path + "\\" + "base" + "\\" + "base ecg",
                                            os.listdir(
                                                globals.main_path + "\\" + "base" + "\\" + "base ecg")[
@@ -408,6 +462,9 @@ def early_process_base(index_in_folder):
 
 
 def initial_data_quality():
+    """
+        A function that initializes the lists for the data quality table.
+    """
     globals.list_start_time = [0] * globals.scenario_num
     globals.list_end_time = [0] * globals.scenario_num
     globals.list_min_bpm = [1000] * globals.scenario_num
