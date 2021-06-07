@@ -143,17 +143,65 @@ def check_if_can_continue(correct_path_window, is_newload, values2):
                             values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                         correct_path_window = True  # הכל תקין אפשר להמשיך
                         globals.main_path = values2["-MAIN FOLDER-"]
-                        pickle_folders()
+                        #pickle_folders()
             else:  # מדובר בטעינה קיימת
                 is_newload = False
-                exist_load_list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
-                exist_load_list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
-                if checkFolders_of_rides(exist_load_list_in_ride, values2) and checkFolders_of_base(
-                        exist_load_list_in_base, values2):
-                    if checkFiles_of_rides(exist_load_list_in_ride, values2) and checkFiles_of_base(
-                            exist_load_list_in_base, values2):
+                exist_load_list_in_pickle = ["tables_pickle"]  # רשימת התיקיות לבדיקה
+                if check_if_tables_pickle_exist(exist_load_list_in_pickle, values2):
+                    if checkFiles_of_tables_pickle(exist_load_list_in_pickle, values2):
                         correct_path_window = True  # הכל תקין אפשר להמשיך
                         globals.main_path = values2["-MAIN FOLDER-"]
+    return correct_path_window, is_newload
+
+def check_if_can_continue_new_load(correct_path_window, is_newload, values2):
+    if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
+        sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
+                               background_color='red', location=(970, 880))
+    else:  # אם הנתיב לא ריק
+        flag = True  # מסמן האם הכל תקין או שיש תיקיה חסרה
+        message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
+        for ride in range(1, globals.par_ride_num + 1):
+            if not os.path.isdir(
+                    values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(
+                values2["-MAIN FOLDER-"] + "\\" + "base"):
+                flag = False  # יש תיקיה חסרה
+                if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
+                    message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+                if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
+                    message += " \"" + "base" + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
+        if not flag:  # אם יש תיקיה חסרה
+            sg.popup_quick_message(message, font=("Century Gothic", 14),
+                                   background_color='red', location=(970, 880), auto_close_duration=5)
+        else:  # הכל תקין, אין תיקיה חסרה
+            is_newload = True
+            new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
+            new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
+            if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(
+                    new_load_list_in_base, values2):  # בדיקת תיקיות קיימות
+                if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(
+                        new_load_list_in_base,
+                        values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
+                    correct_path_window = True  # הכל תקין אפשר להמשיך
+                    globals.main_path = values2["-MAIN FOLDER-"]
+                    #pickle_folders()
+            # else:  # מדובר בטעינה קיימת
+            #     is_newload = False
+            #     exist_load_list_in_pickle = ["tables_pickle"]  # רשימת התיקיות לבדיקה
+            #     if check_if_tables_pickle_exist(exist_load_list_in_pickle, values2):
+            #         if checkFiles_of_tables_pickle(exist_load_list_in_pickle, values2):
+            #             correct_path_window = True  # הכל תקין אפשר להמשיך
+            #             globals.main_path = values2["-MAIN FOLDER-"]
+    return correct_path_window, is_newload
+
+def check_if_can_continue_exist_load(correct_path_window, is_newload, values2):
+    if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
+        sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
+                               background_color='red', location=(970, 880))
+    else:  # אם הנתיב לא ריק
+        is_newload = False
+        if checkFiles_of_tables_pickle("tables_pickle", values2):
+            correct_path_window = True  # הכל תקין אפשר להמשיך
+            globals.main_path = values2["-MAIN FOLDER-"]
     return correct_path_window, is_newload
 
 
@@ -162,9 +210,17 @@ def windows_initialization_part_2(is_newload):
     if is_newload:
         summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
         dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
+        print("summary_table_list")
+        print(summary_table_list)
+        print(type(summary_table_list))
+        print("dq_table_list")
+        print(dq_table_list)
     else:
-        summary_table_list = pandas.read_pickle("summary_table")
-        dq_table_list = pandas.read_pickle("data_quality_table")
+        summary_table_list = pandas.read_pickle(r"C:\Users\sapir\PycharmProjects\BioHeart\tables_pickle\summary_table")
+        print(summary_table_list)
+        print(type(summary_table_list))
+        dq_table_list = pandas.read_pickle(r"C:\Users\sapir\PycharmProjects\BioHeart\tables_pickle\data_quality_table")
+        print(dq_table_list)
 
     layout_summary_table_window = summary_table_window_layout(
         summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
@@ -195,7 +251,6 @@ def windows_initialization_part_2(is_newload):
                                      element_padding=(0, 0))
     return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
 
-#def load_pickle_tables():
 
 
 
@@ -532,19 +587,19 @@ def early_table(filename):
         return dq_table_list
 
 
-def pickle_folders():
-    list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
-    list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
-
-    for ride in range(1, globals.par_ride_num + 1):  # מעבר על התיקיות של הנסיעות
-        for folder in range(0, len(list_in_ride)):  # rr,ecg, sim
-            if not os.path.isdir(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder]):
-                os.makedirs(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder])
-                # create folder if not exist
-    for folder in range(0, len(list_in_base)):  # base rr, base ecg
-        if not os.path.isdir(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder]):
-            os.makedirs(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder])
-            # create folder if not exist
+# def pickle_folders():
+#     list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
+#     list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
+#
+#     for ride in range(1, globals.par_ride_num + 1):  # מעבר על התיקיות של הנסיעות
+#         for folder in range(0, len(list_in_ride)):  # rr,ecg, sim
+#             if not os.path.isdir(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder]):
+#                 os.makedirs(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder])
+#                 # create folder if not exist
+#     for folder in range(0, len(list_in_base)):  # base rr, base ecg
+#         if not os.path.isdir(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder]):
+#             os.makedirs(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder])
+#             # create folder if not exist
 
 
 def checkFolders_of_rides(load_list, values):
@@ -619,6 +674,34 @@ def checkFiles_of_base(load_list, values):
                                            background_color='red', location=(970, 880), auto_close_duration=5)
                     return False
                 i += 1
+    return True
+
+def check_if_tables_pickle_exist(load_list, values):
+    flag = True
+    message = "Missing tables_pickle folder:"
+    if not os.path.isdir(values["-MAIN FOLDER-"] + "\\" + "tables_pickle"):
+        flag = False
+    if not flag:
+        sg.popup_quick_message(message, font=("Century Gothic", 14),
+                               background_color='red', location=(970, 880), auto_close_duration=5)
+    return flag
+
+
+
+def checkFiles_of_tables_pickle(load_list, values):
+    message = "Missing files! you should have EXACTLY 2 files- summary table and data quality table"
+    print(len(os.listdir(values["-MAIN FOLDER-"]+ "\\" )))
+    if len(os.listdir(values["-MAIN FOLDER-"]+ "\\" )) != 2:
+        sg.popup_quick_message(message, font=("Century Gothic", 14),
+                               background_color='red', location=(970, 880), auto_close_duration=5)
+        return False
+    else:  # יש לי 2 קבצים בתיקיה
+        for file in os.listdir(values["-MAIN FOLDER-"]):
+            print(file)
+            if "data_quality_table" not in file and "summary_table" not in file:
+                sg.popup_quick_message(message, font=("Century Gothic", 14),
+                                       background_color='red', location=(970, 880), auto_close_duration=5)
+                return False
     return True
 
 

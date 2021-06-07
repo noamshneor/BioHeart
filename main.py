@@ -9,16 +9,17 @@ from multiprocessing import Process
 import HRV_METHODS
 import globals
 from EARLY_P_FUNCTIONS import rr_time_match, initial_list_of_existing_par, filling_summary_table, \
-    early_process_rr, save_pickle, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
+    early_process_rr, dq_completeness_bpm, avg_med_bpm, early_process_ecg_sim, early_process_base, \
     initial_data_quality, dq_completeness_rr, med_rr, filling_dq_table, flag_match_exec, fix_min_rr, fix_min_bpm, \
     make_par_group_list, sync_RR
 from UI_FUNCTIONS import checkFolders_of_rides, checkFolders_of_base, \
     exportEXCEL_summary, add_files_in_folder, checkFiles_of_rides, checkFiles_of_base, checks_boundaries, initial_tree, \
     exportEXCEL_dq, loading_window_update, all_input_0_9, sync_handle, save_input_open_window, tree_handle, \
-    exceptions_checkbox_handle, create_empty_folders, pickle_folders, windows_initialization_part_1, \
+    exceptions_checkbox_handle, create_empty_folders, windows_initialization_part_1, \
     windows_initialization_part_2, initial_optional, check_optional_window, check_if_can_continue, \
     plot_HR_with_scenarios, \
-    plot_HR_rides, plot_HR_groups_rides, plot_HR_groups_scenarios, general_graph_avg
+    plot_HR_rides, plot_HR_groups_rides, plot_HR_groups_scenarios, general_graph_avg, check_if_can_continue_new_load, \
+    check_if_can_continue_exist_load
 
 
 # --------------------------------------------- early_process ---------------------------------------------
@@ -73,7 +74,7 @@ def early_process():
                     avg_base, baseRR, baseECG = early_process_base(index_in_folder)
                     # ------------------------------------------------------------------------------------------------
                     # convert to pickle the "clean files"
-                    save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
+                    #save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
                     # ------------------------------------- filling summary table ------------------------------------
                     filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride, group_list)
                     # ----------------------------------- filling data quality table ---------------------------------
@@ -207,12 +208,21 @@ def ui():
                         if event2 == "-MAIN FOLDER-":
                             tree_handle(path_load_window, values2)
                         if event2 == "CONTINUE_PATH":
-                            # if values2['NEW LOAD']:
-                            #     is_newload = True
-                            # if values2['EXIST LOAD']:
-                            #     is_newload = False  # טעינה קיימת
+                            if values2['NEW LOAD']:
+                                correct_path_window, is_newload = check_if_can_continue_new_load(correct_path_window, is_newload,
+                                                                                        values2)
+                                print("correct_path_window")
+                                print(correct_path_window)
+                                print("is_newload?")
+                                print(is_newload)
 
-                            correct_path_window, is_newload = check_if_can_continue(correct_path_window, is_newload, values2)
+                            if values2['EXIST LOAD']:
+                                correct_path_window, is_newload = check_if_can_continue_exist_load(correct_path_window, is_newload,
+                                                                                        values2)
+                                print("correct_path_window")
+                                print(correct_path_window)
+                                print("is_newload?")
+                                print(is_newload)
 
                         if event2 == "BACK_PATH":
                             optional_window.un_hide()
@@ -292,13 +302,16 @@ def ui():
 
                                 print(globals.filter_type)
                                 print(globals.RR_lower, globals.RR_upper, globals.BPM_lower, globals.BPM_upper)
+                                if finish_while_loop:
+                                    exceptions_values_window.close()
+                                    path_load_window.close()
+                                    break
                             else:
                                 finish_while_loop = True
                                 globals.percent = 1
-                            if finish_while_loop:
-                                exceptions_values_window.close()
-                                path_load_window.close()
+                                print("here?")
                                 break
+
                     if finish_while_loop:
                         break
         if finish_while_loop and is_newload:
@@ -328,6 +341,7 @@ def ui():
             loading_window.close()
 
         if globals.percent * 100 >= 99.99:  # אם החלון הקודם נסגר והעיבוד באמת הסתיים, אפשר להציג את החלון הבא
+            print("if globals.percent * 100 >= 99.99:")
             data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window = windows_initialization_part_2(is_newload)
             do_restart = False
             while True:
