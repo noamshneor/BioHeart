@@ -143,7 +143,7 @@ def check_if_can_continue(correct_path_window, is_newload, values2):
                             values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                         correct_path_window = True  # הכל תקין אפשר להמשיך
                         globals.main_path = values2["-MAIN FOLDER-"]
-                        #pickle_folders()
+                        # pickle_folders()
             else:  # מדובר בטעינה קיימת
                 is_newload = False
                 exist_load_list_in_pickle = ["tables_pickle"]  # רשימת התיקיות לבדיקה
@@ -152,6 +152,7 @@ def check_if_can_continue(correct_path_window, is_newload, values2):
                         correct_path_window = True  # הכל תקין אפשר להמשיך
                         globals.main_path = values2["-MAIN FOLDER-"]
     return correct_path_window, is_newload
+
 
 def check_if_can_continue_new_load(correct_path_window, is_newload, values2):
     if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
@@ -183,7 +184,7 @@ def check_if_can_continue_new_load(correct_path_window, is_newload, values2):
                         values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                     correct_path_window = True  # הכל תקין אפשר להמשיך
                     globals.main_path = values2["-MAIN FOLDER-"]
-                    #pickle_folders()
+                    # pickle_folders()
             # else:  # מדובר בטעינה קיימת
             #     is_newload = False
             #     exist_load_list_in_pickle = ["tables_pickle"]  # רשימת התיקיות לבדיקה
@@ -192,6 +193,7 @@ def check_if_can_continue_new_load(correct_path_window, is_newload, values2):
             #             correct_path_window = True  # הכל תקין אפשר להמשיך
             #             globals.main_path = values2["-MAIN FOLDER-"]
     return correct_path_window, is_newload
+
 
 def check_if_can_continue_exist_load(correct_path_window, is_newload, values2):
     if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
@@ -216,10 +218,26 @@ def windows_initialization_part_2(is_newload):
         print("dq_table_list")
         print(dq_table_list)
     else:
-        summary_table_list = pandas.read_pickle(r"C:\Users\sapir\PycharmProjects\BioHeart\tables_pickle\summary_table")
+        if globals.is_pkl:
+            format =".pkl"
+            summary_dataframe = pandas.read_pickle(os.path.join(globals.main_path + "\\" + "summary_table" + format))
+            dq_dataframe = pandas.read_pickle(os.path.join(globals.main_path + "\\" + "data_quality_table" + format))
+        else:
+            format=".xlsx"
+            summary_dataframe = pandas.read_excel(os.path.join(globals.main_path + "\\" + "summary_table" + format))
+            dq_dataframe = pandas.read_excel(os.path.join(globals.main_path + "\\" + "data_quality_table" + format))
+
+        summary_dataframe.columns = globals.header_summary_table
+        globals.summary_table = summary_dataframe
+        summary_table_list = summary_dataframe.values.tolist()
+        summary_table_list = [list(map(str, x)) for x in summary_table_list]
         print(summary_table_list)
         print(type(summary_table_list))
-        dq_table_list = pandas.read_pickle(r"C:\Users\sapir\PycharmProjects\BioHeart\tables_pickle\data_quality_table")
+
+        dq_dataframe.columns = globals.header_data_quality
+        globals.data_quality_table = dq_dataframe
+        dq_table_list = dq_dataframe.values.tolist()
+        dq_table_list = [list(map(str, x)) for x in dq_table_list]
         print(dq_table_list)
 
     layout_summary_table_window = summary_table_window_layout(
@@ -250,10 +268,6 @@ def windows_initialization_part_2(is_newload):
                                      location=(90, 0), background_image="backsum.png",
                                      element_padding=(0, 0))
     return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
-
-
-
-
 
 
 def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parameter,
@@ -530,7 +544,7 @@ def general_graph_avg(scenarios, rides, parameter, table):
 def draw_all_graphs(list_of_columns_input, list_of_list_columns, list_axis_x, name_axis_x, name_axis_y, name_column):
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
     # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
-    bar_width= 1
+    bar_width = 1
     x_chart_width = 1
     if len(list_of_columns_input) > 1:
         bar_width = 1 / (len(list_of_columns_input) + 1)
@@ -556,11 +570,15 @@ def draw_all_graphs(list_of_columns_input, list_of_list_columns, list_axis_x, na
 
 
 def early_table(filename):
+    dir_name = "export"
+    os.mkdir(dir_name)
+    pkl_name = filename+".pkl"
+    file_path = os.path.join(dir_name, pkl_name)
     if filename == "summary_table":
         for i in range(len(globals.summary_table.index)):
             for j in globals.header_summary_table[3:len(globals.header_summary_table)]:
                 globals.summary_table.at[i, j] = round(globals.summary_table.at[i, j], 4)  # 4 ספרות אחרי הנקודה
-        globals.summary_table.to_pickle(filename)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        globals.summary_table.to_pickle(file_path)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #################לשמור פה גם אקסל או csv
         summary_table_list = globals.summary_table.values.tolist()
         summary_table_int = [list(map(int, x)) for x in summary_table_list]
@@ -572,7 +590,7 @@ def early_table(filename):
         summary_table_list = [list(map(str, x)) for x in summary_table_list]  # make str list
         return summary_table_list
     else:
-        globals.data_quality_table.to_pickle(filename)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        globals.data_quality_table.to_pickle(file_path)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         dq_table_list = globals.data_quality_table.values.tolist()
         print(dq_table_list)
         dq_table_int = [list(map(int, x)) for x in dq_table_list]
@@ -676,6 +694,7 @@ def checkFiles_of_base(load_list, values):
                 i += 1
     return True
 
+
 def check_if_tables_pickle_exist(load_list, values):
     flag = True
     message = "Missing tables_pickle folder:"
@@ -687,11 +706,10 @@ def check_if_tables_pickle_exist(load_list, values):
     return flag
 
 
-
 def checkFiles_of_tables_pickle(load_list, values):
     message = "Missing files! you should have EXACTLY 2 files- summary table and data quality table"
-    print(len(os.listdir(values["-MAIN FOLDER-"]+ "\\" )))
-    if len(os.listdir(values["-MAIN FOLDER-"]+ "\\" )) != 2:
+    print(len(os.listdir(values["-MAIN FOLDER-"] + "\\")))
+    if len(os.listdir(values["-MAIN FOLDER-"] + "\\")) != 2:
         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                background_color='red', location=(970, 880), auto_close_duration=5)
         return False

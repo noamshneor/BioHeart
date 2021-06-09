@@ -10,6 +10,7 @@ class Filter(Enum):
     BOTH = 4
 
 
+is_pkl=True
 scenarios_list = []
 scenario_num = 0
 scenario_col_num = 0
