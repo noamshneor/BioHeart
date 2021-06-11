@@ -4,12 +4,7 @@ import math
 
 def RMSSD(list_of_rr_flag):
     """
-    return a list of RMSSD per scenario (of specific participant & ride), without scenario 0
-
-    ## לשנות את התיעוד לפונקציות כאן !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    :param list_of_rr_flag: "clean" RR list (of specific participant & ride),and ready for process
-    :type list_of_rr_flag: list of lists
+        Return a list of RMSSD per scenario (of specific participant & ride), without scenario 0.
     """
     # Creating a list whose number of places is the same as the number of scenarios, and fill it in zeros.
     listRMSSD = [0] * (globals.scenario_num + 1)
@@ -29,11 +24,11 @@ def RMSSD(list_of_rr_flag):
 
 def SDNN(list_of_rr_flag):
     """
-    return a list of SDNN per scenario (of specific participant & ride), without scenario 0
+        Return a list of SDNN per scenario (of specific participant & ride), without scenario 0.
     """
-    listSumSDNN = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    list_AVG_SDNN = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    listSDNN = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
+    listSumSDNN = [0] * (globals.scenario_num + 1)  # list with 0
+    list_AVG_SDNN = [0] * (globals.scenario_num + 1)  # list with 0
+    listSDNN = [0] * (globals.scenario_num + 1)  # list with 0
     for i in range(1, len(list_of_rr_flag)):
         listSumSDNN[i] = sum(list_of_rr_flag[i])
     for i in range(1, len(list_AVG_SDNN)):
@@ -54,11 +49,12 @@ def SDNN(list_of_rr_flag):
 
 
 def SDSD(list_of_rr_flag):
-    """ return a list of SDSD per scenario (of specific participant & ride), without scenario 0
     """
-    listSDSD = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    listSumSDSD = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
-    list_AVG_SDSD = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
+        Return a list of SDSD per scenario (of specific participant & ride), without scenario 0.
+    """
+    listSDSD = [0] * (globals.scenario_num + 1)  # list with 0
+    listSumSDSD = [0] * (globals.scenario_num + 1)  # list with 0
+    list_AVG_SDSD = [0] * (globals.scenario_num + 1)  # list with 0
 
     for i in range(1, len(list_of_rr_flag)):
         if len(list_of_rr_flag[i]) != 0:
@@ -83,7 +79,7 @@ def SDSD(list_of_rr_flag):
 
 def PNN50(list_of_rr_flag):
     """
-    return a list of PNN50 per scenario (of specific participant & ride), without scenario 0
+        Return a list of PNN50 per scenario (of specific participant & ride), without scenario 0.
     """
     list_count_above50 = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
     listPNN50 = [0] * (globals.scenario_num + 1)  # list of 8 places,with 0
@@ -104,10 +100,7 @@ def PNN50(list_of_rr_flag):
 
 def Baseline_RMSSD(file_RR):
     """
-    return RMSSD baseline of specific participant & ride,
-
-    :param file_RR: "clean" baseline RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
+        Return RMSSD baseline of specific participant & ride.
     """
     line = 0
     RMSSD_baseline_sum = 0
@@ -116,17 +109,12 @@ def Baseline_RMSSD(file_RR):
                 file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals']) ** 2
         line = line + 1
     RMSSD_baseline = math.sqrt(RMSSD_baseline_sum / (len(file_RR) - 1))  # checked
-    # print("RMSSD_baseline")
-    # print(RMSSD_baseline)
     return RMSSD_baseline
 
 
 def Baseline_SDNN(file_RR):
     """
-    return SDNN baseline of specific participant & ride,
-
-    :param file_RR: "clean" baseline RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
+        Return SDNN baseline of specific participant & ride.
     """
     line = 0
     SDNN_baseline_sum = 0
@@ -140,17 +128,12 @@ def Baseline_SDNN(file_RR):
         SDNN_baseline_sum += (file_RR.at[line2, 'RRIntervals'] - SDNN_baseline_avgRR) ** 2
         line2 = line2 + 1
     SDNN_baseline = math.sqrt(SDNN_baseline_sum / (len(file_RR) - 1))
-    # print("SDNN_baseline")
-    # print(SDNN_baseline)  # checked
     return SDNN_baseline
 
 
 def Baseline_SDSD(file_RR):
     """
-    return SDSD baseline of specific participant & ride,
-
-    :param file_RR: "clean" baseline RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
+        Return SDSD baseline of specific participant & ride.
     """
     line = 0
     SDSD_baseline_sum_DIFF_RR = 0
@@ -164,27 +147,18 @@ def Baseline_SDSD(file_RR):
         SDSD_baseline_sum += (abs(file_RR.at[line2 + 1, 'RRIntervals'] - file_RR.at[line2, 'RRIntervals']) - SDSD_baseline_avg_D) ** 2
         line2 = line2 + 1
     SDSD_baseline = math.sqrt(SDSD_baseline_sum / (len(file_RR) - 1))
-    # print("SDSD_baseline")
-    # print(SDSD_baseline)  # checked
     return SDSD_baseline
 
 
 def Baseline_PNN50(file_RR):
     """
-    return PNN50 baseline of specific participant & ride,
-
-    :param file_RR: "clean" baseline RR file (of specific participant & ride),and ready for process
-    :type file_RR: DataFrame
+        Return PNN50 baseline of specific participant & ride.
     """
     line = 0
     count_D_above50ms = 0
     while line < len(file_RR) - 1:
         if round(abs(file_RR.at[line + 1, 'RRIntervals'] - file_RR.at[line, 'RRIntervals']), 3) > 0.05:
-            # בגלל הדיוק יוצאים יותר ערכים מבאקסל
             count_D_above50ms += 1
         line = line + 1
-    # print(count_D_above50ms)
     PNN50_baseline = (count_D_above50ms / (len(file_RR) - 1)) * 100
-    # print("PNN50_baseline")
-    # print(PNN50_baseline)
     return PNN50_baseline

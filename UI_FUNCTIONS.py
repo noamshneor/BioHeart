@@ -13,6 +13,9 @@ from LAYOUT_UI import open_window_layout, loading_window_layout, path_load_windo
 
 # --------------------------------------------- UI FUNCTIONS ---------------------------------------------
 def windows_initialization_part_1():
+    """
+        A function that initializes all windows up to the loading stage.
+    """
     layout_open_window = open_window_layout()
     layout_path_load_window = path_load_window_layout()
     layout_loading_window = loading_window_layout()
@@ -43,23 +46,30 @@ def windows_initialization_part_1():
     correct_open_window = False  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
     correct_path_window = False  # האם כל הפרטים במסך הנתיב מולאו בצורה נכונה
     is_newload = True  # האם נבחרה טעינה חדשה או לא - טעינה קיימת
-    correct_optional_window = False
-    exclude_correct = True
-    group_correct = True
-    finish_while_loop = False
+    correct_optional_window = False  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
+    exclude_correct = True  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
+    group_correct = True  # האם כל הפרטים במסך הפתיחה מולאו בצורה נכונה
+    finish_while_loop = False  # האם הלולאה הסתיימה וצריך לסיים את התוכנית
     open_window = sg.Window(title="BIO Heart", layout=layout_open_window, size=(1730, 970), disable_minimize=True,
                             location=(90, 0), background_image="./back1.png", element_padding=(0, 0), finalize=True)
     return correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, is_newload, open_window, optional_window, path_load_window
 
 
 def initial_optional(optional_window):
-    globals.list_of_existing_par = list(range(1, globals.par_num + 1))
+    """
+        A function that initializes the screen in which subjects are excluded and groups are selected.
+        The function initializes the list of subjects wherever it appears on the screen.
+    """
+    globals.list_of_existing_par = list(range(1, globals.par_num + 1))  # אתחול רשימת הנבדקים
     optional_window.element('Ex par LB').update(globals.list_of_existing_par)
     for i in list(range(1, 6)):
         optional_window.element('group' + str(i)).update(globals.list_of_existing_par)
 
 
 def check_optional_window(correct_optional_window, exclude_correct, group_correct, values9):
+    """
+        A function that handles extreme conditions on the optional screen and displays messages accordingly.
+    """
     if values9['Ex par CB']:
         if not globals.par_not_existing:
             sg.popup_quick_message(
@@ -113,6 +123,11 @@ def check_optional_window(correct_optional_window, exclude_correct, group_correc
 
 
 def check_if_can_continue(correct_path_window, is_newload, values2):
+    """
+        A function that handles extreme situations on the screen where a main folder is selected,
+        and displays messages accordingly.
+        The function checks if everything is OK in the selected folder and then we can proceed to the next screen.
+    """
     if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
         sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
                                background_color='red', location=(970, 880))
@@ -208,6 +223,9 @@ def check_if_can_continue_exist_load(correct_path_window, is_newload, values2):
 
 
 def windows_initialization_part_2(is_newload):
+    """
+           A function that initializes all windows from the loading stage to the end of the program.
+       """
     # ----------------------- Early Summary Table -----------------------
     if is_newload:
         summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
@@ -571,6 +589,13 @@ def draw_all_graphs(list_of_columns_input, list_of_list_columns, list_axis_x, na
 
 
 def early_table(filename):
+    """
+            Function that prepares the table - converts the table to a string,
+            round the numbers to one digit in the first four columns,
+            adds % in the designated places,
+            and converts the table to a list.
+            A pickle file is saved to the table here.
+        """
     dir_name = "../export"
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -581,7 +606,6 @@ def early_table(filename):
             for j in globals.header_summary_table[3:len(globals.header_summary_table)]:
                 globals.summary_table.at[i, j] = round(globals.summary_table.at[i, j], 4)  # 4 ספרות אחרי הנקודה
         globals.summary_table.to_pickle(file_path)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        #################לשמור פה גם אקסל או csv
         summary_table_list = globals.summary_table.values.tolist()
         summary_table_int = [list(map(int, x)) for x in summary_table_list]
         for i in range(len(summary_table_list)):
@@ -607,7 +631,10 @@ def early_table(filename):
         return dq_table_list
 
 
-# def pickle_folders():
+# def pickle_folders():  # ללא שימוש אפשר למחוק
+#     """
+#         The function checks if the pickle folders exist, if not the function creates them.
+#     """
 #     list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
 #     list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
 #
@@ -737,6 +764,9 @@ def checkFiles_of_tables_pickle( values):
 
 
 def exportEXCEL_summary(values):
+    """
+        The function exports the summary table to Excel according to the columns selected for export.
+    """
     path = sg.popup_get_folder(no_window=True, message="choose folder")
     headerlist = [True, True, True, globals.group_num != 0, values['Average BPM'], values['RMSSD'],
                   values['SDSD'], values['SDNN'], values['pNN50'],
@@ -746,26 +776,32 @@ def exportEXCEL_summary(values):
                   values['SDSD'] and values['Baseline'], values['SDSD'] and values['Baseline'],
                   values['pNN50'] and values['Baseline'], values['pNN50'] and values['Baseline']]
     if path:
+        # לא ניתן לייצא לאקסל עם עמודות חסרות לכן קודם נייצא לCSV ואז את אותו קובץ נייצא לאקסל
         globals.summary_table.to_csv(path + '\\summary_table.csv', index=False, header=True,
-                                     columns=headerlist)
-        table = pandas.read_csv(path + '\\summary_table.csv')
-        os.remove(path + '\\summary_table.csv')
-        table.to_excel(path + '\\summary_table.xlsx', index=False)
+                                     columns=headerlist)  # ייצוא לCSV בהתאם לעמודות שנבחרו לייצוא
+        table = pandas.read_csv(path + '\\summary_table.csv')  # קריאה מאותו קובץ
+        os.remove(path + '\\summary_table.csv')  # מחיקה של הקובץ
+        table.to_excel(path + '\\summary_table.xlsx', index=False)  # ייצוא לאקסל
         sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 10),
                                background_color='white', text_color='black',
                                location=(120, 540))
 
 
 def exportEXCEL_dq():
+    """
+        The function exports the DQ table to Excel.
+        The function exports the group column only if the subjects were divided into groups.
+    """
     path = sg.popup_get_folder(no_window=True, message="choose folder")
     headerlist = [True, True, True, globals.group_num != 0, True, True, True, True, True, True,
                   True, True, True, True, True, True, True, True, True]
     if path:
+        # לא ניתן לייצא לאקסל עם עמודות חסרות לכן קודם נייצא לCSV ואז את אותו קובץ נייצא לאקסל
         globals.data_quality_table.to_csv(path + '\\data_quality_table.csv', index=False, header=True,
-                                          columns=headerlist)
-        table = pandas.read_csv(path + '\\data_quality_table.csv')
-        os.remove(path + '\\data_quality_table.csv')
-        table.to_excel(path + '\\data_quality_table.xlsx', index=False)
+                                          columns=headerlist)  # ייצוא לCSV בהתאם לעמודות שנבחרו לייצוא
+        table = pandas.read_csv(path + '\\data_quality_table.csv')  # קריאה מאותו קובץ
+        os.remove(path + '\\data_quality_table.csv')  # מחיקה של הקובץ
+        table.to_excel(path + '\\data_quality_table.xlsx', index=False)  # ייצוא לאקסל
         sg.popup_quick_message('Exported successfully!', font=("Century Gothic", 12),
                                background_color='white', text_color='black',
                                location=(1280, 880))
@@ -779,6 +815,10 @@ def checks_boundaries(lower, upper):
 
 
 def add_files_in_folder(parent, dirname, tree):
+    """
+        A recursive function that puts into the tree
+        the hierarchy of the contents of the selected main folder (the folders and files).
+    """
     folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsSAAALEgHS3X78AAABnUlEQVQ4y8WSv2rUQRSFv7vZgJFFsQg2EkWb4AvEJ8hqKVilSmFn3iNvIAp21oIW9haihBRKiqwElMVsIJjNrprsOr/5dyzml3UhEQIWHhjmcpn7zblw4B9lJ8Xag9mlmQb3AJzX3tOX8Tngzg349q7t5xcfzpKGhOFHnjx+9qLTzW8wsmFTL2Gzk7Y2O/k9kCbtwUZbV+Zvo8Md3PALrjoiqsKSR9ljpAJpwOsNtlfXfRvoNU8Arr/NsVo0ry5z4dZN5hoGqEzYDChBOoKwS/vSq0XW3y5NAI/uN1cvLqzQur4MCpBGEEd1PQDfQ74HYR+LfeQOAOYAmgAmbly+dgfid5CHPIKqC74L8RDyGPIYy7+QQjFWa7ICsQ8SpB/IfcJSDVMAJUwJkYDMNOEPIBxA/gnuMyYPijXAI3lMse7FGnIKsIuqrxgRSeXOoYZUCI8pIKW/OHA7kD2YYcpAKgM5ABXk4qSsdJaDOMCsgTIYAlL5TQFTyUIZDmev0N/bnwqnylEBQS45UKnHx/lUlFvA3fo+jwR8ALb47/oNma38cuqiJ9AAAAAASUVORK5CYII='
     file_icon = b'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsSAAALEgHS3X78AAABU0lEQVQ4y52TzStEURiHn/ecc6XG54JSdlMkNhYWsiILS0lsJaUsLW2Mv8CfIDtr2VtbY4GUEvmIZnKbZsY977Uwt2HcyW1+dTZvt6fn9557BGB+aaNQKBR2ifkbgWR+cX13ubO1svz++niVTA1ArDHDg91UahHFsMxbKWycYsjze4muTsP64vT43v7hSf/A0FgdjQPQWAmco68nB+T+SFSqNUQgcIbN1bn8Z3RwvL22MAvcu8TACFgrpMVZ4aUYcn77BMDkxGgemAGOHIBXxRjBWZMKoCPA2h6qEUSRR2MF6GxUUMUaIUgBCNTnAcm3H2G5YQfgvccYIXAtDH7FoKq/AaqKlbrBj2trFVXfBPAea4SOIIsBeN9kkCwxsNkAqRWy7+B7Z00G3xVc2wZeMSI4S7sVYkSk5Z/4PyBWROqvox3A28PN2cjUwinQC9QyckKALxj4kv2auK0xAAAAAElFTkSuQmCC'
     files = os.listdir(dirname)
@@ -792,12 +832,19 @@ def add_files_in_folder(parent, dirname, tree):
 
 
 def initial_tree(element, label):
+    """
+        A function that initializes the tree,
+        initializes the tree with each folder selection.
+    """
     widget = element.QT_QTreeWidget
-    widget.setHeaderLabel(label)
-    widget.clear()
+    widget.setHeaderLabel(label)  # עדכון שם התיקיה בעץ
+    widget.clear()  # מחיקת היסטוריית העץ
 
 
 def all_input_0_9(event, open_window, values):
+    """
+        A function that verifies that the values entered in the text boxes are only digits between 0 and 9.
+    """
     if event == 'par_num' and values['par_num'] and values['par_num'][-1] not in '0123456789':
         open_window['par_num'].update(values['par_num'][:-1])
     if event == 'scenario_num' and values['scenario_num'] and values['scenario_num'][-1] not in '0123456789':
@@ -813,6 +860,10 @@ def all_input_0_9(event, open_window, values):
 
 
 def sync_handle(open_window, values):
+    """
+        A function that handles synchronization - disabled and resets the values
+        if the user selects that there is synchronization.
+    """
     if not values['Sync']:
         open_window["sim_sync_time"].update(disabled=False)
         open_window["biopac_sync_time"].update(disabled=False)
@@ -824,6 +875,11 @@ def sync_handle(open_window, values):
 
 
 def create_empty_folders():
+    """
+        A function that creates empty folders according to the format
+        and according to the number of trips entered as input.
+        If there is already a "main folder" in the path the function deletes it and creates an empty new one.
+    """
     path = sg.popup_get_folder(no_window=True, message="choose folder")
 
     if path:
@@ -843,6 +899,9 @@ def create_empty_folders():
 
 
 def tree_handle(path_load_window, values2):
+    """
+        A function that updates the tree if a new folder is selected.
+    """
     if values2["-MAIN FOLDER-"]:  # רק אם הוכנס נתיב והוא לא ריק
         initial_tree(path_load_window['-TREE-'], os.path.basename(values2["-MAIN FOLDER-"]))
         tree = sg.TreeData()
@@ -851,7 +910,10 @@ def tree_handle(path_load_window, values2):
 
 
 def exceptions_checkbox_handle(event8, exceptions_values_window, values8):
-    if event8 == "checkbox exceptions BPM" or event8 == "checkbox exceptions RR":  # אם לחצתי
+    """
+        A function that handles the exceptions checkbox selections.
+    """
+    if event8 == "checkbox exceptions BPM" or event8 == "checkbox exceptions RR":
         if values8["checkbox exceptions BPM"] or values8["no filtering checkbox"]:
             exceptions_values_window["no filtering checkbox"].update(False)
         if not values8["checkbox exceptions RR"] and not values8["checkbox exceptions BPM"]:
@@ -881,6 +943,9 @@ def exceptions_checkbox_handle(event8, exceptions_values_window, values8):
 
 
 def save_input_open_window(values):
+    """
+        A function that stores the values entered as input to the global values.
+    """
     globals.par_num = int(values['par_num'])
     globals.par_ride_num = int(values['par_ride_num'])
     globals.scenario_num = int(values['scenario_num'])
@@ -890,6 +955,9 @@ def save_input_open_window(values):
 
 
 def loading_window_update(loading_window, start_time):
+    """
+        A function that updates all the values on the loading screen.
+    """
     loading_window.element("num of num").update(
         "   participants:  " + str(globals.current_par) + " of " + str(len(globals.list_of_existing_par)))
     if globals.percent * 100 < 99.9:

@@ -10,8 +10,7 @@ def graphs_window_layout():
     participants_list = globals.list_of_existing_par
     globals.scenarios_list = list(range(1, globals.scenario_num + 1))
     globals.rides_list = list(range(1, globals.par_ride_num + 1))
-    #hrv_methods_list = ["RMSSD", "SDSD", "SDNN", "PNN50"]
-
+    # hrv_methods_list = ["RMSSD", "SDSD", "SDNN", "PNN50"]
 
     layout_graphs_window = \
         [
