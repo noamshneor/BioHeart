@@ -20,13 +20,13 @@ def windows_initialization_part_1():
     layout_optional_window = optional_window_layout()
     optional_window = sg.Window(title="BIO Heart", layout=layout_optional_window, size=(1730, 970),
                                 disable_minimize=True,
-                                location=(5000, 5000), background_image="back1.png",
+                                location=(5000, 5000), background_image="./back1.png",
                                 element_padding=(0, 0), finalize=True)
     optional_window.hide()
     optional_window.move(90, 0)
     path_load_window = sg.Window(title="BIO Heart", layout=layout_path_load_window, size=(1730, 970),
                                  disable_minimize=True,
-                                 location=(5000, 5000), background_image="back2.png", element_padding=(0, 0),
+                                 location=(5000, 5000), background_image="./back2.png", element_padding=(0, 0),
                                  finalize=True)
     path_load_window.hide()
     path_load_window.move(90, 0)
@@ -34,7 +34,7 @@ def windows_initialization_part_1():
                                          layout=layout_exceptions_values_window,
                                          size=(1000, 680),
                                          disable_minimize=True,
-                                         location=(5000, 5000), background_image="backsum.png",
+                                         location=(5000, 5000), background_image="./backsum.png",
                                          element_padding=(0, 0),
                                          finalize=True)
     exceptions_values_window.hide()
@@ -48,7 +48,7 @@ def windows_initialization_part_1():
     group_correct = True
     finish_while_loop = False
     open_window = sg.Window(title="BIO Heart", layout=layout_open_window, size=(1730, 970), disable_minimize=True,
-                            location=(90, 0), background_image="back1.png", element_padding=(0, 0), finalize=True)
+                            location=(90, 0), background_image="./back1.png", element_padding=(0, 0), finalize=True)
     return correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, is_newload, open_window, optional_window, path_load_window
 
 
@@ -201,7 +201,7 @@ def check_if_can_continue_exist_load(correct_path_window, is_newload, values2):
                                background_color='red', location=(970, 880))
     else:  # אם הנתיב לא ריק
         is_newload = False
-        if checkFiles_of_tables_pickle("tables_pickle", values2):
+        if checkFiles_of_tables_pickle(values2):
             correct_path_window = True  # הכל תקין אפשר להמשיך
             globals.main_path = values2["-MAIN FOLDER-"]
     return correct_path_window, is_newload
@@ -222,19 +222,20 @@ def windows_initialization_part_2(is_newload):
             format =".pkl"
             summary_dataframe = pandas.read_pickle(os.path.join(globals.main_path + "\\" + "summary_table" + format))
             dq_dataframe = pandas.read_pickle(os.path.join(globals.main_path + "\\" + "data_quality_table" + format))
+            summary_dataframe.columns = globals.header_summary_table
+            dq_dataframe.columns = globals.header_data_quality
         else:
             format=".xlsx"
             summary_dataframe = pandas.read_excel(os.path.join(globals.main_path + "\\" + "summary_table" + format))
             dq_dataframe = pandas.read_excel(os.path.join(globals.main_path + "\\" + "data_quality_table" + format))
 
-        summary_dataframe.columns = globals.header_summary_table
         globals.summary_table = summary_dataframe
         summary_table_list = summary_dataframe.values.tolist()
         summary_table_list = [list(map(str, x)) for x in summary_table_list]
         print(summary_table_list)
         print(type(summary_table_list))
 
-        dq_dataframe.columns = globals.header_data_quality
+
         globals.data_quality_table = dq_dataframe
         dq_table_list = dq_dataframe.values.tolist()
         dq_table_list = [list(map(str, x)) for x in dq_table_list]
@@ -250,7 +251,7 @@ def windows_initialization_part_2(is_newload):
                                           layout=layout_data_quality_table_window,
                                           size=(1730, 970), resizable=True, finalize=True,
                                           disable_minimize=True, no_titlebar=True,
-                                          location=(90, 20), background_image="backsum.png",
+                                          location=(90, 20), background_image="./backsum.png",
                                           element_padding=(0, 0))
     data_quality_table_window.hide()
     # -------------------------- Graphs Window -----------------------------
@@ -258,14 +259,14 @@ def windows_initialization_part_2(is_newload):
     graph_window = sg.Window(title="Graphs", no_titlebar=False, layout=layout_graphs_window,
                              size=(865, 970), resizable=True, finalize=True,
                              disable_minimize=True,
-                             location=(523, 20), background_image="backsum.png",
+                             location=(523, 20), background_image="./backsum.png",
                              element_padding=(0, 0))
     graph_window.hide()
     # ----------------------- Summary Table Window -----------------------
     summary_table_window = sg.Window(title="Summary Table", layout=layout_summary_table_window,
                                      size=(1730, 970), resizable=True, finalize=True,
                                      disable_minimize=True,
-                                     location=(90, 0), background_image="backsum.png",
+                                     location=(90, 0), background_image="./backsum.png",
                                      element_padding=(0, 0))
     return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
 
@@ -570,8 +571,9 @@ def draw_all_graphs(list_of_columns_input, list_of_list_columns, list_axis_x, na
 
 
 def early_table(filename):
-    dir_name = "export"
-    os.mkdir(dir_name)
+    dir_name = "../export"
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
     pkl_name = filename+".pkl"
     file_path = os.path.join(dir_name, pkl_name)
     if filename == "summary_table":
@@ -706,7 +708,7 @@ def check_if_tables_pickle_exist(load_list, values):
     return flag
 
 
-def checkFiles_of_tables_pickle(load_list, values):
+def checkFiles_of_tables_pickle( values):
     message = "Missing files! you should have EXACTLY 2 files- summary table and data quality table"
     print(len(os.listdir(values["-MAIN FOLDER-"] + "\\")))
     if len(os.listdir(values["-MAIN FOLDER-"] + "\\")) != 2:
@@ -714,12 +716,23 @@ def checkFiles_of_tables_pickle(load_list, values):
                                background_color='red', location=(970, 880), auto_close_duration=5)
         return False
     else:  # יש לי 2 קבצים בתיקיה
+        excel_count=0
+        pkl_count=0
         for file in os.listdir(values["-MAIN FOLDER-"]):
             print(file)
             if "data_quality_table" not in file and "summary_table" not in file:
                 sg.popup_quick_message(message, font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880), auto_close_duration=5)
                 return False
+            if ".pkl" in file:
+                pkl_count+=1
+            if ".xlsx" in file:
+                excel_count+=1
+        if excel_count<2 and pkl_count<2:
+            sg.popup_quick_message("Both files should be with the same format, .pkl or .xlsx", font=("Century Gothic", 14),
+                                   background_color='red', location=(970, 880), auto_close_duration=5)
+            return False
+        globals.is_pkl = pkl_count > excel_count
     return True
 
 

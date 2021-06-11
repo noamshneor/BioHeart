@@ -321,7 +321,7 @@ def ui():
             # ------------------------------------------- LOADING Window -------------------------------------------
             loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
                                        disable_minimize=True,
-                                       location=(700, 250), background_image="load.png", element_padding=(0, 0),
+                                       location=(700, 250), background_image="./load.png", element_padding=(0, 0),
                                        finalize=True)
             start_time = time.time()  # קביעת זמן התחלת ריצת החלון
             t = threading.Thread(
@@ -620,8 +620,23 @@ def ui():
             summary_table_window.close()
             return do_restart
 
+#איך מריצים?
+#להוריד את הזיפ של הפרויקט, לעשות לו extract
+#להתקין פייטון על המחשב המריץ אם לא מותקן כבר
+#לפתוח שורת cmd, ולכתוב את הפקודה הבאה:
+#python *PATH TO PROJECT DIRECTORY*/main.py
+#כלומר אם לצורך העניין תיקיית הפרויקט היא בתוך תיקיית Downloads
+#אז הפקודה תהיה: python C:/Downloads/BioHeart/main.py
+#קבצי הפיקל יישמרו בתיקייה בה נשמר הזיפ של הפרויקט, תחת תיקייה בשם export
 
 if __name__ == '__main__':
+    #-----
+    # change the working directory to the project's directory, so the script could be run from anywhere
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+    #----
+    print(os.getcwd())
     restart = ui()
     if restart:
         os.system('main.py')
