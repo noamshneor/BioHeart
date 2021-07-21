@@ -43,7 +43,7 @@ def early_process():
                 time.sleep(1)
                 break"""
             print("the filename in ecg:" + filename)
-            par_num_in_file = ''.join([i for i in filename if i.isdigit()])  # לוקח רק את הספרות בשם הקובץ
+            par_num_in_file = ''.join([i for i in filename if i.isdigit()])  # Takes only the digits in the file name
             print(par_num_in_file)
             if str(par) == par_num_in_file or '0' + str(par) == par_num_in_file:  # אם המספר של המשתתף מרשימת המשתתפים הקיימים מופיע בשם הקובץ או עם 0 בהתחלה
                 index_in_folder = os.listdir(globals.main_path + "\\" + "ride 1" + "\\" + "ecg").index(
@@ -72,9 +72,6 @@ def early_process():
                     fix_min_rr()
                     # ------------------------------------------ BASE RR & ECG ---------------------------------------
                     avg_base, baseRR, baseECG = early_process_base(index_in_folder)
-                    # ------------------------------------------------------------------------------------------------
-                    # convert to pickle the "clean files"
-                    #save_pickle(baseECG, baseRR, par, parECG, parRR, parSIM, ride)
                     # ------------------------------------- filling summary table ------------------------------------
                     filling_summary_table(avg_base, baseRR, listBPM, par, list_of_rr_flag, ride, group_list)
                     # ----------------------------------- filling data quality table ---------------------------------
@@ -83,9 +80,8 @@ def early_process():
                     filling_dq_table(listBPM_per_scenario, par, ride, group_list)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
-                    # globals.current_ride += 1
                 if globals.current_par < len(globals.list_of_existing_par):
-                    globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
+                    globals.current_par += 1  # Go through the second file in the ecg folder and so on
         print(globals.percent * 100)
 
 
@@ -93,14 +89,14 @@ def pickle_early_process():
     """
     A function that loads the files: summary table (pickle) and data quality (pickle)
     """
-    #מאתחלים את המשתנים של מסך הטעינה ל100 אחוז
+    # Initialize the load screen variables to 100%
     globals.current_ride = globals.par_ride_num
     globals.current_par = globals.par_num
     globals.percent = 100  # Displays in percentages for how many participants the final table data has been processed
 
 
 
-# --------------------------------------------- UI ---------------------------------------------
+# --------------------------------------- UI ------------------------------------------
 def ui():
     # -------------------------------------------- Windows Layout --------------------------------------------
     correct_open_window, correct_optional_window, correct_path_window, exceptions_values_window, exclude_correct, finish_while_loop, group_correct, layout_loading_window, is_newload, open_window, optional_window, path_load_window = windows_initialization_part_1()
@@ -110,8 +106,8 @@ def ui():
         open_window.bring_to_front()
         if event == "EXIT_OPEN" or event == sg.WIN_CLOSED:
             # End program if user closes window or presses the EXIT button
-            return False  # אפשר לעצור את הלולאה והחלון ייסגר
-        # הגבלת השדות לקבל אך ורק ספרות בין 0 ל9 ללא שום תווים אחרים
+            return False  # can stop the loop and the window will close
+        # Limit the fields to accept only digits between 0 and 9 without any other characters
         all_input_0_9(event, open_window, values)
         if event == 'Sync':
             sync_handle(open_window, values)
@@ -120,16 +116,16 @@ def ui():
             if (not values['par_num']) or (not values['scenario_num']) or (
                     not values['scenario_col_num']) or (
                     not values['Sync'] and (not values['sim_sync_time']) or (not values['biopac_sync_time'])):
-                # בדיקה האם אחד מ3 השדות לפחות לא מלא
+                # Check if at least one of the 3 fields is incomplete
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
-            else:  # כולם מלאים
+            else:  # all fields are complete
                 if not values['Sync'] and ((values['sim_sync_time'] != "0") and (values['biopac_sync_time'] != "0")):
                     sg.popup_quick_message('At least one of the simulator/ECG fields must start from 0',
                                            font=("Century Gothic", 14), background_color='red', location=(970, 880),
                                            auto_close_duration=5)
                 else:
-                    # שמירת האינפוטים במשתנים
+                    # Keeping the inputs in variables
                     save_input_open_window(values)
                     initial_list_of_existing_par()
                     correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
@@ -195,7 +191,7 @@ def ui():
 
                     break
                 if correct_optional_window:
-                    # -------------------------------------------- Path Load Windows --------------------------------------------
+                    # ------------------------------------- Path Load Windows ----------------------------------
                     path_load_window.un_hide()
                     optional_window.hide()
                     initial_tree(path_load_window['-TREE-'], "")
@@ -235,7 +231,7 @@ def ui():
                             if is_newload:
                                 exceptions_values_window.un_hide()
                                 # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
-                                # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
+                                # ------------------------------ EXCEPTIONS VALUES Window -------------------------
                                 while True:
                                     event8, values8 = exceptions_values_window.read()
                                     if event8 == sg.WIN_CLOSED:
@@ -315,10 +311,7 @@ def ui():
                     if finish_while_loop:
                         break
         if finish_while_loop and is_newload:
-            #--------------------------------------------CHECK_IF_NEWLOAD_OR_EXIST----------------------------------
-
-
-            # ------------------------------------------- LOADING Window -------------------------------------------
+            # ------------------------------ LOADING Window -----------------------
             loading_window = sg.Window(title="loading", layout=layout_loading_window, size=(500, 500),
                                        disable_minimize=True,
                                        location=(700, 250), background_image="./load.png", element_padding=(0, 0),
@@ -358,7 +351,6 @@ def ui():
                 if event4 == "Graphs button":
                     summary_table_window.hide()
                     graph_window.un_hide()
-                    # choose_graph_flag = True
                     while True:
                         y_axis_choose = True
                         x_axis_choose = True
@@ -367,14 +359,9 @@ def ui():
                         participants_choose = True
                         event5, values5 = graph_window.read()
                         graph_window.bring_to_front()
-                        # print(event5)
-                        # if not values5["avg bpm 1 par"] and not values5["rmssd for several par"]:  # אם שניהם לא לחוצים
-                        #    choose_graph_flag = False
-                        # else:
-                        #    choose_graph_flag = True
 
-                        if event5 == "custom graph":  # WORKS
-                            # graph_window.FindElement('y axis').Update(values=globals.hrv_methods_list)
+
+                        if event5 == "custom graph":  # Loads custom graph window
                             graph_window.FindElement("x axis rides").Update(True)
                             graph_window.FindElement("bar pars").Update(True)
                             graph_window.FindElement('scenarios listbox').Update(disabled=True)
@@ -390,8 +377,7 @@ def ui():
                             graph_window["SELECT ALL sc"].update(disabled=True)
                             graph_window["CLEAN ALL sc"].update(disabled=True)
 
-                        if event5 == "general graph":  # WORKS
-                            # graph_window.FindElement('y axis').Update(values='Average BPM'.split(','))
+                        if event5 == "general graph":  # Loads general graph window
                             graph_window.FindElement('scenarios listbox').Update(disabled=True)
                             graph_window.FindElement('rides listbox').Update(disabled=True)
                             graph_window.FindElement('participant listbox').Update(disabled=True)
@@ -405,7 +391,7 @@ def ui():
                             graph_window["SELECT ALL sc"].update(disabled=True)
                             graph_window["CLEAN ALL sc"].update(disabled=True)
 
-                        if event5 == "x axis rides":  # WORKS
+                        if event5 == "x axis rides":  #Graph x axis chosen to be rides
                             graph_window.FindElement('rides listbox').Update(disabled=False)
                             graph_window.FindElement('scenarios listbox').Update(disabled=True)
                             graph_window['scenarios listbox'].update("")
@@ -415,7 +401,7 @@ def ui():
                             graph_window["SELECT ALL sc"].update(disabled=True)
                             graph_window["CLEAN ALL sc"].update(disabled=True)
 
-                        if event5 == "x axis scenarios":  # WORKS
+                        if event5 == "x axis scenarios":  # Graph x axis chosen to be scenarios
                             graph_window.FindElement('rides listbox').Update(
                                 disabled=True)  # להפוך את הנסיעות לבחירה של אחד
                             graph_window["SELECT ALL rides"].update(disabled=True)
@@ -449,7 +435,6 @@ def ui():
                         if event5 == "graphs back":
                             graph_window.hide()
                             summary_table_window.un_hide()
-                            #                  choose_graph_flag = False
                             break
 
                         if event5 == "CONTINUE_GRAPH":
@@ -569,21 +554,6 @@ def ui():
                                                        axis_y_input,
                                                        globals.summary_table))
                                     p7.start()
-                ########################################################################################
-
-                # elif values5["rmssd for several par"] and choose_graph_flag:
-                #     # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
-                #     participants_input = values5['combo_par_graph2']
-                #     ride_input = int(values5['combo_ride_graph2'])
-                #     p2 = Process(target=draw_plot2,
-                #                  args=(participants_input, ride_input, globals.summary_table))
-                #     p2.start()
-                #     choose_graph_flag = False
-                #
-                # else:
-                #     sg.popup_quick_message('Please choose graph before continue',
-                #                            font=("Century Gothic", 14), background_color='red',
-                #                            location=(970, 880))
 
                 if event4 == "dq button":
                     summary_table_window.hide()
@@ -630,7 +600,6 @@ def ui():
 #קבצי הפיקל יישמרו בתיקייה בה נשמר הזיפ של הפרויקט, תחת תיקייה בשם export
 
 if __name__ == '__main__':
-    #-----
     # change the working directory to the project's directory, so the script could be run from anywhere
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)

@@ -3,6 +3,9 @@ from numpy import linspace
 
 import globals
 
+"""
+This class contains the implementation of the UI windows (Buttons, Layous, Lables, etc.)
+"""
 
 def graphs_window_layout():
     # global par_num

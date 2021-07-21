@@ -90,36 +90,6 @@ def check_filter_type(col_name):
     return True
 
 
-# def flag_match(par, parSIM, lst, col_name):
-#     """ Match the scenario flag
-#     from:simulation data
-#     to:ecg data
-#     --> by time
-#
-#     :param par: DataFrame of par data
-#     :param parSIM: DataFrame of SIMULATION data
-#     :param lst: List of value for specific flag
-#     :param col_name: column name
-#     :type par: DataFrame
-#     :type parSIM: DataFrame
-#     :type col_name: str
-#     """
-#     i = 0
-#     j = 1
-#     while i < len(par):  # while there are still rows to match in ECG/RR
-#         if j < len(parSIM):
-#             if parSIM.at[j - 1, 'Time'] <= par.at[i, 'Time'] < parSIM.at[j, 'Time']:
-#                 # if time in ECG/RR between time range in SIM
-#                 if int(parSIM.at[j - 1, 'Scenario']) != 0:
-#                     par.at[i, 'Scenario'] = parSIM.at[j, 'Scenario']  # match the flag
-#                     lst[par.at[i, 'Scenario']].append(par.at[i, col_name])
-#                     if col_name == "BPM":
-#                         dq_bpm_start_end_min_max_null(i, j, par, parSIM)
-#                     if col_name == "RRIntervals":
-#                         dq_rr_min_max_null(i, j, par, parSIM)
-#                 i += 1  # move to the next ECG/RR row to match
-#             else:
-#                 j += 1  # move to the next SIM start range
 
 
 def dq_bpm_start_end_min_max_null(i, j, par, parSIM):
