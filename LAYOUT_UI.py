@@ -506,12 +506,12 @@ def open_window_layout():
                 sg.Text("", background_color="transparent", size=(250, 450))
             ],
             [
-                sg.Text("                             Participant’s number", background_color="transparent",
-                        size=(670, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Text("                         Number of participants", background_color="transparent",
+                        size=(670, 40), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key="par_num", enable_events=True,
                          font=("Century Gothic", 16), tooltip="Enter only digits 0-9"),
                 sg.Text("          Number of participant’s rides", background_color="transparent",
-                        size=(630, 35), font=("Century Gothic", 18), text_color='black'),
+                        size=(630, 40), font=("Century Gothic", 18), text_color='black'),
                 sg.Combo(values=[1, 2, 3, 4, 5], size=[50, 40], key='par_ride_num', enable_events=True,
                          font=("Century Gothic", 16), readonly=True)
 
@@ -520,12 +520,12 @@ def open_window_layout():
                 sg.Text("", background_color="transparent", size=(250, 20)),
             ],
             [
-                sg.Text("                             Scenario’s number", background_color="transparent",
-                        size=(670, 35), font=("Century Gothic", 18), text_color='black'),
+                sg.Text("                         Number of scenarios", background_color="transparent",
+                        size=(670, 40), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_num', enable_events=True,
                          font=("Century Gothic", 16), tooltip="Enter only digits 0-9"),
                 sg.Text("          Scenario’s column number", background_color="transparent",
-                        size=(630, 35), font=("Century Gothic", 18), text_color='black'),
+                        size=(630, 40), font=("Century Gothic", 18), text_color='black'),
                 sg.Input(size=[80, 40], justification="center", key='scenario_col_num', enable_events=True,
                          font=("Century Gothic", 16), tooltip="Enter only digits 0-9")
             ],

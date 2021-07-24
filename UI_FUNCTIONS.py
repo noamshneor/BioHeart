@@ -596,7 +596,7 @@ def early_table(filename):
             and converts the table to a list.
             A pickle file is saved to the table here.
         """
-    dir_name = "../export"
+    dir_name = globals.main_path + "\\pkl tables"
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
     pkl_name = filename+".pkl"
