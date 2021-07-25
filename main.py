@@ -615,12 +615,14 @@ def ui():
 # קבצי הפיקל יישמרו בתיקייה בה נשמר הזיפ של הפרויקט, תחת תיקייה בשם  export
 
 if __name__ == '__main__':
+    """
     # -----
     # change the working directory to the project's directory, so the script could be run from anywhere
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
     # -----
+    """
 
     # print(os.getcwd())
     restart = ui()
