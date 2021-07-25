@@ -569,21 +569,6 @@ def ui():
                                                        axis_y_input,
                                                        globals.summary_table))
                                     p7.start()
-                ########################################################################################
-
-                # elif values5["rmssd for several par"] and choose_graph_flag:
-                #     # לבדוק האם הנבדקים שנכתבו תואמים לקלט במסך הפתיחה
-                #     participants_input = values5['combo_par_graph2']
-                #     ride_input = int(values5['combo_ride_graph2'])
-                #     p2 = Process(target=draw_plot2,
-                #                  args=(participants_input, ride_input, globals.summary_table))
-                #     p2.start()
-                #     choose_graph_flag = False
-                #
-                # else:
-                #     sg.popup_quick_message('Please choose graph before continue',
-                #                            font=("Century Gothic", 14), background_color='red',
-                #                            location=(970, 880))
 
                 if event4 == "dq button":
                     summary_table_window.hide()
@@ -620,60 +605,27 @@ def ui():
             summary_table_window.close()
             return do_restart
 
-#איך מריצים?
-#להוריד את הזיפ של הפרויקט, לעשות לו extract
+# איך מריצים?
+# להוריד את הזיפ של הפרויקט, לעשות לו extract
 #להתקין פייטון על המחשב המריץ אם לא מותקן כבר
 #לפתוח שורת cmd, ולכתוב את הפקודה הבאה:
-#python *PATH TO PROJECT DIRECTORY*/main.py
+# python *PATH TO PROJECT DIRECTORY*/main.py
 #כלומר אם לצורך העניין תיקיית הפרויקט היא בתוך תיקיית Downloads
-#אז הפקודה תהיה: python C:/Downloads/BioHeart/main.py
-#קבצי הפיקל יישמרו בתיקייה בה נשמר הזיפ של הפרויקט, תחת תיקייה בשם export
+# אז הפקודה תהיה: python C:/Downloads/BioHeart/main.py
+# קבצי הפיקל יישמרו בתיקייה בה נשמר הזיפ של הפרויקט, תחת תיקייה בשם  export
 
 if __name__ == '__main__':
-    #-----
+    # -----
     # change the working directory to the project's directory, so the script could be run from anywhere
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
-    #----
-    print(os.getcwd())
+    # -----
+
+    # print(os.getcwd())
     restart = ui()
     if restart:
         os.system('main.py')
         exit()
     else:
         sys.exit(0)
-    """
-    # -------------------------- Graphs Window -----------------------------
-    layout_graphs_window = graphs_window_layout()
-    graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
-                             size=(1730, 970), resizable=True, finalize=True,
-                             disable_minimize=True,
-                             location=(90, 20), background_image="backsum.png",
-                             element_padding=(0, 0))
-    while True:
-        event5, values5 = graph_window.read()
-        if event5 == "HV":
-            graph_window.FindElement('y axis').Update(values='Average BPM'.split(','))
-
-    graph_window.close()
-
-    #RR_hara = pandas.read_pickle("pickle_parRR1")
-    #hara2 = RR_hara.to_csv('RR_with_time_and_scenario.csv')
-
-
-
-    
-    layout_exceptions_values_window = exceptions_values_layout()
-    # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
-    exceptions_values_window = sg.Window(title="Filter Exceptional Values", layout=layout_exceptions_values_window,
-                                         size=(1000, 680),
-                                         disable_minimize=True,
-                                         location=(450, 120), background_image="backsum.png", element_padding=(0, 0),
-                                         finalize=True)
-    while True:
-        event8, values8 = exceptions_values_window.read()
-        if event8 == sg.WIN_CLOSED:
-            break
-
-    """

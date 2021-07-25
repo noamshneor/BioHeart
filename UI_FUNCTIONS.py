@@ -199,14 +199,6 @@ def check_if_can_continue_new_load(correct_path_window, is_newload, values2):
                         values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
                     correct_path_window = True  # הכל תקין אפשר להמשיך
                     globals.main_path = values2["-MAIN FOLDER-"]
-                    # pickle_folders()
-            # else:  # מדובר בטעינה קיימת
-            #     is_newload = False
-            #     exist_load_list_in_pickle = ["tables_pickle"]  # רשימת התיקיות לבדיקה
-            #     if check_if_tables_pickle_exist(exist_load_list_in_pickle, values2):
-            #         if checkFiles_of_tables_pickle(exist_load_list_in_pickle, values2):
-            #             correct_path_window = True  # הכל תקין אפשר להמשיך
-            #             globals.main_path = values2["-MAIN FOLDER-"]
     return correct_path_window, is_newload
 
 
@@ -224,8 +216,8 @@ def check_if_can_continue_exist_load(correct_path_window, is_newload, values2):
 
 def windows_initialization_part_2(is_newload):
     """
-           A function that initializes all windows from the loading stage to the end of the program.
-       """
+        A function that initializes all windows from the loading stage to the end of the program.
+    """
     # ----------------------- Early Summary Table -----------------------
     if is_newload:
         summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
@@ -328,28 +320,6 @@ def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parame
     plt.legend()
     plt.show()
 
-    # X = np.arange(len(axis_x_scenarios_input))
-    # fig = plt.figure()
-    # ax = fig.add_axes([0, 0, 1, 1])
-    # ax.bar(X + 0.00, list_scenarios[0][0], color='b', width=0.25)
-    # ax.bar(X + 0.25, list_scenarios[1][0], color='g', width=0.25)
-    # ax.bar(X + 0.50, list_scenarios[2][0], color='r', width=0.25)
-    # ax.bar(X + 0.75, list_scenarios[3][0], color='r', width=0.25)
-    # ax.bar(X + 1, list_scenarios[4][0], color='r', width=0.25)
-    # ax.bar(X + 1.25, list_scenarios[5][0], color='r', width=0.25)
-    # ax.bar(X + 1.50, list_scenarios[6][0], color='r', width=0.25)
-
-    # x = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Scenario']]
-    # print(x)
-    # y = table.loc[
-    #     (table['Ride Number'] == ride_input) & (table['Participant'] == participant_num_input), ['Average BPM']]
-    # print(y)
-    # plt.plot(x, y, marker='.')
-    # plt.title('AVG BPM of participant ' + str(participant_num_input) + ' in ride ' + str(ride_input) + ', by scenario')
-    # plt.xlabel('Scenario')
-    # plt.ylabel('AVG BPM')
-    # plt.show()
-
 
 def plot_HR_rides(participant_num_input, ride_input, parameter,
                   table):  # מראה עבור כל נסיעה את המשתתפים בעמודות ואקג ממוצע
@@ -408,31 +378,7 @@ def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, parameter, table
                     parameter]].get(parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
     print(list_groups)
     groups_values_input = list(range(1, group_num + 1))
-    # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
-    # print("current y value is: " + str(y))
     draw_all_graphs(groups_values_input, list_groups, axis_x_scenarios_input, 'Scenario', parameter, 'Group')
-    # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
-    # bar_width = 1 / (len(list_groups) + 1)
-    # x_chart_width = 1 / len(list_groups)
-    # fig = plt.subplots(figsize=(12, 8))
-    # br_list = []
-    # br1 = np.arange((len(axis_x_scenarios_input)))
-    # for i in range(len(list_groups)):
-    #     br1 = [x + bar_width for x in br1]
-    #     br_list.append(br1)
-    # print("br: " + str(br_list))
-    # print("par: " + str(list_groups))
-    # colors = ['r','b','g','y','p']
-    # for i in range(len(list_groups)):
-    #     plt.bar(br_list[i], list_groups[i], color=colors[i], width=bar_width,
-    #             edgecolor='grey', label='Group' + str(i+1))
-    # plt.xlabel('Scenario', fontweight='bold', fontsize=15)
-    # plt.ylabel('Average BPM', fontweight='bold', fontsize=15)
-    # plt.xticks([r + x_chart_width for r in range(len(axis_x_scenarios_input))],
-    #            axis_x_scenarios_input)
-    # plt.legend()
-    # plt.show()
 
 
 def plot_HR_groups_rides(group_num, ride_input, parameter, table):
@@ -452,30 +398,6 @@ def plot_HR_groups_rides(group_num, ride_input, parameter, table):
     groups_values_input = list(range(1, group_num + 1))
     print(groups_values_input)
     draw_all_graphs(groups_values_input, list_groups, ride_input, 'Rides', parameter, 'Group')
-    # y = table.loc[(table['Ride Number'] == ride_input) & (table['Participant'] == line_par) & (table['Scenario'] == line_sc), ['Average BPM']]
-    # print("current y value is: " + str(y))
-    # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
-    # bar_width = 1 / (len(list_groups) + 1)
-    # x_chart_width = 1 / len(list_groups)
-    # fig = plt.subplots(figsize=(12, 8))
-    # br_list = []
-    # br1 = np.arange((len(ride_input)))
-    # for i in range(len(list_groups)):
-    #     br1 = [x + bar_width for x in br1]
-    #     br_list.append(br1)
-    # print("br: " + str(br_list))
-    # print("par: " + str(list_groups))
-    # colors = ['r','b','g','y','p']
-    # for i in range(len(list_groups)):
-    #     plt.bar(br_list[i], list_groups[i], color=colors[i], width=bar_width,
-    #             edgecolor='grey', label='Group' + str(groups_values_input[i]))
-    # plt.xlabel('Rides', fontweight='bold', fontsize=15)
-    # plt.ylabel('Average BPM', fontweight='bold', fontsize=15)
-    # plt.xticks([r + x_chart_width for r in range(len(ride_input))],
-    #            ride_input)
-    # plt.legend()
-    # plt.show()
 
 
 def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, parameter,
@@ -517,30 +439,6 @@ def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, paramet
     plt.legend()
     plt.show()
 
-
-# def draw_all_graphs_with_groups(list_of_groups, list_of_list_columns, list_axis_x, name_axis_x, name_axis_y, name_column):
-# # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-# # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
-#     bar_width = 1 / (len(list_of_list_columns) + 1)
-#     x_chart_width = 1 / len(list_of_list_columns)
-#     fig = plt.subplots(figsize=(12, 8))
-#     br_list = []
-#     br1 = np.arange((len(list_axis_x)))
-#     for i in range(len(list_of_list_columns)):
-#         br1 = [x + bar_width for x in br1]
-#         br_list.append(br1)
-#     print("br: " + str(br_list))
-#     print("par: " + str(list_of_list_columns))
-#     colors = ['r', 'b', 'g', 'y', 'p']
-#     for i in range(len(list_of_list_columns)):
-#         plt.bar(br_list[i], list_of_list_columns[i], color=colors[i], width=bar_width,
-#                 edgecolor='grey', label=name_column + str(list_of_groups[i]))
-#     plt.xlabel(name_axis_x, fontweight='bold', fontsize=15)
-#     plt.ylabel(name_axis_y, fontweight='bold', fontsize=15)
-#     plt.xticks([r + x_chart_width for r in range(len(list_axis_x))],
-#                list_axis_x)
-#     plt.legend()
-#     plt.show()
 
 def general_graph_avg(scenarios, rides, parameter, table):
     rides_values = [[] for i in range(
@@ -595,7 +493,7 @@ def early_table(filename):
             adds % in the designated places,
             and converts the table to a list.
             A pickle file is saved to the table here.
-        """
+    """
     dir_name = globals.main_path + "\\pkl tables"
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -629,24 +527,6 @@ def early_table(filename):
             dq_table_list[i][15] = str(dq_table_list[i][15]) + ' %'
         dq_table_list = [list(map(str, x)) for x in dq_table_list]  # make str list
         return dq_table_list
-
-
-# def pickle_folders():  # ללא שימוש אפשר למחוק
-#     """
-#         The function checks if the pickle folders exist, if not the function creates them.
-#     """
-#     list_in_ride = ["ecg pkl", "sim pkl", "rr pkl"]  # רשימת התיקיות לבדיקה
-#     list_in_base = ["base ecg pkl", "base rr pkl"]  # רשימת התיקיות לבדיקה
-#
-#     for ride in range(1, globals.par_ride_num + 1):  # מעבר על התיקיות של הנסיעות
-#         for folder in range(0, len(list_in_ride)):  # rr,ecg, sim
-#             if not os.path.isdir(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder]):
-#                 os.makedirs(globals.main_path + "\\" + "ride " + str(ride) + "\\" + list_in_ride[folder])
-#                 # create folder if not exist
-#     for folder in range(0, len(list_in_base)):  # base rr, base ecg
-#         if not os.path.isdir(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder]):
-#             os.makedirs(globals.main_path + "\\" + "base" + "\\" + list_in_base[folder])
-#             # create folder if not exist
 
 
 def checkFolders_of_rides(load_list, values):
