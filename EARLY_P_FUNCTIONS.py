@@ -21,7 +21,6 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
         :type parSIM: DataFrame
         :type col_name: str
     """
-    # print("!!!!!!!!!!flag match!!!!!!!!!!!!!!!!!!!!!!!!!")
     i = 0
     j = 1
     initial_rows_at_par = len(par)
