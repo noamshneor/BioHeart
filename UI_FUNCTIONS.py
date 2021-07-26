@@ -122,53 +122,6 @@ def check_optional_window(correct_optional_window, exclude_correct, group_correc
     return correct_optional_window
 
 
-def check_if_can_continue(correct_path_window, is_newload, values2):
-    """
-        A function that handles extreme situations on the screen where a main folder is selected,
-        and displays messages accordingly.
-        The function checks if everything is OK in the selected folder and then we can proceed to the next screen.
-    """
-    if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
-        sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
-                               background_color='red', location=(970, 880))
-    else:  # אם הנתיב לא ריק
-        flag = True  # מסמן האם הכל תקין או שיש תיקיה חסרה
-        message = "Missing rides folders in your Main Folder:"  # תחילת ההודעה
-        for ride in range(1, globals.par_ride_num + 1):
-            if not os.path.isdir(
-                    values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)) or not os.path.isdir(
-                values2["-MAIN FOLDER-"] + "\\" + "base"):
-                flag = False  # יש תיקיה חסרה
-                if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "ride " + str(ride)):
-                    message += " \"" + "ride " + str(ride) + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
-                if not os.path.isdir(values2["-MAIN FOLDER-"] + "\\" + "base"):
-                    message += " \"" + "base" + "\" "  # שרשור ההודעה עם שם התיקיה שחסרה
-        if not flag:  # אם יש תיקיה חסרה
-            sg.popup_quick_message(message, font=("Century Gothic", 14),
-                                   background_color='red', location=(970, 880), auto_close_duration=5)
-        else:  # הכל תקין, אין תיקיה חסרה
-            if values2["NEW LOAD"]:  # אם מדובר בטעינה חדשה
-                is_newload = True
-                new_load_list_in_ride = ["ecg", "sim", "rr"]  # רשימת התיקיות לבדיקה
-                new_load_list_in_base = ["base ecg", "base rr"]  # רשימת התיקיות לבדיקה
-                if checkFolders_of_rides(new_load_list_in_ride, values2) and checkFolders_of_base(
-                        new_load_list_in_base, values2):  # בדיקת תיקיות קיימות
-                    if checkFiles_of_rides(new_load_list_in_ride, values2) and checkFiles_of_base(
-                            new_load_list_in_base,
-                            values2):  # בדיקה האם בכל תת תיקיה יש מספר קבצים כמספר הנבדקים שהוזנו כקלט
-                        correct_path_window = True  # הכל תקין אפשר להמשיך
-                        globals.main_path = values2["-MAIN FOLDER-"]
-                        # pickle_folders()
-            else:  # מדובר בטעינה קיימת
-                is_newload = False
-                exist_load_list_in_pickle = ["tables_pickle"]  # רשימת התיקיות לבדיקה
-                if check_if_tables_pickle_exist(exist_load_list_in_pickle, values2):
-                    if checkFiles_of_tables_pickle(exist_load_list_in_pickle, values2):
-                        correct_path_window = True  # הכל תקין אפשר להמשיך
-                        globals.main_path = values2["-MAIN FOLDER-"]
-    return correct_path_window, is_newload
-
-
 def check_if_can_continue_new_load(correct_path_window, is_newload, values2):
     if not values2["-MAIN FOLDER-"]:  # אם הנתיב ריק ולא נבחר
         sg.popup_quick_message("Please fill in the Main Folder's field", font=("Century Gothic", 14),
@@ -222,34 +175,25 @@ def windows_initialization_part_2(is_newload):
     if is_newload:
         summary_table_list = early_table("summary_table")  # עיבוד מקדים לטבלה
         dq_table_list = early_table("data_quality_table")  # עיבוד מקדים לטבלה
-        print("summary_table_list")
-        print(summary_table_list)
-        print(type(summary_table_list))
-        print("dq_table_list")
-        print(dq_table_list)
     else:
         if globals.is_pkl:
-            format =".pkl"
+            format = ".pkl"
             summary_dataframe = pandas.read_pickle(os.path.join(globals.main_path + "\\" + "summary_table" + format))
             dq_dataframe = pandas.read_pickle(os.path.join(globals.main_path + "\\" + "data_quality_table" + format))
             summary_dataframe.columns = globals.header_summary_table
             dq_dataframe.columns = globals.header_data_quality
         else:
-            format=".xlsx"
+            format = ".xlsx"
             summary_dataframe = pandas.read_excel(os.path.join(globals.main_path + "\\" + "summary_table" + format))
             dq_dataframe = pandas.read_excel(os.path.join(globals.main_path + "\\" + "data_quality_table" + format))
 
         globals.summary_table = summary_dataframe
         summary_table_list = summary_dataframe.values.tolist()
         summary_table_list = [list(map(str, x)) for x in summary_table_list]
-        print(summary_table_list)
-        print(type(summary_table_list))
-
 
         globals.data_quality_table = dq_dataframe
         dq_table_list = dq_dataframe.values.tolist()
         dq_table_list = [list(map(str, x)) for x in dq_table_list]
-        print(dq_table_list)
 
     layout_summary_table_window = summary_table_window_layout(
         summary_table_list)  # יצירת הלייאאוט עם הרשימה המעודכנת של הטבלה
@@ -266,7 +210,7 @@ def windows_initialization_part_2(is_newload):
     data_quality_table_window.hide()
     # -------------------------- Graphs Window -----------------------------
     layout_graphs_window = graphs_window_layout()
-    graph_window = sg.Window(title="Graphs", no_titlebar=False, layout=layout_graphs_window,
+    graph_window = sg.Window(title="Graphs", no_titlebar=True, layout=layout_graphs_window,
                              size=(865, 970), resizable=True, finalize=True,
                              disable_minimize=True,
                              location=(523, 20), background_image="./backsum.png",
@@ -281,17 +225,16 @@ def windows_initialization_part_2(is_newload):
     return data_quality_table_window, dq_table_list, graph_window, summary_table_list, summary_table_window
 
 
-def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parameter,
-                           table):  # בלי נסיעות (כלומר כולן נבחרות)
-    print("starting draw_plot_HR")
+def plot_with_scenarios(axis_x_scenarios_input, participant_num_input, parameter,
+                        table):  # בלי נסיעות (כלומר כולן נבחרות)
     list_participants = [[] for i in range(
         len(participant_num_input))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
     # example: [**particpant 1: [ scenario 1 value, scenario 2 value .....] **participant 2: [ scenario 1 value, .....]]
-    print(list_participants)
+    # print(list_participants)
     for i in range(len(participant_num_input)):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
-        print("current line_par is: " + str(participant_num_input[i]))
+        # print("current line_par is: " + str(participant_num_input[i]))
         for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
-            print("current line_sc is: " + str(line_sc))
+            # print("current line_sc is: " + str(line_sc))
             list_participants[i].append(
                 table.loc[(table['Participant'] == participant_num_input[i]) & (table['Scenario'] == line_sc), [
                     parameter]].get(parameter).values[0])  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
@@ -307,8 +250,8 @@ def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parame
     for i in range(len(participant_num_input)):
         br1 = [x + bar_width for x in br1]
         br_list.append(br1)
-    print("br: " + str(br_list))
-    print("par: " + str(list_participants))
+    # print("br: " + str(br_list))
+    # print("par: " + str(list_participants))
     colors = ['r', 'b', 'g', 'y', 'p']
     for i in range(len(list_participants)):
         plt.bar(br_list[i], list_participants[i], color=colors[i], width=bar_width,
@@ -321,100 +264,73 @@ def plot_HR_with_scenarios(axis_x_scenarios_input, participant_num_input, parame
     plt.show()
 
 
-def plot_HR_rides(participant_num_input, ride_input, parameter,
-                  table):  # מראה עבור כל נסיעה את המשתתפים בעמודות ואקג ממוצע
-    print("starting draw_plot_HR_rides")
+def plot_rides(participant_num_input, ride_input, parameter,
+               table):  # מראה עבור כל נסיעה את המשתתפים בעמודות ואקג ממוצע
     list_participants = [[] for i in range(
         len(participant_num_input))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
     # example: [**participant 1: [ ride 1 avg value, ride 2 avg value .....] **participant 2: [ ride 1 avg value, .....]]
-    print(list_participants)
+    # print(list_participants)
     for i in range(len(participant_num_input)):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
-        print("current line_par is: " + str(participant_num_input[i]))
+        # print("current line_par is: " + str(participant_num_input[i]))
         for line_r in ride_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
-            print("current line_r is: " + str(line_r))
+            # print("current line_r is: " + str(line_r))
             list_participants[i].append(np.average(table.loc[(table['Ride Number'] == line_r) & (
                     table['Participant'] == participant_num_input[i]) & (table[parameter] != 0), [parameter]].get(
                 parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
         # list_participants[i].append((table.loc[(table['Participant'] == participant_num_input[i]), ['Baseline BPM']].get('Baseline BPM').values[0]))#הוספת הבייסלין לרשימה
-        print("list_participants:")
-        print(list_participants)
+        # print("list_participants:")
+        # print(list_participants)
     draw_all_graphs(participant_num_input, list_participants, ride_input, 'Rides', parameter, 'Participant')
-    # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
-    # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
-    # bar_width = 1 / (len(participant_num_input) + 1)
-    # x_chart_width = 1 / len(participant_num_input)
-    # fig = plt.subplots(figsize=(12, 8))
-    # br_list = []
-    # br1 = np.arange((len(ride_input)))
-    # for i in range(len(participant_num_input)):
-    #     br1 = [x + bar_width for x in br1]
-    #     br_list.append(br1)
-    # print("br: " + str(br_list))
-    # print("par: " + str(list_participants))
-    # colors = ['r','b','g','y','p']
-    # for i in range(len(list_participants)):
-    #     plt.bar(br_list[i], list_participants[i], color=colors[i], width=bar_width,
-    #             edgecolor='grey', label='PAR' + str(participant_num_input[i]))
-    # plt.xlabel('Rides', fontweight='bold', fontsize=15)
-    # plt.ylabel('Average BPM', fontweight='bold', fontsize=15)
-    # plt.xticks([r + x_chart_width for r in range(len(ride_input))],
-    #            ride_input)
-    # plt.legend()
-    # plt.show()
 
 
-def plot_HR_groups_scenarios(axis_x_scenarios_input, group_num, parameter, table):
-    print("starting draw_plot_HR_groups_scenarios")
+def plot_groups_scenarios(axis_x_scenarios_input, group_num, parameter, table):
     list_groups = [[] for i in range(
         (group_num))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
     # example: [**group 1: [ scenario 1 value, scenario 2 value .....] **group 2: [ scenario 1 value, .....]]
-    print(list_groups)
+    # print(list_groups)
     for i in range(group_num):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
-        print("current line_group is: " + str(i + 1))
+        # print("current line_group is: " + str(i + 1))
         for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
-            print("current line_sc is: " + str(line_sc))
+            # print("current line_sc is: " + str(line_sc))
             list_groups[i].append(np.average(
                 table.loc[(table['Scenario'] == line_sc) & (table[parameter] != 0) & (table['Group'] == i + 1), [
                     parameter]].get(parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
-    print(list_groups)
+    # print(list_groups)
     groups_values_input = list(range(1, group_num + 1))
     draw_all_graphs(groups_values_input, list_groups, axis_x_scenarios_input, 'Scenario', parameter, 'Group')
 
 
-def plot_HR_groups_rides(group_num, ride_input, parameter, table):
-    print("starting draw_plot_HR_groups_rides")
+def plot_groups_rides(group_num, ride_input, parameter, table):
     list_groups = [[] for i in range(
         (group_num))]  # רשימה של רשימות - כל תא מכיל רשימה שמייצגת את הערכים של כל עמודה עבור כל ערך בציר האיקס
     # example: [**group 1: [ ride 1 value, ride 2 value .....] **group 2: [ ride 1 value, .....]]
-    print(list_groups)
+    # print(list_groups)
     for i in range(group_num):  # לולאה לעמודות (מספר העמודות עבור כל ערך של ציר האיקס)
-        print("current line_group is: " + str(i + 1))
+        # print("current line_group is: " + str(i + 1))
         for line_r in ride_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
-            print("current line_sc is: " + str(line_r))
+            # print("current line_sc is: " + str(line_r))
             list_groups[i].append(np.average(
                 table.loc[(table['Ride Number'] == line_r) & (table['Group'] == i + 1) & (table[parameter] != 0), [
                     parameter]].get(parameter)))  # מכניס לרשימה1 את כל האקג של קבוצה 1 עבור נסיעה 1
-    print(list_groups)
+    # print(list_groups)
     groups_values_input = list(range(1, group_num + 1))
-    print(groups_values_input)
+    # print(groups_values_input)
     draw_all_graphs(groups_values_input, list_groups, ride_input, 'Rides', parameter, 'Group')
 
 
 def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, parameter,
                                      table):  # על כל הנסיעות וכל המשתתפים
-    ###############לא מוכן###############
-    print("starting draw_plot_HR_all_par$rides_with_scenarios")
     list_scenarios_all_par = [[] for i in range(
         len(axis_x_scenarios_input))]  # רשימה של רשימות כמספר התרחישים שנבחרו - כל תא מכיל רשימה שמייצגת את הערכים של כל המשתתפים עבור כל תרחיש בציר האיקס
     # example: [**scenario 1: [ par 1 value, par 2 value .....] **scenario 2: [ par 1 value, .....]]
-    print(list_scenarios_all_par)
+    # print(list_scenarios_all_par)
     i = 0
     for line_sc in axis_x_scenarios_input:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
-        print("current line_sc is: " + str(line_sc))
+        # print("current line_sc is: " + str(line_sc))
         list_scenarios_all_par[i].append(np.average(
             table.loc[(table['Scenario'] == line_sc) & (table[parameter] != 0), [parameter]].get(
                 parameter)))  # מכניס לרשימה1 את כל האקג של תרחיש 1 עבור נבדק 3
-    print(list_scenarios_all_par)
+    # print(list_scenarios_all_par)
 
     # -------------------------ציור הגרף, לא משתנה בין הגרפים, משתנים רק הערכים---------------------
     # ------------- לעשות בפונקציה שמקבלת רשימה של רשימות עבור הערכים, כמות ערכים לציר האיקס, כמות עמודות עבור כל ערך בציר האיקס, ושמות צירים--------
@@ -426,8 +342,8 @@ def plot_HR_with_scenarios_all_rides(axis_x_scenarios_input, ride_input, paramet
     for i in range(len(list_scenarios_all_par)):
         br1 = [x + bar_width for x in br1]
         br_list.append(br1)
-    print("br: " + str(br_list))
-    print("par: " + str(list_scenarios_all_par))
+    # print("br: " + str(br_list))
+    # print("par: " + str(list_scenarios_all_par))
     colors = ['r', 'b', 'g', 'y', 'p']
     for i in range(len(list_scenarios_all_par)):
         plt.bar(br_list[i], list_scenarios_all_par[i], color=colors[i], width=bar_width,
@@ -449,7 +365,7 @@ def general_graph_avg(scenarios, rides, parameter, table):
     i = 0
     for ride in rides:  # לולאה לערך עבור כל עמודה - מספר הערכים בציר האיקס
         for line_sc in scenarios:
-            print("current line_sc is: " + str(line_sc))
+            # print("current line_sc is: " + str(line_sc))
             rides_values[i].append(np.average(
                 table.loc[(table['Scenario'] == line_sc) & (table[parameter] != 0) & (table['Ride Number'] == ride), [
                     parameter]].get(
@@ -472,8 +388,8 @@ def draw_all_graphs(list_of_columns_input, list_of_list_columns, list_axis_x, na
     for i in range(len(list_of_columns_input)):
         br1 = [x + bar_width for x in br1]
         br_list.append(br1)
-    print("br: " + str(br_list))
-    print("par: " + str(list_of_list_columns))
+    # print("br: " + str(br_list))
+    # print("par: " + str(list_of_list_columns))
     colors = ['r', 'b', 'g', 'y', 'p']
     for i in range(len(list_of_list_columns)):
         plt.bar(br_list[i], list_of_list_columns[i], color=colors[i], width=bar_width,
@@ -516,7 +432,6 @@ def early_table(filename):
     else:
         globals.data_quality_table.to_pickle(file_path)  # כאן שמרתי פיקל של הטבלה !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         dq_table_list = globals.data_quality_table.values.tolist()
-        print(dq_table_list)
         dq_table_int = [list(map(int, x)) for x in dq_table_list]
         for i in range(len(dq_table_list)):
             dq_table_list[i][0] = dq_table_int[i][0]
@@ -615,9 +530,8 @@ def check_if_tables_pickle_exist(load_list, values):
     return flag
 
 
-def checkFiles_of_tables_pickle( values):
+def checkFiles_of_tables_pickle(values):
     message = "Missing files! you should have EXACTLY 2 files- summary table and data quality table"
-    print(len(os.listdir(values["-MAIN FOLDER-"] + "\\")))
     if len(os.listdir(values["-MAIN FOLDER-"] + "\\")) != 2:
         sg.popup_quick_message(message, font=("Century Gothic", 14),
                                background_color='red', location=(970, 880), auto_close_duration=5)
@@ -626,7 +540,6 @@ def checkFiles_of_tables_pickle( values):
         excel_count=0
         pkl_count=0
         for file in os.listdir(values["-MAIN FOLDER-"]):
-            print(file)
             if "data_quality_table" not in file and "summary_table" not in file:
                 sg.popup_quick_message(message, font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880), auto_close_duration=5)
@@ -851,3 +764,59 @@ def loading_window_update(loading_window, start_time):
         time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
     loading_window.element("current_ride").update(
         "       rides:  " + str(globals.current_ride) + " of " + str(globals.par_ride_num))
+
+
+def window_update_custom_graph(graph_window):
+    graph_window.FindElement("x axis rides").Update(True)
+    graph_window.FindElement("bar pars").Update(True)
+    graph_window.FindElement('scenarios listbox').Update(disabled=True)
+    graph_window.FindElement('rides listbox').Update(disabled=False)
+    graph_window.FindElement('participant listbox').Update(disabled=False)
+    graph_window.FindElement('y axis').Update(disabled=False)
+    graph_window.FindElement('x axis scenarios').Update(disabled=False)
+    graph_window.FindElement('x axis rides').Update(disabled=False)
+    graph_window.FindElement('bar pars').Update(disabled=False)
+    graph_window.FindElement('bar groups').Update(disabled=False)
+    graph_window["SELECT ALL rides"].update(disabled=False)
+    graph_window["CLEAN ALL rides"].update(disabled=False)
+    graph_window["SELECT ALL sc"].update(disabled=True)
+    graph_window["CLEAN ALL sc"].update(disabled=True)
+
+
+def window_update_general_graph(graph_window):
+    graph_window.FindElement('scenarios listbox').Update(disabled=True)
+    graph_window.FindElement('rides listbox').Update(disabled=True)
+    graph_window.FindElement('participant listbox').Update(disabled=True)
+    graph_window.FindElement('y axis').Update(disabled=False)
+    graph_window.FindElement('x axis scenarios').Update(disabled=True)
+    graph_window.FindElement('x axis rides').Update(disabled=True)
+    graph_window.FindElement('bar pars').Update(disabled=True)
+    graph_window.FindElement('bar groups').Update(disabled=True)
+    graph_window["SELECT ALL rides"].update(disabled=True)
+    graph_window["CLEAN ALL rides"].update(disabled=True)
+    graph_window["SELECT ALL sc"].update(disabled=True)
+    graph_window["CLEAN ALL sc"].update(disabled=True)
+
+
+def window_update_x_axis_rides(graph_window):
+    graph_window.FindElement('rides listbox').Update(disabled=False)
+    graph_window.FindElement('scenarios listbox').Update(disabled=True)
+    graph_window['scenarios listbox'].update("")
+    graph_window['scenarios listbox'].update(globals.scenarios_list)
+    graph_window["SELECT ALL rides"].update(disabled=False)
+    graph_window["CLEAN ALL rides"].update(disabled=False)
+    graph_window["SELECT ALL sc"].update(disabled=True)
+    graph_window["CLEAN ALL sc"].update(disabled=True)
+
+
+def window_update_x_axis_scenarios(graph_window):
+    graph_window.FindElement('rides listbox').Update(
+        disabled=True)  # להפוך את הנסיעות לבחירה של אחד
+    graph_window["SELECT ALL rides"].update(disabled=True)
+    graph_window["CLEAN ALL rides"].update(disabled=True)
+    graph_window.FindElement('scenarios listbox').Update(disabled=False)
+    graph_window["SELECT ALL sc"].update(disabled=False)
+    graph_window["CLEAN ALL sc"].update(disabled=False)
+    graph_window['rides listbox'].update("")
+    graph_window['rides listbox'].update(globals.rides_list)
+
