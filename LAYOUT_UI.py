@@ -1,7 +1,10 @@
 import PySimpleGUIQt as sg
 from numpy import linspace
-
 import globals
+
+"""
+This class contains the implementation of the UI windows (Buttons, Layous, Lables, etc.)
+"""
 
 
 def graphs_window_layout():
@@ -38,8 +41,8 @@ def graphs_window_layout():
                         sg.Text('      Y axis:', size=(20, 1), background_color="transparent",
                                 visible=True, key='y axis text', font=("Century Gothic", 16, 'bold'), text_color='red'),
                         sg.Combo(values=globals.methods_list, size=[300, 37], key='y axis', visible=True,
-                                   enable_events=True, readonly=True,
-                                   font=("Century Gothic", 12)),
+                                 enable_events=True, readonly=True,
+                                 font=("Century Gothic", 12)),
                     ],
                     [
                         sg.Text('      X axis:', size=(21, 1), background_color="transparent",
@@ -60,8 +63,9 @@ def graphs_window_layout():
                                    font=("Century Gothic", 12),
                                    select_mode=sg.SELECT_MODE_MULTIPLE),
                         sg.Text("", background_color="transparent", size=(12, 0)),
-                        sg.Listbox(values=globals.scenarios_list, size=[150, 100], key='scenarios listbox', visible=True,
-                                   enable_events=True,disabled=True,
+                        sg.Listbox(values=globals.scenarios_list, size=[150, 100], key='scenarios listbox',
+                                   visible=True,
+                                   enable_events=True, disabled=True,
                                    font=("Century Gothic", 12), select_mode=sg.SELECT_MODE_MULTIPLE),
                     ],
 

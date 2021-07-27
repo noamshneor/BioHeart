@@ -65,6 +65,7 @@ def flag_match_exec(par, parSIM, lst, col_name):  # flag_match(parECG, parSIM, l
 
 
 def check_filter_type(col_name):
+    """function that indicates which filter is selected in exceptions window"""
     if globals.filter_type == globals.Filter.NONE:
         return False
     if globals.filter_type == globals.Filter.BPM and col_name != "BPM":
@@ -142,6 +143,7 @@ def rr_time_match(parRR):
 
 
 def initial_list_of_existing_par():
+    """function that create a list of existing participants"""
     globals.list_of_existing_par = [*range(1, globals.par_num + 1)]
     copy_of_list_of_existing_par = [*range(1, globals.par_num + 1)]
     # print("begining: list of existing par")

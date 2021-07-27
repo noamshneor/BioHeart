@@ -10,7 +10,7 @@ class Filter(Enum):
     BOTH = 4
 
 
-filter_type = Filter.NONE  # ??????????????????????????????????????????????????
+filter_type = Filter.NONE  # indicates which type of filter exceptions is used
 
 scenario_num = 0  # Number of scenarios (input)
 scenario_col_num = 0  # Scenario column number in the simulator file (input)
@@ -28,7 +28,7 @@ current_par = 0  # Stores the current participant on which processing is perform
 current_ride = 0  # Stores the current ride on which processing is performed
 percent = 0  # Stores processing and loading percentages
 
-is_pkl = True  # ??????????????????????????????????????????????????
+is_pkl = True  # checking if the file type is pickle
 
 scenarios_list = []  # list of scenarios for Graph window
 rides_list = []  # list of rides for Graph window
@@ -74,4 +74,3 @@ data_quality_table = pandas.DataFrame(columns=header_data_quality)  # create emp
 methods_list = ["Average BPM", "RMSSD", "SDSD", "SDNN", "PNN50", "Subtraction BPM",
                 "Subtraction RMSSD", "Subtraction SDNN",
                 "Subtraction SDSD", "Subtraction PNN50"]
-

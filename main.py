@@ -75,7 +75,6 @@ def early_process():
                     filling_dq_table(listBPM_per_scenario, par, ride, group_list)
 
                     globals.percent += (1 / len(globals.list_of_existing_par)) / globals.par_ride_num
-                    # globals.current_ride += 1
                 if globals.current_par < len(globals.list_of_existing_par):
                     globals.current_par += 1  # עוברים על הקובץ השני בתיקית ecg וכך הלאה
         # print(globals.percent * 100)
@@ -85,7 +84,7 @@ def pickle_early_process():
     """
     A function that loads the files: summary table (pickle) and data quality (pickle)
     """
-    # מאתחלים את המשתנים של מסך הטעינה ל100 אחוז
+    # Initialize the load screen variables to 100%
     globals.current_ride = globals.par_ride_num
     globals.current_par = globals.par_num
     globals.percent = 100  # Displays in percentages for how many participants the final table data has been processed
@@ -101,8 +100,8 @@ def ui():
         open_window.bring_to_front()
         if event == "EXIT_OPEN" or event == sg.WIN_CLOSED:
             # End program if user closes window or presses the EXIT button
-            return False  # אפשר לעצור את הלולאה והחלון ייסגר
-        # הגבלת השדות לקבל אך ורק ספרות בין 0 ל9 ללא שום תווים אחרים
+            return False  # can stop the loop and the window will close
+        # Limit the fields to accept only digits between 0 and 9 without any other characters
         all_input_0_9(event, open_window, values)
         if event == 'Sync':
             sync_handle(open_window, values)
@@ -111,16 +110,16 @@ def ui():
             if (not values['par_num']) or (not values['scenario_num']) or (
                     not values['scenario_col_num']) or (
                     not values['Sync'] and (not values['sim_sync_time']) or (not values['biopac_sync_time'])):
-                # בדיקה האם אחד מ3 השדות לפחות לא מלא
+                # Check if at least one of the 3 fields is incomplete
                 sg.popup_quick_message('Please fill in all the fields', font=("Century Gothic", 14),
                                        background_color='red', location=(970, 880))
-            else:  # כולם מלאים
+            else:  # all fields are complete
                 if not values['Sync'] and ((values['sim_sync_time'] != "0") and (values['biopac_sync_time'] != "0")):
                     sg.popup_quick_message('At least one of the simulator/ECG fields must start from 0',
                                            font=("Century Gothic", 14), background_color='red', location=(970, 880),
                                            auto_close_duration=5)
                 else:
-                    # שמירת האינפוטים במשתנים
+                    # Keeping the inputs in variables
                     save_input_open_window(values)
                     initial_list_of_existing_par()
                     correct_open_window = True  # כל הפרטים במסך נכונים, אפשר להמשיך למסך הבא
@@ -186,7 +185,7 @@ def ui():
 
                     break
                 if correct_optional_window:
-                    # -------------------------------------------- Path Load Windows --------------------------------------------
+                    # ------------------------------------- Path Load Windows ----------------------------------
                     path_load_window.un_hide()
                     optional_window.hide()
                     initial_tree(path_load_window['-TREE-'], "")
@@ -230,7 +229,7 @@ def ui():
                             if is_newload:
                                 exceptions_values_window.un_hide()
                                 # אם החלון נסגר והכל היה תקין, אפשר להמשיך לחלון הבא
-                                # ------------------------------------------- EXCEPTIONS VALUES Window ---------------------------------
+                                # ------------------------------ EXCEPTIONS VALUES Window -------------------------
                                 while True:
                                     event8, values8 = exceptions_values_window.read()
                                     if event8 == sg.WIN_CLOSED:
