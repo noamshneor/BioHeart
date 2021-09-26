@@ -11,7 +11,7 @@ BioHeart software was built as part of the degree's final project.
 
 # Software Architecture
 ![image](https://user-images.githubusercontent.com/80900890/134816675-b8eb2902-6059-4147-990c-f947c59ac5c0.png)
-<p>The system is made up of three main components:</p>
+<p>The system consists of three main components:</p>
 <p>• <b>User Interface:</b> The component that contains all the visual objects that are displayed to the user. The programming part of the user interface contains the settings of all the visual objects - the design of the windows, buttons, tables, graphs, etc. The component is also responsible for the transition between the various windows.</p>
 <p>• <b>Logic layer:</b> Responsible for managing and processing the data entered by the user, and serves as a connecting layer between the data layer and the user interface layer. In this layer all the tests on the user input, processing the user input, and transferring the relevant data to the data layer will be performed. The layer is also responsible for transferring the processed data from the data layer in appropriate data structures to the user interface layer.</p>
 <p>• <b>The data layer:</b> is responsible for the central processing of heart rate data. Calculation of the means and parameters according to predetermined mathematical formulas, according to the experimental data obtained from the logic layer.</p>
